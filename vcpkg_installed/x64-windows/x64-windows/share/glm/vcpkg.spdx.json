@@ -1,0 +1,132 @@
+{
+  "$schema": "https://raw.githubusercontent.com/spdx/spdx-spec/v2.2.1/schemas/spdx-schema.json",
+  "spdxVersion": "SPDX-2.2",
+  "dataLicense": "CC0-1.0",
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "documentNamespace": "https://spdx.org/spdxdocs/glm-x64-windows-1.0.1#2-f6aaafc7-1598-463d-b945-a3e78ec452e9",
+  "name": "glm:x64-windows@1.0.1#2 5612a8f624b600db982bcf928d7611691f3d80e5a838ebcb89a85a0aa9e8c2f7",
+  "creationInfo": {
+    "creators": [
+      "Tool: vcpkg-2024-06-10-02590c430e4ed9215d27870138c2e579cc338772"
+    ],
+    "created": "2024-09-14T03:00:07Z"
+  },
+  "relationships": [
+    {
+      "spdxElementId": "SPDXRef-port",
+      "relationshipType": "GENERATES",
+      "relatedSpdxElement": "SPDXRef-binary"
+    },
+    {
+      "spdxElementId": "SPDXRef-port",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-file-0"
+    },
+    {
+      "spdxElementId": "SPDXRef-port",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-file-1"
+    },
+    {
+      "spdxElementId": "SPDXRef-port",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-file-2"
+    },
+    {
+      "spdxElementId": "SPDXRef-binary",
+      "relationshipType": "GENERATED_FROM",
+      "relatedSpdxElement": "SPDXRef-port"
+    },
+    {
+      "spdxElementId": "SPDXRef-file-0",
+      "relationshipType": "CONTAINED_BY",
+      "relatedSpdxElement": "SPDXRef-port"
+    },
+    {
+      "spdxElementId": "SPDXRef-file-1",
+      "relationshipType": "CONTAINED_BY",
+      "relatedSpdxElement": "SPDXRef-port"
+    },
+    {
+      "spdxElementId": "SPDXRef-file-2",
+      "relationshipType": "CONTAINED_BY",
+      "relatedSpdxElement": "SPDXRef-port"
+    }
+  ],
+  "packages": [
+    {
+      "name": "glm",
+      "SPDXID": "SPDXRef-port",
+      "versionInfo": "1.0.1#2",
+      "downloadLocation": "git+https://github.com/microsoft/vcpkg@9f323014ca30e742823ae0d6e1a47243000774c1",
+      "homepage": "https://glm.g-truc.net",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "description": "OpenGL Mathematics (GLM)",
+      "comment": "This is the port (recipe) consumed by vcpkg."
+    },
+    {
+      "name": "glm:x64-windows",
+      "SPDXID": "SPDXRef-binary",
+      "versionInfo": "5612a8f624b600db982bcf928d7611691f3d80e5a838ebcb89a85a0aa9e8c2f7",
+      "downloadLocation": "NONE",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "comment": "This is a binary package built by vcpkg."
+    },
+    {
+      "SPDXID": "SPDXRef-resource-1",
+      "name": "g-truc/glm",
+      "downloadLocation": "git+https://github.com/g-truc/glm@1.0.1",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "checksums": [
+        {
+          "algorithm": "SHA512",
+          "checksumValue": "c6c6fa1ea7a7e97820e36ee042a78be248ae828c99c1b1111080d9bf334a5160c9993a70312351c92a867cd49907c95f9f357c8dfe2bc29946da6e83e27ba20c"
+        }
+      ]
+    }
+  ],
+  "files": [
+    {
+      "fileName": "./C:/Users/GODDIDIDIIDID/AppData/Local/vcpkg/registries/git-trees/9f323014ca30e742823ae0d6e1a47243000774c1/portfile.cmake",
+      "SPDXID": "SPDXRef-file-0",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "d9c1a2ab432b755b87fa26b8ad5a4d9dc73bafde6daff3598482ce7deccc4311"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./C:/Users/GODDIDIDIIDID/AppData/Local/vcpkg/registries/git-trees/9f323014ca30e742823ae0d6e1a47243000774c1/usage",
+      "SPDXID": "SPDXRef-file-1",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "2e9da7655db7eb2a2b58bb857e20ddfb46c0483235d2c868e819f72d10b18287"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./C:/Users/GODDIDIDIIDID/AppData/Local/vcpkg/registries/git-trees/9f323014ca30e742823ae0d6e1a47243000774c1/vcpkg.json",
+      "SPDXID": "SPDXRef-file-2",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "aa656ecfdcca7c3f8cebb64301a20648189fe576ac869a95161bb78a9790148c"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    }
+  ]
+}
