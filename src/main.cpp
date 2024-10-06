@@ -1,10 +1,10 @@
 #include <glad/glad.h>
-
 #include <GLFW/glfw3.h>
 
 #include "camera.h"
-#include "window.h"
+#include "log.h"
 #include "num.h"
+#include "window.h"
 
 #define CHUNK_WIDTH 16
 #define CHUNK_HEIGHT 512
@@ -13,19 +13,21 @@
 #define LEVEL_CHUNKS_SIZE 32
 
 int main() {
-  Window window(640, 480, "Eon's Edge");
+	Eon::Log::Init();
 
-  Camera cam(70, 8, window);
+	Eon::Window window(640, 480, "Eon's Edge");
 
-  while (!window.ShouldClose()) {
-    cam.Update(1);
+	Eon::Camera cam(70, 8, window);
 
-    glClear(GL_COLOR_BUFFER_BIT);
+	while (!window.ShouldClose()) {
+		cam.Update(1);
 
-    window.SwapBuffers();
+		glClear(GL_COLOR_BUFFER_BIT);
 
-    window.PollEvents();
-  }
+		window.SwapBuffers();
 
-  return 0;
+		window.PollEvents();
+	}
+
+	return 0;
 }

@@ -6,10 +6,12 @@
 
 #include "chunk_renderer.h"
 
-class LevelRenderer {
- public:
-  LevelRenderer();
+namespace Eon {
+	class LevelRenderer {
+	public:
+		LevelRenderer();
 
- private:
-  std::vector<std::shared_ptr<ChunkRenderer>> chunk_renderers;
-};
+	private:
+		std::vector<std::shared_ptr<ChunkRenderer>> chunk_renderers;
+	};
+}  // namespace Eon

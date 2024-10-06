@@ -1,5 +1,5 @@
 #include "level_renderer.h"
 
-LevelRenderer::LevelRenderer() {
-  
-}
+namespace Eon {
+	LevelRenderer::LevelRenderer() {}
+}  // namespace Eon

@@ -3,14 +3,16 @@
 #include "block.h"
 #include "chunk_position.h"
 
-class Chunk {
- public:
-  Chunk(ChunkPosition chunkPosition);
-  Block* GetBlock(u8 x, u16 y, u8 z);
-  ChunkPosition Position() const;
+namespace Eon {
+	class Chunk {
+	public:
+		Chunk(ChunkPosition chunkPosition);
+		Block* GetBlock(u8 x, u16 y, u8 z);
+		ChunkPosition Position() const;
 
- private:
-  u32 IndexFromPosition(u8 x, u16 y, u8 z);
-  ChunkPosition position;
-  Block blocks[131072];
-};
+	private:
+		u32 IndexFromPosition(u8 x, u16 y, u8 z);
+		ChunkPosition position;
+		Block blocks[131072];
+	};
+}  // namespace Eon

@@ -1,7 +1,8 @@
 {
   "dependencies": [
-    "glm",
+    "glad",
     "glfw3",
-    "glad"
+    "glm",
+    "spdlog"
   ]
 }

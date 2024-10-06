@@ -7,11 +7,14 @@
 #include "chunk_position.h"
 #include "num.h"
 
-class Level {
-  Chunk* GetChunk(ChunkPosition position);
-  Block* GetBlock(u16 x, u16 y, u16 z);
+namespace Eon {
+	class Level
+	{
+		Chunk* GetChunk(ChunkPosition position);
+		Block* GetBlock(u16 x, u16 y, u16 z);
 
- private:
-  std::array<Chunk*, 1024> chunks;
-  u32 IndexFromPosition(u16 x, u16 z);
-};
+	private:
+		std::array<Chunk*, 1024> chunks;
+		u32 IndexFromPosition(u16 x, u16 z);
+	};
+} // namespace Eon
