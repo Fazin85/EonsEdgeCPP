@@ -4,6 +4,7 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <string>
+#include <cmath>
 
 namespace Eon {
 	Camera::Camera(float fov, float sensitivity, Window& win) : window(win) {
@@ -64,9 +65,9 @@ namespace Eon {
 			pitch = 0;
 		}
 
-		front[0] = cosf(glm::radians(pitch)) * cosf(glm::radians(yaw));
-		front[1] = sinf(glm::radians(pitch));
-		front[2] = cosf(glm::radians(pitch)) * sinf(glm::radians(yaw));
+		front[0] = std::cosf(glm::radians(pitch)) * cosf(glm::radians(yaw));
+		front[1] = std::sinf(glm::radians(pitch));
+		front[2] = std::cosf(glm::radians(pitch)) * sinf(glm::radians(yaw));
 
 		front = glm::normalize(front);
 

@@ -12,14 +12,16 @@
 // levels are 512 blocks in all dimensions
 #define LEVEL_CHUNKS_SIZE 32
 
-int main() {
+int main()
+{
 	Eon::Log::Init();
 
 	Eon::Window window(640, 480, "Eon's Edge");
 
 	Eon::Camera cam(70, 8, window);
 
-	while (!window.ShouldClose()) {
+	while (!window.ShouldClose())
+	{
 		cam.Update(1);
 
 		glClear(GL_COLOR_BUFFER_BIT);

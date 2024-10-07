@@ -123,6 +123,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -152,6 +153,7 @@
     <ClInclude Include="src\chunk.h" />
     <ClInclude Include="src\chunk_position.h" />
     <ClInclude Include="src\chunk_renderer.h" />
+    <ClInclude Include="src\directions.h" />
     <ClInclude Include="src\index_buffer_object.h" />
     <ClInclude Include="src\level.h" />
     <ClInclude Include="src\log.h" />

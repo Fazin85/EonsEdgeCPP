@@ -2,8 +2,10 @@
 
 #include <glad/glad.h>
 
-namespace Eon {
-	void VertexBufferObject::Init(std::vector<u32>& data) {
+namespace Eon
+{
+	void VertexBufferObject::Init(std::vector<u32>& data)
+	{
 		glGenBuffers(1, &id);
 
 		glBindBuffer(GL_ARRAY_BUFFER, id);

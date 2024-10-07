@@ -3,8 +3,10 @@
 #include "num.h"
 #include "vertex_buffer_object.h"
 
-namespace Eon {
-	class VertexArrayObject {
+namespace Eon
+{
+	class VertexArrayObject
+	{
 	public:
 		void Init();
 		void Link(int location, int size, VertexBufferObject& vbo, u32 type,

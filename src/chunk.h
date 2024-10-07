@@ -3,8 +3,10 @@
 #include "block.h"
 #include "chunk_position.h"
 
-namespace Eon {
-	class Chunk {
+namespace Eon
+{
+	class Chunk
+	{
 	public:
 		Chunk(ChunkPosition chunkPosition);
 		Block* GetBlock(u8 x, u16 y, u8 z);

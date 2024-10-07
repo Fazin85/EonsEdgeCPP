@@ -6,12 +6,16 @@
 #include "chunk.h"
 #include "chunk_position.h"
 #include "num.h"
+#include <glm/vec3.hpp>
 
-namespace Eon {
+namespace Eon
+{
 	class Level
 	{
+	public:
 		Chunk* GetChunk(ChunkPosition position);
 		Block* GetBlock(u16 x, u16 y, u16 z);
+		Block* GetBlock(glm::ivec3 position);
 
 	private:
 		std::array<Chunk*, 1024> chunks;

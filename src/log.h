@@ -3,7 +3,8 @@
 #include <memory>
 #include <spdlog/spdlog.h>
 
-namespace Eon {
+namespace Eon
+{
 
 	class Log
 	{

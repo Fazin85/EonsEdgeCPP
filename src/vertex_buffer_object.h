@@ -4,8 +4,10 @@
 
 #include "num.h"
 
-namespace Eon {
-	class VertexBufferObject {
+namespace Eon
+{
+	class VertexBufferObject
+	{
 	public:
 		void Init(std::vector<u32>& data);
 		void Bind() const;

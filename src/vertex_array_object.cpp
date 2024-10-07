@@ -2,21 +2,26 @@
 
 #include "glad/glad.h"
 
-namespace Eon {
-	void VertexArrayObject::Init() {
+namespace Eon
+{
+	void VertexArrayObject::Init()
+	{
 		glGenVertexArrays(1, &id);
 
 		initialized = true;
 	}
 
 	void VertexArrayObject::Link(int location, int size, VertexBufferObject& vbo,
-		u32 type, bool integer) {
+		u32 type, bool integer)
+	{
 		Bind();
 		vbo.Bind();
-		if (integer) {
+		if (integer)
+		{
 			glVertexAttribIPointer(location, size, type, 0, 0);
 		}
-		else {
+		else
+		{
 			glVertexAttribPointer(location, size, type, false, 0, 0);
 		}
 		glEnableVertexAttribArray(location);
@@ -27,7 +32,8 @@ namespace Eon {
 
 	void VertexArrayObject::Unbind() { glBindVertexArray(0); }
 
-	void VertexArrayObject::Destroy() {
+	void VertexArrayObject::Destroy()
+	{
 		glDeleteVertexArrays(1, &id);
 		initialized = false;
 	}

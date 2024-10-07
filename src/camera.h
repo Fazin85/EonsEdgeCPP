@@ -5,8 +5,10 @@
 
 #include "window.h"
 
-namespace Eon {
-	class Camera {
+namespace Eon
+{
+	class Camera
+	{
 	public:
 		Camera(float fov, float sensitivity, Window& window);
 		void CalculateViewMatrix(glm::vec3 position);
