@@ -1,5 +1,6 @@
 #include "level_renderer.h"
 #include "log.h"
+#include "block_texture.h"
 
 namespace Eon
 {
@@ -44,7 +45,7 @@ namespace Eon
 	void LevelRenderer::BuildChunkMesh(Chunk* chunk)
 	{
 		glm::ivec3 chunkPosition(chunk->Position().x, 0, chunk->Position().z);
-		std::vector<glm::ivec3> vertexData;
+		ChunkMeshData meshData{};
 
 		for (int x = 0; x < 16; x++)
 		{
@@ -62,7 +63,7 @@ namespace Eon
 						break;
 					}
 
-					if (block->type == 0)
+					if (block->type == BlockType::AIR)
 					{
 						continue;
 					}
@@ -73,7 +74,7 @@ namespace Eon
 					{
 						if (chunk->GetBlock(sidePosition.x, sidePosition.y, sidePosition.z) == 0)
 						{
-							AddFace(vertexData, position, block->type, dir);
+							AddFace(meshData, position, block->type, dir);
 							numFaces++;
 						}
 					}
@@ -82,9 +83,9 @@ namespace Eon
 						Block* sideBlock = level->GetBlock(chunkPosition + sidePosition);
 						if (sideBlock != nullptr)
 						{
-							if (sideBlock->type == 0)
+							if (sideBlock->type == BlockType::AIR)
 							{
-								AddFace(vertexData, position, block->type, dir);
+								AddFace(meshData, position, block->type, dir);
 								numFaces++;
 							}
 						}
@@ -98,7 +99,7 @@ namespace Eon
 					{
 						if (chunk->GetBlock(sidePosition.x, sidePosition.y, sidePosition.z) == 0)
 						{
-							AddFace(vertexData, position, block->type, dir);
+							AddFace(meshData, position, block->type, dir);
 							numFaces++;
 						}
 					}
@@ -107,9 +108,9 @@ namespace Eon
 						Block* sideBlock = level->GetBlock(chunkPosition + sidePosition);
 						if (sideBlock != nullptr)
 						{
-							if (sideBlock->type == 0)
+							if (sideBlock->type == BlockType::AIR)
 							{
-								AddFace(vertexData, position, block->type, dir);
+								AddFace(meshData, position, block->type, dir);
 								numFaces++;
 							}
 						}
@@ -123,7 +124,7 @@ namespace Eon
 					{
 						if (chunk->GetBlock(sidePosition.x, sidePosition.y, sidePosition.z) == 0)
 						{
-							AddFace(vertexData, position, block->type, dir);
+							AddFace(meshData, position, block->type, dir);
 							numFaces++;
 						}
 					}
@@ -132,9 +133,9 @@ namespace Eon
 						Block* sideBlock = level->GetBlock(chunkPosition + sidePosition);
 						if (sideBlock != nullptr)
 						{
-							if (sideBlock->type == 0)
+							if (sideBlock->type == BlockType::AIR)
 							{
-								AddFace(vertexData, position, block->type, dir);
+								AddFace(meshData, position, block->type, dir);
 								numFaces++;
 							}
 						}
@@ -148,7 +149,7 @@ namespace Eon
 					{
 						if (chunk->GetBlock(sidePosition.x, sidePosition.y, sidePosition.z) == 0)
 						{
-							AddFace(vertexData, position, block->type, dir);
+							AddFace(meshData, position, block->type, dir);
 							numFaces++;
 						}
 					}
@@ -157,9 +158,9 @@ namespace Eon
 						Block* sideBlock = level->GetBlock(chunkPosition + sidePosition);
 						if (sideBlock != nullptr)
 						{
-							if (sideBlock->type == 0)
+							if (sideBlock->type == BlockType::AIR)
 							{
-								AddFace(vertexData, position, block->type, dir);
+								AddFace(meshData, position, block->type, dir);
 								numFaces++;
 							}
 						}
@@ -173,7 +174,7 @@ namespace Eon
 					{
 						if (chunk->GetBlock(sidePosition.x, sidePosition.y, sidePosition.z) == 0)
 						{
-							AddFace(vertexData, position, block->type, dir);
+							AddFace(meshData, position, block->type, dir);
 							numFaces++;
 						}
 					}
@@ -182,9 +183,9 @@ namespace Eon
 						Block* sideBlock = level->GetBlock(chunkPosition + sidePosition);
 						if (sideBlock != nullptr)
 						{
-							if (sideBlock->type == 0)
+							if (sideBlock->type == BlockType::AIR)
 							{
-								AddFace(vertexData, position, block->type, dir);
+								AddFace(meshData, position, block->type, dir);
 								numFaces++;
 							}
 						}
@@ -198,7 +199,7 @@ namespace Eon
 					{
 						if (chunk->GetBlock(sidePosition.x, sidePosition.y, sidePosition.z) == 0)
 						{
-							AddFace(vertexData, position, block->type, dir);
+							AddFace(meshData, position, block->type, dir);
 							numFaces++;
 						}
 					}
@@ -207,19 +208,25 @@ namespace Eon
 						Block* sideBlock = level->GetBlock(chunkPosition + sidePosition);
 						if (sideBlock != nullptr)
 						{
-							if (sideBlock->type == 0)
+							if (sideBlock->type == BlockType::AIR)
 							{
-								AddFace(vertexData, position, block->type, dir);
+								AddFace(meshData, position, block->type, dir);
 								numFaces++;
 							}
 						}
 					}
+
+					AddIndices(meshData, numFaces);
 				}
 			}
 		}
+
+		std::lock_guard<std::mutex> lock(add_mesh_mutex);
+
+		this->chunk_renderers.emplace_back(std::make_shared<ChunkRenderer>(chunk, meshData));
 	}
 
-	void LevelRenderer::AddFace(std::vector<glm::ivec3>& vertexData, const glm::ivec3& blockPosition, u8 blockId, Directions direction)
+	void LevelRenderer::AddFace(ChunkMeshData& meshData, const glm::ivec3& blockPosition, BlockType blockType, Directions direction)
 	{
 		std::array<u8, 12> faceData = GetFaceDataFromDirection(direction);
 
@@ -230,12 +237,71 @@ namespace Eon
 			int y = faceData[index++] + blockPosition.y;
 			int z = faceData[index++] + blockPosition.z;
 
-			vertexData.emplace_back(x, y, z);
+			meshData.vertexPositions.emplace_back(x, y, z);
+			meshData.directions.push_back(static_cast<u8>(direction));
+		}
+
+		auto blockUVs = BlockTexture::GetUVCoordsFromBlockID(blockType);
+		auto realUVs = GetUVsFromCoordinates(blockUVs);
+
+		for (const glm::vec2 uv : realUVs[direction])
+		{
+			meshData.uvs.push_back(uv);
 		}
 	}
 
 	std::array<u8, 12> LevelRenderer::GetFaceDataFromDirection(Directions dir)
 	{
-		return std::array<u8, 12>();
+		switch (dir)
+		{
+		case Directions::Front:
+			return std::array<u8, 12>({ 0, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1 });
+		case Directions::Back:
+			return std::array<u8, 12>({ 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0 });
+		case Directions::Left:
+			return std::array<u8, 12>({ 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0 });
+		case Directions::Right:
+			return std::array<u8, 12>({ 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 1, 1 });
+		case Directions::Top:
+			return std::array<u8, 12>({ 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0 });
+		case Directions::Bottom:
+			return std::array<u8, 12>({ 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1 });
+		}
+
+		return {};
+	}
+
+	const std::map<Directions, std::vector<glm::vec2>> LevelRenderer::GetUVsFromCoordinates(std::map<const Directions, const glm::vec2>& coords)
+	{
+		std::map<Directions, std::vector<glm::vec2>> faceData;
+		constexpr int TEX_SIZE = 16;
+
+		for (const auto& faceCoord : coords)
+		{
+			faceData[faceCoord.first] =
+			{
+				glm::vec2((faceCoord.second.x + 1) / TEX_SIZE, (faceCoord.second.y + 1) / TEX_SIZE),
+				glm::vec2(faceCoord.second.x / TEX_SIZE, (faceCoord.second.y + 1) / TEX_SIZE),
+				glm::vec2(faceCoord.second.x / TEX_SIZE, faceCoord.second.y / TEX_SIZE),
+				glm::vec2((faceCoord.second.x + 1) / TEX_SIZE, faceCoord.second.y / TEX_SIZE)
+			};
+		}
+
+		return faceData;
+	}
+
+	void LevelRenderer::AddIndices(ChunkMeshData& meshData, int count)
+	{
+		for (int i = 0; i < count; i++)
+		{
+			meshData.indices.push_back(meshData.index_count);
+			meshData.indices.push_back(meshData.index_count + 1);
+			meshData.indices.push_back(meshData.index_count + 2);
+			meshData.indices.push_back(meshData.index_count + 2);
+			meshData.indices.push_back(meshData.index_count + 3);
+			meshData.indices.push_back(meshData.index_count);
+
+			meshData.index_count += 4;
+		}
 	}
 }  // namespace Eon

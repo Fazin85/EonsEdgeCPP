@@ -7,17 +7,15 @@
 #include "num.h"
 #include "vertex_array_object.h"
 #include "vertex_buffer_object.h"
+#include "chunk_mesh_data.h"
 
 namespace Eon {
 	class Chunk;
 
 	class ChunkRenderer {
 	public:
-		ChunkRenderer(Chunk* chunk, std::vector<glm::vec3>& vertexPosition,
-			const std::vector<glm::vec2>& uvs,
-			const std::vector<u32>& indices,
-			const std::vector<u8>& directions,
-			const std::vector<u8>& light);
+		ChunkRenderer(Chunk* chunk, ChunkMeshData& meshData);
+		~ChunkRenderer();
 		Chunk* chunk;
 		void SetWaterMesh(ChunkRenderer* waterMesh);
 		void Render();

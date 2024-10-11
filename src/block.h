@@ -2,9 +2,21 @@
 
 #include "num.h"
 
-namespace Eon {
-	struct Block {
-		u8 type;
+namespace Eon
+{
+	enum class BlockType : u8
+	{
+		AIR,
+		STONE,
+		GRASS,
+		DIRT,
+		WATER,
+		SAND
+	};
+
+	struct Block
+	{
+		BlockType type;
 		u8 light;
 	};
 }  // namespace Eon

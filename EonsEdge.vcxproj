@@ -133,6 +133,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\block_texture.cpp" />
     <ClCompile Include="src\camera.cpp" />
     <ClCompile Include="src\chunk.cpp" />
     <ClCompile Include="src\chunk_renderer.cpp" />
@@ -149,8 +150,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\block.h" />
+    <ClInclude Include="src\block_texture.h" />
     <ClInclude Include="src\camera.h" />
     <ClInclude Include="src\chunk.h" />
+    <ClInclude Include="src\chunk_mesh_data.h" />
     <ClInclude Include="src\chunk_position.h" />
     <ClInclude Include="src\chunk_renderer.h" />
     <ClInclude Include="src\directions.h" />
