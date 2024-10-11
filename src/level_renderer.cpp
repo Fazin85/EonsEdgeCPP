@@ -22,6 +22,17 @@ namespace Eon
 		chunk_push_mutex.unlock();
 	}
 
+	void LevelRenderer::RemoveMesh(ChunkPosition chunkPosition)
+	{
+		for (int i = 0; i < chunk_renderers.size(); i++)
+		{
+			if (chunk_renderers.contains(chunkPosition))
+			{
+				chunk_renderers.erase(chunkPosition);
+			}
+		}
+	}
+
 	void LevelRenderer::MeshThread()
 	{
 		while (true)
@@ -223,7 +234,12 @@ namespace Eon
 
 		std::lock_guard<std::mutex> lock(add_mesh_mutex);
 
-		this->chunk_renderers.emplace_back(std::make_shared<ChunkRenderer>(chunk, meshData));
+		if (chunk_renderers.contains(chunk->Position()))
+		{
+			chunk_renderers.erase(chunk->Position());
+		}
+
+		chunk_renderers[chunk->Position()] = std::make_unique<ChunkRenderer>(chunk, meshData);
 	}
 
 	void LevelRenderer::AddFace(ChunkMeshData& meshData, const glm::ivec3& blockPosition, BlockType blockType, Directions direction)

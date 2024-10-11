@@ -8,6 +8,7 @@
 
 #include "chunk.h"
 #include <map>
+#include <unordered_map>
 
 #include "chunk_renderer.h"
 #include "level.h"
@@ -22,6 +23,7 @@ namespace Eon
 		LevelRenderer();
 		void SetLevel(Level* level);
 		void MeshChunk(Chunk* chunk);
+		void RemoveMesh(ChunkPosition chunkPosition);
 
 	private:
 		void BuildChunkMesh(Chunk* chunk);
@@ -37,6 +39,6 @@ namespace Eon
 		std::thread mesh_thread;
 		std::queue<Chunk*> chunks_to_mesh;
 		Level* level;
-		std::vector<std::shared_ptr<ChunkRenderer>> chunk_renderers;
+		std::unordered_map<ChunkPosition, std::unique_ptr<ChunkRenderer>> chunk_renderers;
 	};
 }  // namespace Eon
