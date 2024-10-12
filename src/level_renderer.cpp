@@ -26,9 +26,7 @@ namespace Eon
 
 	void LevelRenderer::MeshChunk(Chunk* chunk)
 	{
-		chunk_push_mutex.lock();
-		chunks_to_mesh.push(chunk);
-		chunk_push_mutex.unlock();
+		chunks_to_mesh.enqueue(chunk);
 	}
 
 	void LevelRenderer::RemoveMesh(ChunkPosition chunkPosition)
@@ -44,14 +42,10 @@ namespace Eon
 
 	void LevelRenderer::Update()
 	{
-		chunk_push_mutex.lock();
+		ChunkPosition position;
 
-		if (meshes_to_setup.size() > 0)
+		if (meshes_to_setup.try_dequeue(position))
 		{
-			ChunkPosition position = meshes_to_setup.front();
-			meshes_to_setup.pop();
-			chunk_push_mutex.unlock();
-
 			if (!chunk_renderers.contains(position))
 			{
 				EON_ERROR("POWPDOAW");
@@ -61,36 +55,17 @@ namespace Eon
 				chunk_renderers[position]->Setup();
 			}
 		}
-		else
-		{
-			chunk_push_mutex.unlock();
-		}
-	}
-
-	std::queue<ChunkPosition>& LevelRenderer::MeshesToSetup()
-	{
-		return meshes_to_setup;
 	}
 
 	void LevelRenderer::MeshThread()
 	{
 		while (!exit)
 		{
-			chunk_pop_mutex.lock();
-			if (chunks_to_mesh.size() > 0)
+			Chunk* chunk = nullptr;
+			if (chunks_to_mesh.try_dequeue(chunk))
 			{
-				Chunk* chunk = chunks_to_mesh.front();
-				chunks_to_mesh.pop();
-				chunk_pop_mutex.unlock();
-
 				BuildChunkMesh(chunk);
 			}
-			else
-			{
-				chunk_pop_mutex.unlock();
-			}
-
-			EON_INFO("hello from mesh thread!");
 
 			std::this_thread::sleep_for(std::chrono::milliseconds(16));
 		}
@@ -275,11 +250,7 @@ namespace Eon
 			}
 		}
 
-		chunk_push_mutex.lock();
-		meshes_to_setup.push(chunk->Position());
-		chunk_push_mutex.unlock();
-
-		add_mesh_mutex.lock();
+		meshes_to_setup.enqueue(chunk->Position());
 
 		if (chunk_renderers.contains(chunk->Position()))
 		{
@@ -287,8 +258,6 @@ namespace Eon
 		}
 
 		chunk_renderers[chunk->Position()] = std::make_unique<ChunkRenderer>(chunk, meshData);
-
-		add_mesh_mutex.unlock();
 	}
 
 	void LevelRenderer::AddFace(ChunkMeshData& meshData, const glm::ivec3& blockPosition, BlockType blockType, Directions direction)

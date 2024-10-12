@@ -23,7 +23,7 @@ int main()
 
 	Eon::Camera cam(70, 8, window);
 
-	Eon::LevelRenderer* levelRenderer = new Eon::LevelRenderer();
+	auto levelRenderer = std::make_unique<Eon::LevelRenderer>();
 
 	EON_INFO("started successfully");
 
@@ -50,8 +50,6 @@ int main()
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(6));
 	}
-
-	delete levelRenderer;
 
 	return 0;
 }

@@ -3,6 +3,8 @@
     "glad",
     "glfw3",
     "glm",
-    "spdlog"
+    "parallel-hashmap",
+    "spdlog",
+    "concurrentqueue"
   ]
 }
