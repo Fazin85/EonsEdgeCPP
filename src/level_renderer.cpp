@@ -72,8 +72,6 @@ namespace Eon
 
 	void LevelRenderer::Render(Player& player)
 	{
-		chunk_texture->Bind();
-
 		if (level == nullptr)
 		{
 			return;
@@ -83,6 +81,8 @@ namespace Eon
 
 		glm::vec4 skyColor = level->SkyColor();
 		glClearColor(skyColor.x, skyColor.y, skyColor.z, skyColor.w);
+
+		chunk_texture->Bind();
 
 		chunk_shader->Bind();
 		chunk_shader->UniformFVec4("fog_color", level->SkyColor());

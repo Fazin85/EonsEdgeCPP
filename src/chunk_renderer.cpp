@@ -14,6 +14,7 @@ namespace Eon
 		this->setup = false;
 		indices = meshData.indices;
 		this->water_mesh = nullptr;
+		ibo = IndexBufferObject();
 
 		vertex_position_data.reserve(meshData.vertexPositions.size());
 		dir_light_data.reserve(meshData.vertexPositions.size());

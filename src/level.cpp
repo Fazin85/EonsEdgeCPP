@@ -21,7 +21,6 @@ namespace Eon
 
 	std::optional<Chunk*> Level::GetChunk(ChunkPosition position)
 	{
-		// TODO: insert return statement here
 		u32 index = IndexFromPosition(position.x, position.z);
 
 		if (index >= 1024 || index < 0 || chunks[index] == nullptr)

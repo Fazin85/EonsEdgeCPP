@@ -84,9 +84,7 @@ namespace Eon
 
 		front = glm::normalize(front);
 
-		glm::vec3 unitY{ 0 };
-		unitY[1] = 1;
-		right = glm::normalize(glm::cross(front, unitY));
+		right = glm::normalize(glm::cross(front, glm::vec3(0, 1, 0)));
 
 		up = glm::normalize(glm::cross(right, front));
 	}
