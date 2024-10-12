@@ -86,14 +86,14 @@ namespace Eon
 
 		chunk_shader->Bind();
 		chunk_shader->UniformFVec4("fog_color", level->SkyColor());
-		player.GetCamera().CalculateViewMatrix(player.Position());
+		player.GetCamera().CalculateViewMatrix(glm::vec3(0, 0, 0));
 		chunk_shader->UniformMatrix4("view", player.GetCamera().ViewMatrix());
 		chunk_shader->UniformMatrix4("projection", player.GetCamera().ProjectionMatrix());
 		chunk_shader->UniformFVec3("camPos", player.Position());
 
 		for (const auto& [chunkPosition, chunkRenderer] : chunk_renderers)
 		{
-			chunk_shader->UniformIVec3("chunkPos", glm::ivec3(chunkPosition.x, 0, chunkPosition.z));
+			chunk_shader->UniformIVec3("chunkPos", glm::ivec3(chunkPosition.x * 16, 0, chunkPosition.z * 16));
 
 			chunkRenderer->Render();
 		}

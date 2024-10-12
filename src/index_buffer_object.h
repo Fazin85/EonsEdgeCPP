@@ -4,8 +4,11 @@
 
 #include "num.h"
 
-namespace Eon {
-	class IndexBufferObject {
+namespace Eon
+{
+	class IndexBufferObject
+	{
+	public:
 		void Init(std::vector<u32>& data);
 		void Bind() const;
 		void Unbind();

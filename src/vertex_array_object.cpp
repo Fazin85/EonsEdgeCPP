@@ -22,7 +22,7 @@ namespace Eon
 		}
 		else
 		{
-			glVertexAttribPointer(location, size, type, false, 0, 0);
+			glVertexAttribPointer(location, size, type, false, 0, nullptr);
 		}
 		glEnableVertexAttribArray(location);
 		Unbind();

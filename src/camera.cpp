@@ -68,7 +68,7 @@ namespace Eon
 			pitch = -89.0f;
 		}
 
-		if (yaw > 360)
+		/*if (yaw > 360)
 		{
 			yaw = 0;
 		}
@@ -76,7 +76,7 @@ namespace Eon
 		if (pitch > 360)
 		{
 			pitch = 0;
-		}
+		}*/
 
 		front[0] = std::cosf(glm::radians(pitch)) * cosf(glm::radians(yaw));
 		front[1] = std::sinf(glm::radians(pitch));

@@ -7,30 +7,32 @@
 #include "num.h"
 #include "vertex_array_object.h"
 #include "vertex_buffer_object.h"
+#include "index_buffer_object.h"
 #include "chunk_mesh_data.h"
 
-namespace Eon {
+namespace Eon
+{
 	class Chunk;
 
-	class ChunkRenderer {
+	class ChunkRenderer
+	{
 	public:
 		ChunkRenderer(Chunk* chunk, ChunkMeshData& meshData);
 		~ChunkRenderer();
-		Chunk* chunk;
 		void SetWaterMesh(ChunkRenderer* waterMesh);
 		void Render();
 		void Setup();
 		void Destroy();
 
 	private:
-		bool ready;
 		bool setup;
+		Chunk* chunk;
 		std::vector<u32> vertex_position_data;
 		std::vector<u32> dir_light_data;
 		std::vector<u32> indices;
 		ChunkRenderer* water_mesh;
 		VertexArrayObject vao;
-		VertexBufferObject ibo;
+		IndexBufferObject ibo;
 		VertexBufferObject vertex_position_vbo;
 		VertexBufferObject dir_light_vbo;
 	};

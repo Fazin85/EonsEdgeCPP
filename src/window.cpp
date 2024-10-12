@@ -27,6 +27,8 @@ namespace Eon
 		glfwMakeContextCurrent(window);
 
 		gladLoadGL();
+
+		glViewport(0, 0, width, height);
 	}
 
 	void Window::Destroy() { glfwTerminate(); }

@@ -12,7 +12,7 @@ namespace Eon
 	{
 		this->chunk = chunk;
 		this->setup = false;
-		this->indices = indices;
+		indices = meshData.indices;
 		this->water_mesh = nullptr;
 
 		vertex_position_data.reserve(meshData.vertexPositions.size());
