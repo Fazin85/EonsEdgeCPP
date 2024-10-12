@@ -19,6 +19,8 @@ namespace Eon
 		void UniformMatrix4(const std::string& uniformName, const glm::mat4& matrix);
 		void UniformIVec3(const std::string& uniformName, const glm::ivec3& vec);
 		void UniformFVec3(const std::string& uniformName, const glm::vec3& vec);
+		void UniformFloat(const std::string& uniformName, const float v);
+		void UniformFVec4(const std::string& uniformName, glm::vec4 vec);
 
 	private:
 		GLuint id;

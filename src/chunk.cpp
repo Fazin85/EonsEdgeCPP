@@ -2,16 +2,15 @@
 
 namespace Eon
 {
-	Chunk::Chunk(ChunkPosition chunkPosition) : blocks{}
+	Chunk::Chunk(ChunkPosition chunkPosition) : blocks{}, position(chunkPosition)
 	{
-		position = chunkPosition;
 	}
 
-	Block* Chunk::GetBlock(u8 x, u16 y, u8 z)
+	std::optional<Block*> Chunk::GetBlock(u8 x, u16 y, u8 z)
 	{
 		if (x >= 16 || z >= 16 || y >= 512 || x < 0 || z < 0 || y < 0)
 		{
-			return nullptr;
+			return {};
 		};
 
 		return &blocks[IndexFromPosition(x, y, z)];

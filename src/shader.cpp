@@ -96,4 +96,14 @@ namespace Eon
 	{
 		glUniform3fv(uniform_cache[uniformName], 1, &vec[0]);
 	}
+
+	void Shader::UniformFloat(const std::string& uniformName, const float v)
+	{
+		glUniform1f(uniform_cache[uniformName], v);
+	}
+
+	void Shader::UniformFVec4(const std::string& uniformName, glm::vec4 vec)
+	{
+		glUniform4fv(uniform_cache[uniformName], 1, &vec[0]);
+	}
 }

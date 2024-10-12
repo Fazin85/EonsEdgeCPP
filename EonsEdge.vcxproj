@@ -145,6 +145,7 @@
     <ClCompile Include="src\level_renderer.h" />
     <ClCompile Include="src\log.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\player.cpp" />
     <ClCompile Include="src\shader.cpp" />
     <ClCompile Include="src\texture.cpp" />
     <ClCompile Include="src\vertex_array_object.cpp" />
@@ -167,6 +168,7 @@
     <ClInclude Include="src\level.h" />
     <ClInclude Include="src\log.h" />
     <ClInclude Include="src\num.h" />
+    <ClInclude Include="src\player.h" />
     <ClInclude Include="src\shader.h" />
     <ClInclude Include="src\stb_image.h" />
     <ClInclude Include="src\texture.h" />

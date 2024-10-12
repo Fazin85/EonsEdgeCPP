@@ -1,36 +1,69 @@
 #include "level.h"
+#include "log.h"
 
 namespace Eon
 {
-	Chunk* Level::GetChunk(ChunkPosition position)
+	Level::Level() : chunks{}
+	{
+		chunks[0] = new Chunk(ChunkPosition{ .x = 0, .z = 0 });
+
+		for (int x = 0; x < 16; x++)
+		{
+			for (int z = 0; z < 16; z++)
+			{
+				for (int y = 0; y < 32; y++)
+				{
+					chunks[0]->GetBlock(x, y, z).value()->type = BlockType::STONE;
+				}
+			}
+		}
+	}
+
+	std::optional<Chunk*> Level::GetChunk(ChunkPosition position)
 	{
 		// TODO: insert return statement here
 		u32 index = IndexFromPosition(position.x, position.z);
-		if (index >= 1024 || index < 0)
+
+		if (index >= 1024 || index < 0 || chunks[index] == nullptr)
 		{
-			return nullptr;
+			return {};
 		}
 
 		return chunks[index];
 	}
 
-	Block* Level::GetBlock(u16 x, u16 y, u16 z)
+	std::optional<Block> Level::GetBlock(i16 x, i16 y, i16 z)
 	{
-		Chunk* chunk = GetChunk(ChunkPosition{ .x = static_cast<u8>(x >> 4),
+		auto chunk = GetChunk(ChunkPosition{ .x = static_cast<u8>(x >> 4),
 											  .z = static_cast<u8>(z >> 4) });
 
-		u8 bpx = x - chunk->Position().x;
-		u8 bpz = x - chunk->Position().z;
-		return chunk->GetBlock(bpx, y, bpz);
+		if (chunk.has_value())
+		{
+			u8 bpx = x - chunk.value()->Position().x;
+			u8 bpz = x - chunk.value()->Position().z;
+
+			auto block = chunk.value()->GetBlock(bpx, y, bpz);
+			if (block.has_value())
+			{
+				return *block.value();
+			}
+		}
+
+		return {};
 	}
 
-	Block* Level::GetBlock(glm::ivec3 position)
+	std::optional<Block> Level::GetBlock(glm::ivec3 position)
 	{
-		return GetBlock(static_cast<u16>(position.x), static_cast<u16>(position.y), static_cast<u16>(position.z));
+		return GetBlock(static_cast<i16>(position.x), static_cast<i16>(position.y), static_cast<i16>(position.z));
 	}
 
-	u32 Level::IndexFromPosition(u16 x, u16 z)
+	glm::vec4& Level::SkyColor()
 	{
-		return (x * 32) + z;
+		return sky_color;
+	}
+
+	u32 Level::IndexFromPosition(i16 x, i16 z)
+	{
+		return (z * 32) + x;
 	}
 }  // namespace Eon

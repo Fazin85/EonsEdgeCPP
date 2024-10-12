@@ -4,7 +4,7 @@
 
 namespace Eon
 {
-	Window::Window(int width, int height, const std::string& title)
+	void Window::Create(int width, int height, const std::string& title)
 	{
 		window = nullptr;
 		size = glm::ivec2(width, height);
@@ -16,7 +16,7 @@ namespace Eon
 		}
 
 		window = glfwCreateWindow(size.x, size.y, title.c_str(), nullptr, nullptr);
-		
+
 		if (!window)
 		{
 			glfwTerminate();
@@ -29,7 +29,7 @@ namespace Eon
 		gladLoadGL();
 	}
 
-	Window::~Window() { glfwTerminate(); }
+	void Window::Destroy() { glfwTerminate(); }
 
 	glm::ivec2 Window::GetCursorPosition()
 	{
@@ -63,9 +63,9 @@ namespace Eon
 
 	bool Window::ShouldClose() { return glfwWindowShouldClose(window); }
 
-	glm::ivec2 Window::GetSize() const { return size; }
+	glm::ivec2 Window::GetSize() { return size; }
 
-	float Window::GetAspectRatio() const
+	float Window::GetAspectRatio()
 	{
 		return static_cast<float>(size.x) / static_cast<float>(size.y);
 	}

@@ -6,12 +6,7 @@
 #include "num.h"
 #include "window.h"
 #include "level_renderer.h"
-
-#define CHUNK_WIDTH 16
-#define CHUNK_HEIGHT 512
-// levels have 32 chunks in x and z dimension
-// levels are 512 blocks in all dimensions
-#define LEVEL_CHUNKS_SIZE 32
+#include "player.h"
 
 int main()
 {
@@ -19,18 +14,23 @@ int main()
 
 	EON_INFO("starting...");
 
-	Eon::Window window(640, 480, "Eon's Edge");
+	Eon::Window::Create(1280, 720, "Eon's Edge");
 
-	Eon::Camera cam(70, 8, window);
+	auto player = Eon::Player();
+	auto level = std::make_unique<Eon::Level>();
+
+	level->SkyColor() = glm::vec4(0.39f, 0.52f, 0.745f, 1.0f);
 
 	auto levelRenderer = std::make_unique<Eon::LevelRenderer>();
+	levelRenderer->SetLevel(level.get());
+	levelRenderer->MeshChunk(level->GetChunk(Eon::ChunkPosition(0, 0)).value());
 
 	EON_INFO("started successfully");
 
 	float lastTime = glfwGetTime();
 	float dt = 0;
 
-	while (!window.ShouldClose())
+	while (!Eon::Window::ShouldClose())
 	{
 		float currentTime = glfwGetTime();
 
@@ -38,15 +38,17 @@ int main()
 
 		levelRenderer->Update();
 
-		cam.Update(1);
+		player.Update(dt);
 
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		lastTime = currentTime;
 
-		window.SwapBuffers();
+		levelRenderer->Render(player);
 
-		window.PollEvents();
+		Eon::Window::SwapBuffers();
+
+		Eon::Window::PollEvents();
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(6));
 	}

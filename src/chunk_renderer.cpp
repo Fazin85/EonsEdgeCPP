@@ -91,6 +91,7 @@ namespace Eon
 		}
 
 		setup = true;
+
 	}
 
 	void ChunkRenderer::Destroy()

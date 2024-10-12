@@ -12,19 +12,18 @@ namespace Eon
 	class Window
 	{
 	public:
-		Window(int width, int height, const std::string& title);
-		~Window();
-		glm::ivec2 GetCursorPosition();
-		void SetCursorPosition(glm::ivec2 position);
-		void SwapBuffers();
-		void PollEvents();
-		bool IsKeyPressed(int key);
-		bool ShouldClose();
-		glm::ivec2 GetSize() const;
-		float GetAspectRatio() const;
-
+		static void Create(int width, int height, const std::string& title);
+		static void Destroy();
+		static void SwapBuffers();
+		static void PollEvents();
+		static bool ShouldClose();
+		static float GetAspectRatio();
+		static void SetCursorPosition(glm::ivec2 position);
+		static glm::ivec2 GetCursorPosition();
+		static glm::ivec2 GetSize();
+		static bool IsKeyPressed(int key);
 	private:
-		GLFWwindow* window;
-		glm::ivec2 size;
+		static inline GLFWwindow* window;
+		static inline glm::ivec2 size;
 	};
 }  // namespace Eon

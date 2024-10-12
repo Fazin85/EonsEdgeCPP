@@ -18,6 +18,7 @@
 #include "level.h"
 #include "shader.h"
 #include "texture.h"
+#include "player.h"
 
 namespace Eon
 {
@@ -30,7 +31,7 @@ namespace Eon
 		void MeshChunk(Chunk* chunk);
 		void RemoveMesh(ChunkPosition chunkPosition);
 		void Update();
-		void Render();
+		void Render(Player& player);
 
 	private:
 		void BuildChunkMesh(Chunk* chunk);
