@@ -69,8 +69,6 @@ namespace Eon
 		}
 
 		Move(velocity * dt);
-
-		EON_INFO(position.y);
 	}
 
 	Camera& Player::GetCamera()

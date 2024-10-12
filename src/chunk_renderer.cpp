@@ -2,6 +2,7 @@
 
 #include <glad/glad.h>
 
+#include "log.h"
 #include <array>
 #include <cmath>
 
@@ -10,7 +11,6 @@ namespace Eon
 	ChunkRenderer::ChunkRenderer(Chunk*, ChunkMeshData& meshData)
 	{
 		this->chunk = chunk;
-		this->ready = false;
 		this->setup = false;
 		this->indices = indices;
 		this->water_mesh = nullptr;
@@ -69,8 +69,9 @@ namespace Eon
 
 	void ChunkRenderer::Setup()
 	{
-		if (ready)
+		if (setup)
 		{
+			EON_WARN("Tried to setup chunk renderer multiple times");
 			return;
 		}
 
@@ -91,7 +92,6 @@ namespace Eon
 		}
 
 		setup = true;
-
 	}
 
 	void ChunkRenderer::Destroy()
