@@ -10,6 +10,11 @@ namespace Eon
 		exit = false;
 
 		mesh_thread = std::thread(&LevelRenderer::MeshThread, this);
+
+		chunk_shader = std::make_unique<Shader>("Chunk.vert", "Chunk.frag");
+
+		Image image("BlockAtlas.png");
+		chunk_texture = std::make_unique<Texture>(image);
 	}
 
 	LevelRenderer::~LevelRenderer()
@@ -54,6 +59,16 @@ namespace Eon
 			{
 				chunk_renderers[position]->Setup();
 			}
+		}
+	}
+
+	void LevelRenderer::Render()
+	{
+		chunk_shader->Bind();
+
+		for (const auto& [chunkPosition, chunkRenderer] : chunk_renderers)
+		{
+			chunkRenderer->Render();
 		}
 	}
 

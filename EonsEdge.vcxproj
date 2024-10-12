@@ -133,22 +133,27 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\image.cpp" />
     <ClCompile Include="src\block_texture.cpp" />
     <ClCompile Include="src\camera.cpp" />
     <ClCompile Include="src\chunk.cpp" />
     <ClCompile Include="src\chunk_renderer.cpp" />
+    <ClCompile Include="src\file_util.cpp" />
     <ClCompile Include="src\index_buffer_object.cpp" />
     <ClCompile Include="src\level.cpp" />
     <ClCompile Include="src\level_renderer.cpp" />
     <ClCompile Include="src\level_renderer.h" />
     <ClCompile Include="src\log.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\shader.cpp" />
+    <ClCompile Include="src\texture.cpp" />
     <ClCompile Include="src\vertex_array_object.cpp" />
     <ClCompile Include="src\vertex_buffer_object.cpp" />
     <ClCompile Include="src\vertex_buffer_object.h" />
     <ClCompile Include="src\window.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\image.h" />
     <ClInclude Include="src\block.h" />
     <ClInclude Include="src\block_texture.h" />
     <ClInclude Include="src\camera.h" />
@@ -157,10 +162,14 @@
     <ClInclude Include="src\chunk_position.h" />
     <ClInclude Include="src\chunk_renderer.h" />
     <ClInclude Include="src\directions.h" />
+    <ClInclude Include="src\file_util.h" />
     <ClInclude Include="src\index_buffer_object.h" />
     <ClInclude Include="src\level.h" />
     <ClInclude Include="src\log.h" />
     <ClInclude Include="src\num.h" />
+    <ClInclude Include="src\shader.h" />
+    <ClInclude Include="src\stb_image.h" />
+    <ClInclude Include="src\texture.h" />
     <ClInclude Include="src\vertex_array_object.h" />
     <ClInclude Include="src\window.h" />
   </ItemGroup>
