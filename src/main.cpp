@@ -5,6 +5,7 @@
 #include "log.h"
 #include "num.h"
 #include "window.h"
+#include "level_renderer.h"
 
 #define CHUNK_WIDTH 16
 #define CHUNK_HEIGHT 512
@@ -16,20 +17,41 @@ int main()
 {
 	Eon::Log::Init();
 
+	EON_INFO("starting...");
+
 	Eon::Window window(640, 480, "Eon's Edge");
 
 	Eon::Camera cam(70, 8, window);
 
+	Eon::LevelRenderer* levelRenderer = new Eon::LevelRenderer();
+
+	EON_INFO("started successfully");
+
+	float lastTime = glfwGetTime();
+	float dt = 0;
+
 	while (!window.ShouldClose())
 	{
+		float currentTime = glfwGetTime();
+
+		dt = currentTime - lastTime;
+
+		levelRenderer->Update();
+
 		cam.Update(1);
 
 		glClear(GL_COLOR_BUFFER_BIT);
 
+		lastTime = currentTime;
+
 		window.SwapBuffers();
 
 		window.PollEvents();
+
+		std::this_thread::sleep_for(std::chrono::milliseconds(6));
 	}
+
+	delete levelRenderer;
 
 	return 0;
 }

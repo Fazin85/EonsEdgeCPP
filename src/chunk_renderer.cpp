@@ -50,7 +50,7 @@ namespace Eon
 
 	void ChunkRenderer::Render()
 	{
-		if (!ready)
+		if (!setup)
 		{
 			return;
 		}
@@ -79,8 +79,6 @@ namespace Eon
 		vao.Init();
 		ibo.Init(indices);
 
-		setup = true;
-
 		dir_light_vbo.Init(dir_light_data);
 		vao.Link(1, 1, dir_light_vbo, GL_FLOAT, false);
 
@@ -92,7 +90,7 @@ namespace Eon
 			water_mesh->Setup();
 		}
 
-		ready = true;
+		setup = true;
 	}
 
 	void ChunkRenderer::Destroy()
@@ -101,10 +99,10 @@ namespace Eon
 		{
 			vao.Destroy();
 			ibo.Destroy();
-		}
 
-		vertex_position_vbo.Destroy();
-		dir_light_vbo.Destroy();
+			vertex_position_vbo.Destroy();
+			dir_light_vbo.Destroy();
+		}
 
 		if (water_mesh != nullptr)
 		{
