@@ -199,16 +199,6 @@ namespace Eon
 					}
 					else
 					{
-						/*auto sideBlock = level->GetBlock(chunkPosition + sidePosition);
-						if (sideBlock.has_value())
-						{
-							if (sideBlock->type == BlockType::AIR)
-							{
-								AddFace(meshData, position, block.value()->type, dir);
-								numFaces++;
-							}
-						}*/
-
 						AddFace(meshData, position, block.value()->type, dir);
 						numFaces++;
 					}
@@ -224,16 +214,6 @@ namespace Eon
 					}
 					else
 					{
-						/*auto sideBlock = level->GetBlock(chunkPosition + sidePosition);
-						if (sideBlock.has_value())
-						{
-							if (sideBlock->type == BlockType::AIR)
-							{
-								AddFace(meshData, position, block.value()->type, dir);
-								numFaces++;
-							}
-						}*/
-
 						AddFace(meshData, position, block.value()->type, dir);
 						numFaces++;
 					}

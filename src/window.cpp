@@ -14,7 +14,7 @@ namespace Eon
 		window->setActive(true);
 	}
 
-	sf::Window& Window::GetWindow()
+	sf::Window& Window::Get()
 	{
 		return *window;
 	}

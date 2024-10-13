@@ -134,6 +134,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\frustum.cpp" />
+    <ClCompile Include="src\game.cpp" />
     <ClCompile Include="src\image.cpp" />
     <ClCompile Include="src\block_texture.cpp" />
     <ClCompile Include="src\camera.cpp" />
@@ -144,6 +145,7 @@
     <ClCompile Include="src\level.cpp" />
     <ClCompile Include="src\level_renderer.cpp" />
     <ClCompile Include="src\level_renderer.h" />
+    <ClCompile Include="src\level_terrain_generator.cpp" />
     <ClCompile Include="src\log.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\player.cpp" />
@@ -157,6 +159,7 @@
   <ItemGroup>
     <ClInclude Include="src\aabb.h" />
     <ClInclude Include="src\frustum.h" />
+    <ClInclude Include="src\game.h" />
     <ClInclude Include="src\image.h" />
     <ClInclude Include="src\block.h" />
     <ClInclude Include="src\block_texture.h" />
@@ -169,6 +172,8 @@
     <ClInclude Include="src\file_util.h" />
     <ClInclude Include="src\index_buffer_object.h" />
     <ClInclude Include="src\level.h" />
+    <ClInclude Include="src\level_terrain_generation_pass.h" />
+    <ClInclude Include="src\level_terrain_generator.h" />
     <ClInclude Include="src\log.h" />
     <ClInclude Include="src\num.h" />
     <ClInclude Include="src\player.h" />

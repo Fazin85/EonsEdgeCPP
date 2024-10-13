@@ -5,7 +5,7 @@ namespace Eon
 {
 	Player::Player()
 	{
-		camera = std::make_unique<Camera>(70, 0.25);
+		camera = std::make_unique<Camera>(70, 0.1);
 		position = glm::vec3(0, 0, 0);
 		acceleration = glm::vec3(0, 0, 0);
 		velocity = glm::vec3(0, 0, 0);
@@ -17,7 +17,7 @@ namespace Eon
 
 		constexpr float speed = 0.08f;
 
-		if (Window::GetWindow().hasFocus())
+		if (Window::Get().hasFocus())
 		{
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
 			{
