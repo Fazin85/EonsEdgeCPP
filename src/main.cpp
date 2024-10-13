@@ -20,8 +20,8 @@ int main()
 
 	glEnable(GL_DEPTH_TEST);
 	glFrontFace(GL_CCW);
-	//glEnable(GL_CULL_FACE);
-	//glCullFace(GL_BACK);
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
 
 	auto player = Eon::Player();
 	auto level = std::make_unique<Eon::Level>();

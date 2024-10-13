@@ -23,6 +23,6 @@ namespace Eon
 
 	u32 Chunk::IndexFromPosition(u8 x, u16 y, u8 z)
 	{
-		return x + 16 * (y + 16 * z);
+		return x + 16 * (y + 512 * z);
 	}
 } // namespace Eon

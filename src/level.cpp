@@ -11,9 +11,9 @@ namespace Eon
 		{
 			for (int z = 0; z < 16; z++)
 			{
-				for (int y = 0; y < 32; y++)
+				for (int y = 0; y < 64; y++)
 				{
-					chunks[0]->GetBlock(x, y, z).value()->type = BlockType::STONE;
+					chunks[0]->GetBlock(x, y, z).value()->type = BlockType::GRASS;
 				}
 			}
 		}

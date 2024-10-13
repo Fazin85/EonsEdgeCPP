@@ -5,7 +5,7 @@ namespace Eon
 {
 	Player::Player()
 	{
-		camera = std::make_unique<Camera>(70, 8);
+		camera = std::make_unique<Camera>(70, 0.25);
 		position = glm::vec3(0, 0, 0);
 		acceleration = glm::vec3(0, 0, 0);
 		velocity = glm::vec3(0, 0, 0);
@@ -15,40 +15,43 @@ namespace Eon
 	{
 		camera->Update(dt);
 
-		constexpr float speed = 1.8f;
+		constexpr float speed = 0.08f;
 
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
+		if (Window::GetWindow().hasFocus())
 		{
-			acceleration.x -= std::cosf(glm::radians(camera->Yaw() + 180.0f)) * speed;
-			acceleration.z -= std::sinf(glm::radians(camera->Yaw() + 180.0f)) * speed;
-		}
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
+			{
+				acceleration.x -= std::cosf(glm::radians(camera->Yaw() + 180.0f)) * speed;
+				acceleration.z -= std::sinf(glm::radians(camera->Yaw() + 180.0f)) * speed;
+			}
 
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
-		{
-			acceleration.x += std::cosf(glm::radians(camera->Yaw() + 180.0f)) * speed;
-			acceleration.z += std::sinf(glm::radians(camera->Yaw() + 180.0f)) * speed;
-		}
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+			{
+				acceleration.x += std::cosf(glm::radians(camera->Yaw() + 180.0f)) * speed;
+				acceleration.z += std::sinf(glm::radians(camera->Yaw() + 180.0f)) * speed;
+			}
 
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
-		{
-			acceleration.x -= std::cosf(glm::radians(camera->Yaw() + 90.0f)) * speed;
-			acceleration.z -= std::sinf(glm::radians(camera->Yaw() + 90.0f)) * speed;
-		}
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+			{
+				acceleration.x -= std::cosf(glm::radians(camera->Yaw() + 90.0f)) * speed;
+				acceleration.z -= std::sinf(glm::radians(camera->Yaw() + 90.0f)) * speed;
+			}
 
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
-		{
-			acceleration.x += std::cosf(glm::radians(camera->Yaw() + 90.0f)) * speed;
-			acceleration.z += std::sinf(glm::radians(camera->Yaw() + 90.0f)) * speed;
-		}
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
+			{
+				acceleration.x += std::cosf(glm::radians(camera->Yaw() + 90.0f)) * speed;
+				acceleration.z += std::sinf(glm::radians(camera->Yaw() + 90.0f)) * speed;
+			}
 
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::BackSpace))
-		{
-			acceleration.y += speed;
-		}
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::BackSpace))
+			{
+				acceleration.y += speed;
+			}
 
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::RShift))
-		{
-			acceleration.y -= speed;
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::LShift))
+			{
+				acceleration.y -= speed;
+			}
 		}
 
 		velocity += acceleration;

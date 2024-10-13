@@ -26,7 +26,7 @@ namespace Eon
 			u8 texY = static_cast<u8>(
 				std::floorf(meshData.uvs[i].y >= 1.0f ? 255.0f : meshData.uvs[i].y * 256.0f));
 
-			vertex_position_data.push_back((meshData.light[i] << 24) | (meshData.directions[i] << 16) |
+			dir_light_data.emplace_back((meshData.light[i] << 24) | (meshData.directions[i] << 16) |
 				(texX << 8) | (texY));
 
 			u8 px = static_cast<u8>(meshData.vertexPositions[i].x);
@@ -35,7 +35,7 @@ namespace Eon
 
 			u8* yy = reinterpret_cast<u8*>(&y16);
 
-			dir_light_data.push_back((px << 24) | (pz << 16) | (yy[0] << 8) | (yy[1]));
+			vertex_position_data.emplace_back((px << 24) | (pz << 16) | (yy[0] << 8) | (yy[1]));
 		}
 	}
 
