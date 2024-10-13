@@ -19,13 +19,13 @@ namespace Eon
 		}
 	}
 
-	Chunk* Level::GetChunk(ChunkPosition position)
+	std::optional<Chunk*> Level::GetChunk(ChunkPosition position)
 	{
 		u32 index = IndexFromPosition(position.x, position.z);
 
 		if (index >= 1024 || index < 0 || chunks[index] == nullptr)
 		{
-			return nullptr;
+			return {};
 		}
 
 		return chunks[index];
@@ -36,12 +36,12 @@ namespace Eon
 		auto chunk = GetChunk(ChunkPosition{ .x = static_cast<u8>(x >> 4),
 											  .z = static_cast<u8>(z >> 4) });
 
-		if (chunk != nullptr)
+		if (chunk.has_value())
 		{
-			u8 bpx = x - chunk->Position().x;
-			u8 bpz = x - chunk->Position().z;
+			u8 bpx = x - chunk.value()->Position().x;
+			u8 bpz = x - chunk.value()->Position().z;
 
-			auto block = chunk->GetBlock(bpx, y, bpz);
+			auto block = chunk.value()->GetBlock(bpx, y, bpz);
 			if (block.has_value())
 			{
 				return *block.value();

@@ -59,8 +59,7 @@ namespace Eon
 		vao.Bind();
 		ibo.Bind();
 
-		glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices.size()),
-			GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 
 		if (water_mesh != nullptr)
 		{
@@ -79,13 +78,15 @@ namespace Eon
 		setup = false;
 
 		vao.Init();
-		ibo.Init(indices);
-
-		dir_light_vbo.Init(dir_light_data);
-		vao.Link(1, 1, dir_light_vbo, GL_FLOAT, false);
+		vao.Bind();
 
 		vertex_position_vbo.Init(vertex_position_data);
 		vao.Link(0, 1, vertex_position_vbo, GL_UNSIGNED_INT, true);
+
+		dir_light_vbo.Init(dir_light_data);
+		vao.Link(1, 1, dir_light_vbo, GL_UNSIGNED_INT, true);
+
+		ibo.Init(indices);
 
 		if (water_mesh != nullptr)
 		{

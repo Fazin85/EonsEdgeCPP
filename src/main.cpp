@@ -15,7 +15,7 @@ int main()
 	EON_INFO("starting...");
 
 	Eon::Window::Create(1280, 720, "Eon's Edge");
-	
+
 	glEnable(GL_DEPTH_TEST);
 	glFrontFace(GL_CCW);
 	glEnable(GL_CULL_FACE);
@@ -44,8 +44,6 @@ int main()
 		levelRenderer->Update();
 
 		player.Update(dt);
-
-		glClear(GL_COLOR_BUFFER_BIT);
 
 		lastTime = currentTime;
 

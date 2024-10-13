@@ -8,7 +8,7 @@ namespace Eon
 	{
 		glGenBuffers(1, &id);
 
-		glBindBuffer(GL_ARRAY_BUFFER, id);
+		Bind();
 		glBufferData(GL_ARRAY_BUFFER, data.size() * sizeof(u32), data.data(),
 			GL_STATIC_DRAW);
 	}

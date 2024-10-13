@@ -1,8 +1,8 @@
+#include "file_util.h"
+#include "log.h"
 #include "Shader.h"
 #include <iostream>
 #include <vector>
-#include "file_util.h"
-#include "log.h"
 
 namespace Eon
 {

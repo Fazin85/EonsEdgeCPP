@@ -91,6 +91,8 @@ namespace Eon
 		chunk_shader->UniformMatrix4("projection", player.GetCamera().ProjectionMatrix());
 		chunk_shader->UniformFVec3("camPos", player.Position());
 
+		player.GetCamera().CalculateViewMatrix(player.Position());
+
 		for (const auto& [chunkPosition, chunkRenderer] : chunk_renderers)
 		{
 			if (player.GetCamera().GetFrustum().BoxInFrustum(chunkRenderer->GetAABB()))
@@ -120,8 +122,8 @@ namespace Eon
 
 	void LevelRenderer::BuildChunkMesh(ChunkPosition inChunkPosition)
 	{
-		Chunk* chunk = level->GetChunk(inChunkPosition);
-		glm::ivec3 chunkPosition(chunk->Position().x, 0, chunk->Position().z);
+		Chunk* chunk = level->GetChunk(inChunkPosition).value();
+		glm::ivec3 chunkPosition(chunk->Position().x * 16, 0, chunk->Position().z * 16);
 		ChunkMeshData meshData{};
 
 		for (int x = 0; x < 16; x++)
@@ -310,7 +312,9 @@ namespace Eon
 
 	void LevelRenderer::AddFace(ChunkMeshData& meshData, const glm::ivec3& blockPosition, BlockType blockType, Directions direction)
 	{
-		std::array<u8, 12> faceData = GetFaceDataFromDirection(direction);
+		auto faceData = GetFaceDataFromDirection(direction);
+		auto blockUVs = BlockTexture::GetUVCoordsFromBlockID(blockType);
+		auto uvs = GetUVsFromCoordinates(blockUVs);
 
 		int index = 0;
 		for (int i = 0; i < 4; i++)
@@ -322,14 +326,7 @@ namespace Eon
 			meshData.vertexPositions.emplace_back(x, y, z);
 			meshData.directions.push_back(static_cast<u8>(direction));
 			meshData.light.push_back(15);
-		}
-
-		auto blockUVs = BlockTexture::GetUVCoordsFromBlockID(blockType);
-		auto realUVs = GetUVsFromCoordinates(blockUVs);
-
-		for (const glm::vec2 uv : realUVs[direction])
-		{
-			meshData.uvs.push_back(uv);
+			meshData.uvs.push_back(uvs[direction][i]);
 		}
 	}
 
