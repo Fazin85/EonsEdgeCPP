@@ -1,74 +1,21 @@
 #include "window.h"
 
-#include <iostream>
-
 namespace Eon
 {
-	void Window::Create(int width, int height, const std::string& title)
+	void Window::Create(int width, int height, int fps, const std::string& name)
 	{
-		window = nullptr;
-		size = glm::ivec2(width, height);
+		sf::ContextSettings settings;
+		settings.depthBits = 24;
+		settings.majorVersion = 3;
+		settings.minorVersion = 3;
 
-		if (!glfwInit())
-		{
-			std::cerr << "Failed to init GLFW" << std::endl;
-			return;
-		}
-
-		window = glfwCreateWindow(size.x, size.y, title.c_str(), nullptr, nullptr);
-
-		if (!window)
-		{
-			glfwTerminate();
-			std::cerr << "Failed to create GLFW window" << std::endl;
-			return;
-		}
-
-		glfwMakeContextCurrent(window);
-
-		gladLoadGL();
-
-		glViewport(0, 0, width, height);
+		window = new sf::Window(sf::VideoMode(width, height), name, sf::Style::Close, settings);
+		window->setFramerateLimit(fps);
+		window->setActive(true);
 	}
 
-	void Window::Destroy() { glfwTerminate(); }
-
-	glm::ivec2 Window::GetCursorPosition()
+	sf::Window& Window::GetWindow()
 	{
-		double x = 0;
-		double y = 0;
-
-		glfwGetCursorPos(window, &x, &y);
-
-		return glm::ivec2(static_cast<int>(x), static_cast<int>(y));
+		return *window;
 	}
-
-	void Window::SetCursorPosition(glm::ivec2 position)
-	{
-		glfwSetCursorPos(window, static_cast<double>(position.x),
-			static_cast<double>(position.y));
-	}
-
-	void Window::SwapBuffers() { glfwSwapBuffers(window); }
-
-	void Window::PollEvents() { glfwPollEvents(); }
-
-	bool Window::IsKeyPressed(int key)
-	{
-		if (glfwGetKey(window, key) == GLFW_PRESS)
-		{
-			return true;
-		}
-
-		return false;
-	}
-
-	bool Window::ShouldClose() { return glfwWindowShouldClose(window); }
-
-	glm::ivec2 Window::GetSize() { return size; }
-
-	float Window::GetAspectRatio()
-	{
-		return static_cast<float>(size.x) / static_cast<float>(size.y);
-	}
-}  // namespace Eon
+}

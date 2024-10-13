@@ -29,7 +29,8 @@ namespace Eon
 		clipping_planes[0] = 0.01f;
 		clipping_planes[1] = 1000.0f;
 
-		last_mouse_pos = Window::GetCursorPosition();
+		last_mouse_pos.x = sf::Mouse::getPosition().x;
+		last_mouse_pos.y = sf::Mouse::getPosition().y;
 		CalculateProjectionMatrix();
 	}
 
@@ -47,36 +48,36 @@ namespace Eon
 
 	void Camera::Update(float dt)
 	{
-		glm::ivec2 change = Window::GetCursorPosition();
+		if (!Window::GetWindow().hasFocus())
+		{
+			return;
+		}
 
-		change -= last_mouse_pos;
+		auto change = sf::Mouse::getPosition(Window::GetWindow()) - last_mouse_pos;
 
-		Window::SetCursorPosition(Window::GetSize() / 2);
+		sf::Mouse::setPosition(sf::Vector2i(Window::GetWindow().getSize().x / 2, Window::GetWindow().getSize().y / 2), Window::GetWindow());
+		last_mouse_pos = sf::Mouse::getPosition(Window::GetWindow());
 
-		last_mouse_pos = Window::GetCursorPosition();
-
-		yaw += static_cast<float>(change.x) * sensitivity * dt;
-		pitch -= static_cast<float>(change.y) * sensitivity * dt;
+		yaw += change.x * sensitivity * dt;
+		pitch -= change.y * sensitivity * dt;
 
 		if (pitch > 89.0f)
 		{
 			pitch = 89.0f;
 		}
-
-		if (pitch < -89.0f)
+		else if (pitch < -89.0f)
 		{
 			pitch = -89.0f;
 		}
 
-		/*if (yaw > 360)
+		if (yaw > 360)
 		{
 			yaw = 0;
 		}
-
-		if (pitch > 360)
+		else if (yaw < 0)
 		{
-			pitch = 0;
-		}*/
+			yaw = 360;
+		}
 
 		front[0] = std::cosf(glm::radians(pitch)) * cosf(glm::radians(yaw));
 		front[1] = std::sinf(glm::radians(pitch));
@@ -103,7 +104,9 @@ namespace Eon
 
 	void Camera::CalculateProjectionMatrix()
 	{
-		proj_matrix = glm::perspective(glm::radians(fov), Window::GetAspectRatio(),
+		float aspect = static_cast<float>(Window::GetWindow().getSize().x) / static_cast<float>(Window::GetWindow().getSize().y);
+
+		proj_matrix = glm::perspective(glm::radians(fov), aspect,
 			clipping_planes[0], clipping_planes[1]);
 	}
 }  // namespace Eon

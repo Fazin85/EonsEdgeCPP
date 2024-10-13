@@ -18,7 +18,7 @@ namespace Eon
 		chunk_shader->UniformFVec3("light_color", glm::vec3(1, 1, 1));
 		chunk_shader->UniformFloat("ambient_light", 0.15f);
 		chunk_shader->UniformMatrix4("model", glm::mat4(1.0f));
-		chunk_shader->UniformFloat("fog_near", (12 * 16 / 2) - 16);
+		chunk_shader->UniformFloat("fog_near", ((12 * 16) / 2) - 16);
 		chunk_shader->UniformFloat("fog_far", 100000);
 
 		Image image("BlockAtlas.png");
@@ -76,11 +76,10 @@ namespace Eon
 		{
 			return;
 		}
-
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+		
 		glm::vec4 skyColor = level->SkyColor();
 		glClearColor(skyColor.x, skyColor.y, skyColor.z, skyColor.w);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		chunk_texture->Bind();
 

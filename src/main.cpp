@@ -1,12 +1,12 @@
 #include <glad/glad.h>
-#include <GLFW/glfw3.h>
+#include <SFML/Graphics.hpp>
 
 #include "camera.h"
 #include "log.h"
 #include "num.h"
-#include "window.h"
 #include "level_renderer.h"
 #include "player.h"
+#include "window.h"
 
 int main()
 {
@@ -14,12 +14,14 @@ int main()
 
 	EON_INFO("starting...");
 
-	Eon::Window::Create(1280, 720, "Eon's Edge");
+	Eon::Window::Create(1280, 720, 160, "Eon's Edge");
+
+	gladLoadGL();
 
 	glEnable(GL_DEPTH_TEST);
 	glFrontFace(GL_CCW);
-	glEnable(GL_CULL_FACE);
-	glCullFace(GL_BACK);
+	//glEnable(GL_CULL_FACE);
+	//glCullFace(GL_BACK);
 
 	auto player = Eon::Player();
 	auto level = std::make_unique<Eon::Level>();
@@ -32,26 +34,39 @@ int main()
 
 	EON_INFO("started successfully");
 
-	float lastTime = glfwGetTime();
-	float dt = 0;
+	sf::Clock clock;
 
-	while (!Eon::Window::ShouldClose())
+	while (true)
 	{
-		float currentTime = glfwGetTime();
+		sf::Event event;
+		bool b = false;
+		while (Eon::Window::GetWindow().pollEvent(event))
+		{
+			if (event.type == sf::Event::Closed)
+			{
+				b = true;
+			}
+			else if (event.type == sf::Event::Resized)
+			{
+				glViewport(0, 0, event.size.width, event.size.height);
+			}
+		}
 
-		dt = currentTime - lastTime;
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape) || b)
+		{
+			break;
+		}
+
+		sf::Time time = clock.restart();
+		float dt = time.asSeconds() * 160;
 
 		levelRenderer->Update();
 
 		player.Update(dt);
 
-		lastTime = currentTime;
-
 		levelRenderer->Render(player);
 
-		Eon::Window::SwapBuffers();
-
-		Eon::Window::PollEvents();
+		Eon::Window::GetWindow().display();
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(6));
 	}

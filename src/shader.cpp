@@ -1,8 +1,9 @@
 #include "file_util.h"
 #include "log.h"
-#include "Shader.h"
+#include "shader.h"
 #include <iostream>
 #include <vector>
+#include "SFML/OpenGL.hpp"
 
 namespace Eon
 {

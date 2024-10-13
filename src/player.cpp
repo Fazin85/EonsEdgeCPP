@@ -17,36 +17,36 @@ namespace Eon
 
 		constexpr float speed = 1.8f;
 
-		if (Window::IsKeyPressed(GLFW_KEY_W))
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
 		{
 			acceleration.x -= std::cosf(glm::radians(camera->Yaw() + 180.0f)) * speed;
 			acceleration.z -= std::sinf(glm::radians(camera->Yaw() + 180.0f)) * speed;
 		}
 
-		if (Window::IsKeyPressed(GLFW_KEY_S))
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
 		{
 			acceleration.x += std::cosf(glm::radians(camera->Yaw() + 180.0f)) * speed;
 			acceleration.z += std::sinf(glm::radians(camera->Yaw() + 180.0f)) * speed;
 		}
 
-		if (Window::IsKeyPressed(GLFW_KEY_A))
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
 		{
 			acceleration.x -= std::cosf(glm::radians(camera->Yaw() + 90.0f)) * speed;
 			acceleration.z -= std::sinf(glm::radians(camera->Yaw() + 90.0f)) * speed;
 		}
 
-		if (Window::IsKeyPressed(GLFW_KEY_D))
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
 		{
 			acceleration.x += std::cosf(glm::radians(camera->Yaw() + 90.0f)) * speed;
 			acceleration.z += std::sinf(glm::radians(camera->Yaw() + 90.0f)) * speed;
 		}
 
-		if (Window::IsKeyPressed(GLFW_KEY_SPACE))
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::BackSpace))
 		{
 			acceleration.y += speed;
 		}
 
-		if (Window::IsKeyPressed(GLFW_KEY_LEFT_SHIFT))
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::RShift))
 		{
 			acceleration.y -= speed;
 		}

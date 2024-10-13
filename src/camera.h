@@ -5,6 +5,7 @@
 
 #include "window.h"
 #include "frustum.h"
+#include <SFML/Window.hpp>
 
 namespace Eon
 {
@@ -28,7 +29,7 @@ namespace Eon
 		glm::vec3 up;
 		glm::vec3 front;
 		glm::vec3 right;
-		glm::ivec2 last_mouse_pos;
+		sf::Vector2i last_mouse_pos;
 		glm::vec2 clipping_planes;
 		float pitch;
 		float yaw;
