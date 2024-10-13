@@ -9,11 +9,11 @@
 #include "vertex_buffer_object.h"
 #include "index_buffer_object.h"
 #include "chunk_mesh_data.h"
+#include "aabb.h"
+#include "chunk.h"
 
 namespace Eon
 {
-	class Chunk;
-
 	class ChunkRenderer
 	{
 	public:
@@ -23,6 +23,7 @@ namespace Eon
 		void Render();
 		void Setup();
 		void Destroy();
+		AABB GetAABB();
 
 	private:
 		bool setup;

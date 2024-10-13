@@ -28,7 +28,7 @@ int main()
 
 	auto levelRenderer = std::make_unique<Eon::LevelRenderer>();
 	levelRenderer->SetLevel(level.get());
-	levelRenderer->MeshChunk(level->GetChunk(Eon::ChunkPosition(0, 0)).value());
+	levelRenderer->MeshChunk(Eon::ChunkPosition(0, 0));
 
 	EON_INFO("started successfully");
 

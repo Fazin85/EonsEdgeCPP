@@ -94,6 +94,13 @@ namespace Eon
 		return yaw;
 	}
 
+	Frustum& Camera::GetFrustum()
+	{
+		frustum.Update(proj_matrix * view_matrix);
+
+		return frustum;
+	}
+
 	void Camera::CalculateProjectionMatrix()
 	{
 		proj_matrix = glm::perspective(glm::radians(fov), Window::GetAspectRatio(),

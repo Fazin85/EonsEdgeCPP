@@ -28,13 +28,13 @@ namespace Eon
 		LevelRenderer();
 		~LevelRenderer();
 		void SetLevel(Level* level);
-		void MeshChunk(Chunk* chunk);
+		void MeshChunk(ChunkPosition chunkPosition);
 		void RemoveMesh(ChunkPosition chunkPosition);
 		void Update();
 		void Render(Player& player);
 
 	private:
-		void BuildChunkMesh(Chunk* chunk);
+		void BuildChunkMesh(ChunkPosition inChunkPosition);
 		void MeshThread();
 		void AddFace(ChunkMeshData& meshData, const glm::ivec3& blockPosition, BlockType blockType, Directions direction);
 		std::array<u8, 12> GetFaceDataFromDirection(Directions dir);
@@ -45,7 +45,7 @@ namespace Eon
 		std::unique_ptr<Texture> chunk_texture;
 		std::thread mesh_thread;
 		std::atomic_bool exit;
-		moodycamel::ConcurrentQueue<Chunk*> chunks_to_mesh;
+		moodycamel::ConcurrentQueue<ChunkPosition> chunks_to_mesh;
 		moodycamel::ConcurrentQueue<ChunkPosition> meshes_to_setup;
 		Level* level;
 		phmap::parallel_node_hash_map<ChunkPosition, std::unique_ptr<ChunkRenderer>> chunk_renderers;

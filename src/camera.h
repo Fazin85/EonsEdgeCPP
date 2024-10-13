@@ -4,6 +4,7 @@
 #include <glm/vec3.hpp>
 
 #include "window.h"
+#include "frustum.h"
 
 namespace Eon
 {
@@ -16,10 +17,12 @@ namespace Eon
 		glm::mat4 ProjectionMatrix() const;
 		void Update(float dt);
 		float Yaw() const;
+		Frustum& GetFrustum();
 
 	private:
 		void CalculateProjectionMatrix();
 
+		Frustum frustum;
 		glm::mat4 view_matrix;
 		glm::mat4 proj_matrix;
 		glm::vec3 up;

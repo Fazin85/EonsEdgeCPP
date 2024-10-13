@@ -37,9 +37,9 @@ namespace Eon
 		this->level = level;
 	}
 
-	void LevelRenderer::MeshChunk(Chunk* chunk)
+	void LevelRenderer::MeshChunk(ChunkPosition chunkPosition)
 	{
-		chunks_to_mesh.enqueue(chunk);
+		chunks_to_mesh.enqueue(chunkPosition);
 	}
 
 	void LevelRenderer::RemoveMesh(ChunkPosition chunkPosition)
@@ -93,6 +93,11 @@ namespace Eon
 
 		for (const auto& [chunkPosition, chunkRenderer] : chunk_renderers)
 		{
+			if (player.GetCamera().GetFrustum().BoxInFrustum(chunkRenderer->GetAABB()))
+			{
+				EON_INFO("in frustum");
+			}
+
 			chunk_shader->UniformIVec3("chunkPos", glm::ivec3(chunkPosition.x * 16, 0, chunkPosition.z * 16));
 
 			chunkRenderer->Render();
@@ -103,18 +108,19 @@ namespace Eon
 	{
 		while (!exit)
 		{
-			Chunk* chunk = nullptr;
-			if (chunks_to_mesh.try_dequeue(chunk))
+			ChunkPosition chunkPosition;
+			if (chunks_to_mesh.try_dequeue(chunkPosition))
 			{
-				BuildChunkMesh(chunk);
+				BuildChunkMesh(chunkPosition);
 			}
 
 			std::this_thread::sleep_for(std::chrono::milliseconds(16));
 		}
 	}
 
-	void LevelRenderer::BuildChunkMesh(Chunk* chunk)
+	void LevelRenderer::BuildChunkMesh(ChunkPosition inChunkPosition)
 	{
+		Chunk* chunk = level->GetChunk(inChunkPosition);
 		glm::ivec3 chunkPosition(chunk->Position().x, 0, chunk->Position().z);
 		ChunkMeshData meshData{};
 

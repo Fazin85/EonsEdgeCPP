@@ -8,7 +8,7 @@
 
 namespace Eon
 {
-	ChunkRenderer::ChunkRenderer(Chunk*, ChunkMeshData& meshData)
+	ChunkRenderer::ChunkRenderer(Chunk* chunk, ChunkMeshData& meshData)
 	{
 		this->chunk = chunk;
 		this->setup = false;
@@ -110,5 +110,14 @@ namespace Eon
 		{
 			water_mesh->Destroy();
 		}
+	}
+
+	AABB ChunkRenderer::GetAABB()
+	{
+		AABB aabb(glm::vec3(16, 512, 16));
+
+		aabb.Update(glm::vec3(chunk->Position().x * 16, 0, chunk->Position().z * 16));
+
+		return aabb;
 	}
 }  // namespace Eon
