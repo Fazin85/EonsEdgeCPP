@@ -1,19 +1,46 @@
 #include "level.h"
 #include "log.h"
+#include "fast_noise_lite.h"
 
 namespace Eon
 {
-	Level::Level() : chunks{}
+	Level::Level() : sky_color{}
 	{
-		chunks[0] = new Chunk(ChunkPosition{ .x = 0, .z = 0 });
+		//allocate all chunks in the level
 
-		for (int x = 0; x < 16; x++)
+		for (int x = 0; x < 32; x++)
 		{
-			for (int z = 0; z < 16; z++)
+			for (int z = 0; z < 32; z++)
 			{
-				for (int y = 0; y < 64; y++)
+				u32 index = IndexFromPosition(x, z);
+				chunks[index] = std::make_unique<Chunk>(ChunkPosition(x, z));
+			}
+		}
+
+		FastNoiseLite noise;
+		noise.SetFractalOctaves(6);
+		noise.SetFractalType(FastNoiseLite::FractalType_FBm);
+
+		for (int cx = 0; cx < 32; cx++)
+		{
+			for (int cz = 0; cz < 32; cz++)
+			{
+				Chunk* chunk = GetChunkUnsafe(ChunkPosition(cx, cz));
+
+				for (int x = 0; x < 16; x++)
 				{
-					chunks[0]->GetBlock(x, y, z).value()->type = BlockType::GRASS;
+					for (int z = 0; z < 16; z++)
+					{
+						int nx = (cx * 16) + x;
+						int nz = (cz * 16) + z;
+
+						int height = (noise.GetNoise(static_cast<float>(nx * 0.1f), static_cast<float>(nz * 0.1f)) + 1) * 256;
+
+						for (int y = 0; y < height; y++)
+						{
+							chunk->GetBlock(x, y, z).value()->type = BlockType::STONE;
+						}
+					}
 				}
 			}
 		}
@@ -28,7 +55,13 @@ namespace Eon
 			return {};
 		}
 
-		return chunks[index];
+		return chunks[index].get();
+	}
+
+	Chunk* Level::GetChunkUnsafe(ChunkPosition position)
+	{
+		u32 index = IndexFromPosition(position.x, position.z);
+		return chunks[index].get();
 	}
 
 	std::optional<Block> Level::GetBlock(i16 x, i16 y, i16 z)
@@ -38,8 +71,8 @@ namespace Eon
 
 		if (chunk.has_value())
 		{
-			u8 bpx = x - chunk.value()->Position().x;
-			u8 bpz = x - chunk.value()->Position().z;
+			u8 bpx = x - (chunk.value()->Position().x * 16);
+			u8 bpz = x - (chunk.value()->Position().z * 16);
 
 			auto block = chunk.value()->GetBlock(bpx, y, bpz);
 			if (block.has_value())

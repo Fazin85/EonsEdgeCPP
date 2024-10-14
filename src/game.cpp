@@ -79,14 +79,23 @@ namespace Eon
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
 
-		player = std::make_unique<Eon::Player>();
-		level = std::make_unique<Eon::Level>();
+		Window::Get().setMouseCursorVisible(false);
+
+		player = std::make_unique<Player>();
+		level = std::make_unique<Level>();
 
 		level->SkyColor() = glm::vec4(0.39f, 0.52f, 0.745f, 1.0f);
 
-		level_renderer = std::make_unique<Eon::LevelRenderer>();
+		level_renderer = std::make_unique<LevelRenderer>();
 		level_renderer->SetLevel(level.get());
-		level_renderer->MeshChunk(Eon::ChunkPosition(0, 0));
+
+		for (int x = 0; x < 32; x++)
+		{
+			for (int z = 0; z < 32; z++)
+			{
+				level_renderer->MeshChunk(ChunkPosition(x, z));
+			}
+		}
 	}
 
 	void Game::Update(float dt)

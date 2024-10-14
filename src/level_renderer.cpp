@@ -96,7 +96,7 @@ namespace Eon
 		{
 			if (player.GetCamera().GetFrustum().BoxInFrustum(chunkRenderer->GetAABB()))
 			{
-				chunk_shader->UniformIVec3("chunkPos", glm::ivec3(chunkPosition.x * 16, 0, chunkPosition.z * 16));
+				chunk_shader->UniformFVec3("chunkPos", glm::vec3(chunkPosition.x * 16, 0, chunkPosition.z * 16));
 
 				chunkRenderer->Render();
 			}

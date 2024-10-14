@@ -145,7 +145,6 @@
     <ClCompile Include="src\level.cpp" />
     <ClCompile Include="src\level_renderer.cpp" />
     <ClCompile Include="src\level_renderer.h" />
-    <ClCompile Include="src\level_terrain_generator.cpp" />
     <ClCompile Include="src\log.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\player.cpp" />
@@ -172,8 +171,6 @@
     <ClInclude Include="src\file_util.h" />
     <ClInclude Include="src\index_buffer_object.h" />
     <ClInclude Include="src\level.h" />
-    <ClInclude Include="src\level_terrain_generation_pass.h" />
-    <ClInclude Include="src\level_terrain_generator.h" />
     <ClInclude Include="src\log.h" />
     <ClInclude Include="src\num.h" />
     <ClInclude Include="src\player.h" />
