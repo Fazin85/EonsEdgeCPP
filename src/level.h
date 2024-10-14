@@ -18,8 +18,8 @@ namespace Eon
 		Level();
 		std::optional<Chunk*> GetChunk(ChunkPosition position);
 		Chunk* GetChunkUnsafe(ChunkPosition position);
-		std::optional<Block> GetBlock(i16 x, i16 y, i16 z);
-		std::optional<Block> GetBlock(glm::ivec3 position);
+		Block* GetBlock(i16 x, i16 y, i16 z);
+		Block* GetBlock(glm::ivec3 position);
 		glm::vec4& SkyColor();
 
 	private:

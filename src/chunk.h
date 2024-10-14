@@ -10,7 +10,7 @@ namespace Eon
 	{
 	public:
 		Chunk(ChunkPosition chunkPosition);
-		std::optional<Block*> GetBlock(u8 x, u16 y, u8 z);
+		Block* GetBlock(u8 x, u16 y, u8 z);
 		ChunkPosition Position() const;
 
 	private:

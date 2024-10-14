@@ -113,7 +113,7 @@ namespace Eon
 				BuildChunkMesh(chunkPosition);
 			}
 
-			std::this_thread::sleep_for(std::chrono::milliseconds(16));
+			//std::this_thread::sleep_for(std::chrono::milliseconds(16));
 		}
 	}
 
@@ -133,13 +133,13 @@ namespace Eon
 					glm::ivec3 position(x, y, z);
 					auto block = chunk->GetBlock(x, y, z);
 
-					if (!block.has_value())
+					if (block == nullptr)
 					{
 						EON_ERROR("Block was nullptr");
 						break;
 					}
 
-					if (block.value()->type == BlockType::AIR)
+					if (block->type == BlockType::AIR)
 					{
 						continue;
 					}
@@ -147,20 +147,20 @@ namespace Eon
 					Directions dir = Directions::Left;
 					if (x > 0)
 					{
-						if (chunk->GetBlock(x - 1, y, z).value()->type == BlockType::AIR)
+						if (chunk->GetBlock(x - 1, y, z)->type == BlockType::AIR)
 						{
-							AddFace(meshData, position, block.value()->type, dir);
+							AddFace(meshData, position, block->type, dir);
 							numFaces++;
 						}
 					}
 					else
 					{
 						auto sideBlock = level->GetBlock(chunkPosition + glm::ivec3(x - 1, y, z));
-						if (sideBlock.has_value())
+						if (sideBlock != nullptr)
 						{
 							if (sideBlock->type == BlockType::AIR)
 							{
-								AddFace(meshData, position, block.value()->type, dir);
+								AddFace(meshData, position, block->type, dir);
 								numFaces++;
 							}
 						}
@@ -169,20 +169,20 @@ namespace Eon
 					dir = Directions::Right;
 					if (x < 15)
 					{
-						if (chunk->GetBlock(x + 1, y, z).value()->type == BlockType::AIR)
+						if (chunk->GetBlock(x + 1, y, z)->type == BlockType::AIR)
 						{
-							AddFace(meshData, position, block.value()->type, dir);
+							AddFace(meshData, position, block->type, dir);
 							numFaces++;
 						}
 					}
 					else
 					{
 						auto sideBlock = level->GetBlock(chunkPosition + glm::ivec3(x + 1, y, z));
-						if (sideBlock.has_value())
+						if (sideBlock != nullptr)
 						{
 							if (sideBlock->type == BlockType::AIR)
 							{
-								AddFace(meshData, position, block.value()->type, dir);
+								AddFace(meshData, position, block->type, dir);
 								numFaces++;
 							}
 						}
@@ -191,50 +191,50 @@ namespace Eon
 					dir = Directions::Top;
 					if (y < 511)
 					{
-						if (chunk->GetBlock(x, y + 1, z).value()->type == BlockType::AIR)
+						if (chunk->GetBlock(x, y + 1, z)->type == BlockType::AIR)
 						{
-							AddFace(meshData, position, block.value()->type, dir);
+							AddFace(meshData, position, block->type, dir);
 							numFaces++;
 						}
 					}
 					else
 					{
-						AddFace(meshData, position, block.value()->type, dir);
+						AddFace(meshData, position, block->type, dir);
 						numFaces++;
 					}
 
 					dir = Directions::Bottom;
 					if (y > 0)
 					{
-						if (chunk->GetBlock(x, y - 1, z).value()->type == BlockType::AIR)
+						if (chunk->GetBlock(x, y - 1, z)->type == BlockType::AIR)
 						{
-							AddFace(meshData, position, block.value()->type, dir);
+							AddFace(meshData, position, block->type, dir);
 							numFaces++;
 						}
 					}
 					else
 					{
-						AddFace(meshData, position, block.value()->type, dir);
+						AddFace(meshData, position, block->type, dir);
 						numFaces++;
 					}
 
 					dir = Directions::Front;
 					if (z < 15)
 					{
-						if (chunk->GetBlock(x, y, z + 1).value()->type == BlockType::AIR)
+						if (chunk->GetBlock(x, y, z + 1)->type == BlockType::AIR)
 						{
-							AddFace(meshData, position, block.value()->type, dir);
+							AddFace(meshData, position, block->type, dir);
 							numFaces++;
 						}
 					}
 					else
 					{
 						auto sideBlock = level->GetBlock(chunkPosition + glm::ivec3(x, y, z + 1));
-						if (sideBlock.has_value())
+						if (sideBlock != nullptr)
 						{
 							if (sideBlock->type == BlockType::AIR)
 							{
-								AddFace(meshData, position, block.value()->type, dir);
+								AddFace(meshData, position, block->type, dir);
 								numFaces++;
 							}
 						}
@@ -243,20 +243,20 @@ namespace Eon
 					dir = Directions::Back;
 					if (z > 0)
 					{
-						if (chunk->GetBlock(x, y, z - 1).value()->type == BlockType::AIR)
+						if (chunk->GetBlock(x, y, z - 1)->type == BlockType::AIR)
 						{
-							AddFace(meshData, position, block.value()->type, dir);
+							AddFace(meshData, position, block->type, dir);
 							numFaces++;
 						}
 					}
 					else
 					{
 						auto sideBlock = level->GetBlock(chunkPosition + glm::ivec3(x, y, z - 1));
-						if (sideBlock.has_value())
+						if (sideBlock != nullptr)
 						{
 							if (sideBlock->type == BlockType::AIR)
 							{
-								AddFace(meshData, position, block.value()->type, dir);
+								AddFace(meshData, position, block->type, dir);
 								numFaces++;
 							}
 						}

@@ -6,11 +6,11 @@ namespace Eon
 	{
 	}
 
-	std::optional<Block*> Chunk::GetBlock(u8 x, u16 y, u8 z)
+	Block* Chunk::GetBlock(u8 x, u16 y, u8 z)
 	{
 		if (x >= 16 || z >= 16 || y >= 512 || x < 0 || z < 0 || y < 0)
 		{
-			return {};
+			return nullptr;
 		};
 
 		return &blocks[IndexFromPosition(x, y, z)];

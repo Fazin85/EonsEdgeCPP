@@ -38,7 +38,7 @@ namespace Eon
 
 						for (int y = 0; y < height; y++)
 						{
-							chunk->GetBlock(x, y, z).value()->type = BlockType::STONE;
+							chunk->GetBlock(x, y, z)->type = BlockType::STONE;
 						}
 					}
 				}
@@ -64,7 +64,7 @@ namespace Eon
 		return chunks[index].get();
 	}
 
-	std::optional<Block> Level::GetBlock(i16 x, i16 y, i16 z)
+	Block* Level::GetBlock(i16 x, i16 y, i16 z)
 	{
 		auto chunk = GetChunk(ChunkPosition{ .x = static_cast<u8>(x >> 4),
 											  .z = static_cast<u8>(z >> 4) });
@@ -74,17 +74,13 @@ namespace Eon
 			u8 bpx = x - (chunk.value()->Position().x * 16);
 			u8 bpz = x - (chunk.value()->Position().z * 16);
 
-			auto block = chunk.value()->GetBlock(bpx, y, bpz);
-			if (block.has_value())
-			{
-				return *block.value();
-			}
+			return chunk.value()->GetBlock(bpx, y, bpz);
 		}
 
-		return {};
+		return nullptr;
 	}
 
-	std::optional<Block> Level::GetBlock(glm::ivec3 position)
+	Block* Level::GetBlock(glm::ivec3 position)
 	{
 		return GetBlock(static_cast<i16>(position.x), static_cast<i16>(position.y), static_cast<i16>(position.z));
 	}

@@ -53,8 +53,6 @@ namespace Eon
 			Render();
 
 			Window::Get().display();
-
-			std::this_thread::sleep_for(std::chrono::milliseconds(6));
 		}
 
 		EON_INFO("Shutting down...");
