@@ -1,6 +1,7 @@
 #include "block_texture.h"
 #include "level_renderer.h"
 #include "log.h"
+#include "fps.h"
 
 namespace Eon
 {
@@ -18,8 +19,8 @@ namespace Eon
 		chunk_shader->UniformFVec3("light_color", glm::vec3(1, 1, 1));
 		chunk_shader->UniformFloat("ambient_light", 0.15f);
 		chunk_shader->UniformMatrix4("model", glm::mat4(1.0f));
-		chunk_shader->UniformFloat("fog_near", ((12 * 16) / 2) - 16);
-		chunk_shader->UniformFloat("fog_far", 500);
+		chunk_shader->UniformFloat("fog_near", ((12 * CHUNK_WIDTH) / 2) - CHUNK_WIDTH);
+		chunk_shader->UniformFloat("fog_far", 50000);
 
 		Image image("BlockAtlas.png");
 		chunk_texture = std::make_unique<Texture>(image);
@@ -96,7 +97,7 @@ namespace Eon
 		{
 			if (player.GetCamera().GetFrustum().BoxInFrustum(chunkRenderer->GetAABB()))
 			{
-				chunk_shader->UniformFVec3("chunkPos", glm::vec3(chunkPosition.x * 16, 0, chunkPosition.z * 16));
+				chunk_shader->UniformFVec3("chunkPos", glm::vec3(chunkPosition.x * CHUNK_WIDTH, 0, chunkPosition.z * CHUNK_WIDTH));
 
 				chunkRenderer->Render();
 			}
@@ -120,14 +121,14 @@ namespace Eon
 	void LevelRenderer::BuildChunkMesh(ChunkPosition inChunkPosition)
 	{
 		Chunk* chunk = level->GetChunk(inChunkPosition);
-		glm::ivec3 chunkPosition(chunk->Position().x * 16, 0, chunk->Position().z * 16);
+		glm::ivec3 chunkPosition(chunk->Position().x * CHUNK_WIDTH, 0, chunk->Position().z * CHUNK_WIDTH);
 		ChunkMeshData meshData{};
 
-		for (int x = 0; x < 16; x++)
+		for (int x = 0; x < CHUNK_WIDTH; x++)
 		{
-			for (int z = 0; z < 16; z++)
+			for (int z = 0; z < CHUNK_WIDTH; z++)
 			{
-				for (int y = 0; y < 512; y++)
+				for (int y = 0; y < CHUNK_HEIGHT; y++)
 				{
 					int numFaces = 0;
 					glm::ivec3 position(x, y, z);
@@ -167,7 +168,7 @@ namespace Eon
 					}
 
 					dir = Directions::Right;
-					if (x < 15)
+					if (x < CHUNK_WIDTH - 1)
 					{
 						if (chunk->GetBlock(x + 1, y, z)->type == BlockType::AIR)
 						{
@@ -189,7 +190,7 @@ namespace Eon
 					}
 
 					dir = Directions::Top;
-					if (y < 511)
+					if (y < CHUNK_HEIGHT - 1)
 					{
 						if (chunk->GetBlock(x, y + 1, z)->type == BlockType::AIR)
 						{
@@ -219,7 +220,7 @@ namespace Eon
 					}
 
 					dir = Directions::Front;
-					if (z < 15)
+					if (z < CHUNK_WIDTH - 1)
 					{
 						if (chunk->GetBlock(x, y, z + 1)->type == BlockType::AIR)
 						{

@@ -158,6 +158,9 @@
     <ClInclude Include="src\billboard_sprite.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\fps.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="vcpkg.json" />

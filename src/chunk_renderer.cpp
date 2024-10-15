@@ -115,9 +115,9 @@ namespace Eon
 
 	AABB ChunkRenderer::GetAABB()
 	{
-		AABB aabb(glm::vec3(16, 512, 16));
+		AABB aabb(glm::vec3(CHUNK_WIDTH, 512, CHUNK_WIDTH));
 
-		aabb.Update(glm::vec3(chunk->Position().x * 16, 0, chunk->Position().z * 16));
+		aabb.Update(glm::vec3(chunk->Position().x * CHUNK_WIDTH, 0, chunk->Position().z * CHUNK_WIDTH));
 
 		return aabb;
 	}

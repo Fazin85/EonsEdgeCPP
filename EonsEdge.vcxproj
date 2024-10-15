@@ -160,6 +160,7 @@
     <ClInclude Include="src\aabb.h" />
     <ClInclude Include="src\billboard_sprite.h" />
     <ClInclude Include="src\fast_noise_lite.h" />
+    <ClInclude Include="src\fps.h" />
     <ClInclude Include="src\frustum.h" />
     <ClInclude Include="src\game.h" />
     <ClInclude Include="src\image.h" />

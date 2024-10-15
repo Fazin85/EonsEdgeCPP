@@ -10,6 +10,8 @@
 #include <glm/vec4.hpp>
 #include <memory>
 
+#define LEVEL_WIDTH_CHUNKS 32
+
 namespace Eon
 {
 	class Level
@@ -23,7 +25,7 @@ namespace Eon
 		glm::vec4& SkyColor();
 
 	private:
-		std::array<std::unique_ptr<Chunk>, 1024> chunks;
+		std::array<std::unique_ptr<Chunk>, LEVEL_WIDTH_CHUNKS* LEVEL_WIDTH_CHUNKS> chunks;
 		u32 IndexFromPosition(i16 x, i16 z);
 		glm::vec4 sky_color;
 	};

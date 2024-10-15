@@ -8,7 +8,7 @@ namespace Eon
 
 	Block* Chunk::GetBlock(u8 x, u16 y, u8 z)
 	{
-		if (x >= 16 || z >= 16 || y >= 512 || x < 0 || z < 0 || y < 0)
+		if (x >= CHUNK_WIDTH || z >= CHUNK_WIDTH || y >= CHUNK_HEIGHT || x < 0 || z < 0 || y < 0)
 		{
 			return nullptr;
 		};
@@ -23,6 +23,6 @@ namespace Eon
 
 	u32 Chunk::IndexFromPosition(u8 x, u16 y, u8 z)
 	{
-		return x + 16 * (y + 512 * z);
+		return x + CHUNK_WIDTH * (y + CHUNK_HEIGHT * z);
 	}
 } // namespace Eon

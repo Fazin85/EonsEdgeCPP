@@ -14,7 +14,7 @@ namespace Eon
 
 		EON_INFO("Starting...");
 
-		Window::Create(1280, 720, 160, "Eon's Edge");
+		Window::Create(1280, 720, 240, "Eon's Edge");
 
 		gladLoadGL();
 
@@ -89,9 +89,9 @@ namespace Eon
 		Image image("Test.png");
 		sprite = std::make_unique<BillboardSprite>(image);
 
-		for (int x = 0; x < 32; x++)
+		for (int x = 0; x < LEVEL_WIDTH_CHUNKS; x++)
 		{
-			for (int z = 0; z < 32; z++)
+			for (int z = 0; z < LEVEL_WIDTH_CHUNKS; z++)
 			{
 				level_renderer->MeshChunk(ChunkPosition(x, z));
 			}

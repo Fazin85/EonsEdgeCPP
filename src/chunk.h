@@ -4,6 +4,9 @@
 #include "chunk_position.h"
 #include <optional>
 
+#define CHUNK_WIDTH 32
+#define CHUNK_HEIGHT 512
+
 namespace Eon
 {
 	class Chunk
@@ -16,6 +19,6 @@ namespace Eon
 	private:
 		u32 IndexFromPosition(u8 x, u16 y, u8 z);
 		ChunkPosition position;
-		Block blocks[131072];
+		Block blocks[CHUNK_WIDTH * CHUNK_HEIGHT * CHUNK_WIDTH];
 	};
 }  // namespace Eon
