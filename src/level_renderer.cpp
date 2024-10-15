@@ -1,6 +1,6 @@
+#include "block_texture.h"
 #include "level_renderer.h"
 #include "log.h"
-#include "block_texture.h"
 
 namespace Eon
 {

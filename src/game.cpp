@@ -1,7 +1,6 @@
 #include "game.h"
 #include "window.h"
 #include <chrono>
-#include <glad/glad.h>
 #include <SFML/Window.hpp>
 #include <thread>
 

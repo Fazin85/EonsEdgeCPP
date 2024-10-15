@@ -3,7 +3,6 @@
 #include "shader.h"
 #include <iostream>
 #include <vector>
-#include "SFML/OpenGL.hpp"
 
 namespace Eon
 {

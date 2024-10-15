@@ -155,9 +155,6 @@
     <ClInclude Include="src\fast_noise_lite.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\rect.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\billboard_sprite.h">
       <Filter>Header Files</Filter>
     </ClInclude>

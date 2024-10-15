@@ -1,9 +1,9 @@
 #pragma once
 
-#include "player.h"
+#include "billboard_sprite.h"
 #include "level.h"
 #include "level_renderer.h"
-#include "billboard_sprite.h"
+#include "player.h"
 
 namespace Eon
 {
