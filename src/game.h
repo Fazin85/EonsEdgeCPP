@@ -3,6 +3,7 @@
 #include "player.h"
 #include "level.h"
 #include "level_renderer.h"
+#include "billboard_sprite.h"
 
 namespace Eon
 {
@@ -22,5 +23,6 @@ namespace Eon
 		std::unique_ptr<Player> player;
 		std::unique_ptr<Level> level;
 		std::unique_ptr<LevelRenderer> level_renderer;
+		std::unique_ptr<BillboardSprite> sprite;
 	};
 }

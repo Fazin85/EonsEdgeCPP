@@ -88,6 +88,11 @@ namespace Eon
 		glUniformMatrix4fv(uniform_cache[uniformName], 1, GL_TRUE, &matrix[0][0]);
 	}
 
+	void Shader::UniformMatrix4NoTranspose(const std::string& uniformName, const glm::mat4& matrix)
+	{
+		glUniformMatrix4fv(uniform_cache[uniformName], 1, GL_FALSE, &matrix[0][0]);
+	}
+
 	void Shader::UniformIVec3(const std::string& uniformName, const glm::ivec3& vec)
 	{
 		glUniform3iv(uniform_cache[uniformName], 1, &vec[0]);
@@ -106,5 +111,13 @@ namespace Eon
 	void Shader::UniformFVec4(const std::string& uniformName, glm::vec4 vec)
 	{
 		glUniform4fv(uniform_cache[uniformName], 1, &vec[0]);
+	}
+	void Shader::UniformFVec2(const std::string& uniformName, glm::vec2 vec)
+	{
+		glUniform2fv(uniform_cache[uniformName], 1, &vec[0]);
+	}
+	void Shader::UniformInt1(const std::string& uniformName, int value)
+	{
+		glUniform1i(uniform_cache[uniformName], value);
 	}
 }

@@ -87,6 +87,9 @@ namespace Eon
 		level_renderer = std::make_unique<LevelRenderer>();
 		level_renderer->SetLevel(level.get());
 
+		Image image("Test.png");
+		sprite = std::make_unique<BillboardSprite>(image);
+
 		for (int x = 0; x < 32; x++)
 		{
 			for (int z = 0; z < 32; z++)
@@ -106,6 +109,8 @@ namespace Eon
 	void Game::Render()
 	{
 		level_renderer->Render(*player.get());
+
+		sprite->Render(player->GetCamera(), player->Position());
 	}
 
 	void Game::OnExit()

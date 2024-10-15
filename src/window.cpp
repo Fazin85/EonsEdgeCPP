@@ -18,4 +18,9 @@ namespace Eon
 	{
 		return *window;
 	}
+
+	float Window::Aspect()
+	{
+		return static_cast<float>(window->getSize().x) / static_cast<float>(window->getSize().y);
+	}
 }

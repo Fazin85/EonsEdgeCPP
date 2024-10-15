@@ -1,18 +1,24 @@
 #pragma once
 
-#include <string>
-#include <glad/glad.h>
 #include "image.h"
+#include <glad/glad.h>
+#include <glm/vec2.hpp>
+#include <string>
 
-class Texture
+namespace Eon
 {
-public:
-	Texture(Image& image);
-	~Texture();
+	class Texture
+	{
+	public:
+		Texture(Image& image);
+		~Texture();
 
-	void Bind() const;
-	void Unbind();
+		void Bind() const;
+		void Unbind();
+		glm::ivec2 Size() const;
 
-private:
-	GLuint id;
-};
+	private:
+		GLuint id;
+		glm::ivec2 size;
+	};
+}

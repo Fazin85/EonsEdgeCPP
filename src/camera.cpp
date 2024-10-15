@@ -39,11 +39,11 @@ namespace Eon
 		view_matrix = glm::lookAt(position, position + front, up);
 	}
 
-	glm::mat4 Camera::ViewMatrix() const { return view_matrix; }
+	glm::mat4* Camera::ViewMatrix() { return &view_matrix; }
 
-	glm::mat4 Camera::ProjectionMatrix() const
+	glm::mat4* Camera::ProjectionMatrix()
 	{
-		return proj_matrix;
+		return &proj_matrix;
 	}
 
 	void Camera::Update(float dt)
@@ -100,6 +100,16 @@ namespace Eon
 		frustum.Update(proj_matrix * view_matrix);
 
 		return frustum;
+	}
+
+	glm::vec2 Camera::ClippingPlanes() const
+	{
+		return clipping_planes;
+	}
+
+	float Camera::Fov() const
+	{
+		return fov;
 	}
 
 	void Camera::CalculateProjectionMatrix()

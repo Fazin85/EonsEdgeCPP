@@ -19,7 +19,7 @@ namespace Eon
 		chunk_shader->UniformFloat("ambient_light", 0.15f);
 		chunk_shader->UniformMatrix4("model", glm::mat4(1.0f));
 		chunk_shader->UniformFloat("fog_near", ((12 * 16) / 2) - 16);
-		chunk_shader->UniformFloat("fog_far", 100000);
+		chunk_shader->UniformFloat("fog_far", 500);
 
 		Image image("BlockAtlas.png");
 		chunk_texture = std::make_unique<Texture>(image);
@@ -86,8 +86,8 @@ namespace Eon
 		chunk_shader->Bind();
 		chunk_shader->UniformFVec4("fog_color", level->SkyColor());
 		player.GetCamera().CalculateViewMatrix(glm::vec3(0, 0, 0));
-		chunk_shader->UniformMatrix4("view", player.GetCamera().ViewMatrix());
-		chunk_shader->UniformMatrix4("projection", player.GetCamera().ProjectionMatrix());
+		chunk_shader->UniformMatrix4("view", *player.GetCamera().ViewMatrix());
+		chunk_shader->UniformMatrix4("projection", *player.GetCamera().ProjectionMatrix());
 		chunk_shader->UniformFVec3("camPos", player.Position());
 
 		player.GetCamera().CalculateViewMatrix(player.Position());

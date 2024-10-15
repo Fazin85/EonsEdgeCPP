@@ -133,6 +133,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\billboard_sprite.cpp" />
     <ClCompile Include="src\frustum.cpp" />
     <ClCompile Include="src\game.cpp" />
     <ClCompile Include="src\image.cpp" />
@@ -157,6 +158,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\aabb.h" />
+    <ClInclude Include="src\billboard_sprite.h" />
     <ClInclude Include="src\fast_noise_lite.h" />
     <ClInclude Include="src\frustum.h" />
     <ClInclude Include="src\game.h" />
@@ -175,6 +177,7 @@
     <ClInclude Include="src\log.h" />
     <ClInclude Include="src\num.h" />
     <ClInclude Include="src\player.h" />
+    <ClInclude Include="src\rect.h" />
     <ClInclude Include="src\shader.h" />
     <ClInclude Include="src\stb_image.h" />
     <ClInclude Include="src\texture.h" />
@@ -186,6 +189,9 @@
     <None Include=".gitignore" />
     <None Include="vcpkg-configuration.json" />
     <None Include="vcpkg.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="C:\Users\GODDIDIDIIDID\Downloads\player.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
