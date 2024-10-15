@@ -14,8 +14,8 @@ namespace Eon
 		GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
 		GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 
-		std::string vertexSource = FileUtil::GetFileContents("Content/Shaders/" + vertexShaderName);
-		std::string fragmentSource = FileUtil::GetFileContents("Content/Shaders/" + fragmentShaderName);
+		std::string vertexSource = FileUtil::GetFileContents("content/shaders/" + vertexShaderName);
+		std::string fragmentSource = FileUtil::GetFileContents("content/shaders/" + fragmentShaderName);
 
 		if (vertexSource == "")
 		{

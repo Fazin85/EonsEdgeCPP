@@ -6,7 +6,7 @@
 
 Image::Image(const std::string& filePath)
 {
-	std::string realFilePath = "Content/Images/" + filePath;
+	std::string realFilePath = "content/images/" + filePath;
 	stbi_set_flip_vertically_on_load(true);
 
 	int channels;
