@@ -1,7 +1,12 @@
 #include "block_texture.h"
 #include "level_renderer.h"
 #include "log.h"
-#include "fps.h"
+#include "settings.h"
+
+static float Distance(const glm::vec3& pos1, const glm::vec3& pos2)
+{
+	return sqrtf((pos1.x - pos2.x) * (pos1.x - pos2.x) + (pos1.y - pos2.y) * (pos1.y - pos2.y) + (pos1.z - pos2.z) * (pos1.z - pos2.z));
+}
 
 namespace Eon
 {
@@ -19,8 +24,11 @@ namespace Eon
 		chunk_shader->UniformFVec3("light_color", glm::vec3(1, 1, 1));
 		chunk_shader->UniformFloat("ambient_light", 0.15f);
 		chunk_shader->UniformMatrix4("model", glm::mat4(1.0f));
-		chunk_shader->UniformFloat("fog_near", ((12 * CHUNK_WIDTH) / 2) - CHUNK_WIDTH);
-		chunk_shader->UniformFloat("fog_far", 50000);
+		chunk_shader->UniformFloat("fog_near", ((GameSettings.render_distance * CHUNK_WIDTH) / 2) + CHUNK_WIDTH);
+
+		int fogFar = GameSettings.fog ? GameSettings.render_distance * CHUNK_WIDTH - CHUNK_WIDTH : 100000;
+
+		chunk_shader->UniformFloat("fog_far", fogFar);
 
 		Image image("BlockAtlas.png");
 		chunk_texture = std::make_unique<Texture>(image);
@@ -93,14 +101,19 @@ namespace Eon
 
 		player.GetCamera().CalculateViewMatrix(player.Position());
 
+		glm::vec3 playerChunkPosition = glm::vec3((static_cast<int>(player.Position().x) >> 5) * CHUNK_WIDTH, 0, (static_cast<int>(player.Position().z) >> 5) * CHUNK_WIDTH);
+
 		for (const auto& [chunkPosition, chunkRenderer] : chunk_renderers)
 		{
-			if (player.GetCamera().GetFrustum().BoxInFrustum(chunkRenderer->GetAABB()))
+			if (Distance(playerChunkPosition, glm::vec3(chunkPosition.x * CHUNK_WIDTH, 0, chunkPosition.z * CHUNK_WIDTH)) > GameSettings.render_distance * CHUNK_WIDTH ||
+				!player.GetCamera().GetFrustum().BoxInFrustum(chunkRenderer->GetAABB()))
 			{
-				chunk_shader->UniformFVec3("chunkPos", glm::vec3(chunkPosition.x * CHUNK_WIDTH, 0, chunkPosition.z * CHUNK_WIDTH));
-
-				chunkRenderer->Render();
+				continue;
 			}
+
+			chunk_shader->UniformFVec3("chunkPos", glm::vec3(chunkPosition.x * CHUNK_WIDTH, 0, chunkPosition.z * CHUNK_WIDTH));
+
+			chunkRenderer->Render();
 		}
 	}
 
