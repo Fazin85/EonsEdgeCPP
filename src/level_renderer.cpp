@@ -119,7 +119,7 @@ namespace Eon
 
 	void LevelRenderer::BuildChunkMesh(ChunkPosition inChunkPosition)
 	{
-		Chunk* chunk = level->GetChunk(inChunkPosition).value();
+		Chunk* chunk = level->GetChunk(inChunkPosition);
 		glm::ivec3 chunkPosition(chunk->Position().x * 16, 0, chunk->Position().z * 16);
 		ChunkMeshData meshData{};
 
