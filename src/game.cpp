@@ -98,7 +98,7 @@ namespace Eon
 	{
 		level_renderer->Update();
 
-		if (idx < LEVEL_WIDTH_CHUNKS * LEVEL_WIDTH_CHUNKS && !level_renderer->MeshingAllChunks())
+		/*if (idx < LEVEL_WIDTH_CHUNKS * LEVEL_WIDTH_CHUNKS && !level_renderer->MeshingAllChunks())
 		{
 			auto start = std::chrono::high_resolution_clock::now();
 
@@ -110,7 +110,7 @@ namespace Eon
 			auto duration = duration_cast<std::chrono::microseconds>(end - start);
 			EON_INFO("time:");
 			EON_INFO(duration.count());
-		}
+		}*/
 
 		player->Update(dt);
 	}

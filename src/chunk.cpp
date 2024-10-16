@@ -62,6 +62,7 @@ namespace Eon
 		compressed_blocks = reinterpret_cast<char*>(std::realloc(compressed_blocks, compressed_blocks_size));
 
 		delete[] blocks;
+		blocks = nullptr;
 
 		compressed = true;
 	}
@@ -78,6 +79,7 @@ namespace Eon
 		int decompressedSize = LZ4_decompress_safe(compressed_blocks, reinterpret_cast<char*>(blocks), compressed_blocks_size, SrcSize);
 
 		delete[] compressed_blocks;
+		compressed_blocks = nullptr;
 
 		if (decompressedSize != SrcSize || decompressedSize < 0)
 		{
