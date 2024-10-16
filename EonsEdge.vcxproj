@@ -150,6 +150,7 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\player.cpp" />
     <ClCompile Include="src\shader.cpp" />
+    <ClCompile Include="src\skybox.cpp" />
     <ClCompile Include="src\texture.cpp" />
     <ClCompile Include="src\vertex_array_object.cpp" />
     <ClCompile Include="src\vertex_buffer_object.cpp" />
@@ -159,6 +160,7 @@
   <ItemGroup>
     <ClInclude Include="src\aabb.h" />
     <ClInclude Include="src\billboard_sprite.h" />
+    <ClInclude Include="src\skybox.h" />
     <ClInclude Include="src\fast_noise_lite.h" />
     <ClInclude Include="src\fps.h" />
     <ClInclude Include="src\frustum.h" />

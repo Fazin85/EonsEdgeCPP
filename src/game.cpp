@@ -75,7 +75,6 @@ namespace Eon
 		glEnable(GL_DEPTH_TEST);
 		glFrontFace(GL_CCW);
 		glEnable(GL_CULL_FACE);
-		glCullFace(GL_BACK);
 
 		Window::Get().setMouseCursorVisible(false);
 
@@ -89,6 +88,18 @@ namespace Eon
 
 		Image image("Test.png");
 		sprite = std::make_unique<BillboardSprite>(image);
+
+		std::string facesCubemap[6] =
+		{
+			"right.jpg",
+			"left.jpg",
+			"top.jpg",
+			"bottom.jpg",
+			"front.jpg",
+			"back.jpg"
+		};
+
+		skybox = std::make_unique<Skybox>(&facesCubemap[0]);
 
 		level_renderer->MeshAllChunks();
 	}
@@ -117,9 +128,15 @@ namespace Eon
 
 	void Game::Render()
 	{
+		glm::vec4 skyColor = level->SkyColor();
+		//glClearColor(skyColor.x, skyColor.y, skyColor.z, skyColor.w);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 		level_renderer->Render(*player.get());
 
 		sprite->Render(player->GetCamera(), player->Position());
+
+		skybox->Render(player->GetCamera(), player->Position());
 	}
 
 	void Game::OnExit()
