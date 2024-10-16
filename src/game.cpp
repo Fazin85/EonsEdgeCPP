@@ -91,15 +91,16 @@ namespace Eon
 
 		std::string facesCubemap[6] =
 		{
-			"right.jpg",
-			"left.jpg",
-			"top.jpg",
-			"bottom.jpg",
-			"front.jpg",
-			"back.jpg"
+			"skybox/front.png",
+			"skybox/left.png",
+			"skybox/top.png",
+			"skybox/bottom.png",
+			"skybox/back.png",
+			"skybox/right.png"
 		};
 
 		skybox = std::make_unique<Skybox>(&facesCubemap[0]);
+		plane = std::make_unique<PlaneMesh>(image);
 
 		level_renderer->MeshAllChunks();
 	}
@@ -129,7 +130,6 @@ namespace Eon
 	void Game::Render()
 	{
 		glm::vec4 skyColor = level->SkyColor();
-		//glClearColor(skyColor.x, skyColor.y, skyColor.z, skyColor.w);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		level_renderer->Render(*player.get());
@@ -137,6 +137,8 @@ namespace Eon
 		sprite->Render(player->GetCamera(), player->Position());
 
 		skybox->Render(player->GetCamera(), player->Position());
+
+		plane->Render(player->GetCamera(), player->Position());
 	}
 
 	void Game::OnExit()

@@ -148,6 +148,7 @@
     <ClCompile Include="src\level_renderer.h" />
     <ClCompile Include="src\log.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\plane_mesh.cpp" />
     <ClCompile Include="src\player.cpp" />
     <ClCompile Include="src\shader.cpp" />
     <ClCompile Include="src\skybox.cpp" />
@@ -160,6 +161,7 @@
   <ItemGroup>
     <ClInclude Include="src\aabb.h" />
     <ClInclude Include="src\billboard_sprite.h" />
+    <ClInclude Include="src\plane_mesh.h" />
     <ClInclude Include="src\skybox.h" />
     <ClInclude Include="src\fast_noise_lite.h" />
     <ClInclude Include="src\fps.h" />

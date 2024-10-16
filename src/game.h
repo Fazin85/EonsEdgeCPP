@@ -5,6 +5,7 @@
 #include "level_renderer.h"
 #include "player.h"
 #include "skybox.h"
+#include "plane_mesh.h"
 
 namespace Eon
 {
@@ -26,5 +27,6 @@ namespace Eon
 		std::unique_ptr<LevelRenderer> level_renderer;
 		std::unique_ptr<BillboardSprite> sprite;
 		std::unique_ptr<Skybox> skybox;
+		std::unique_ptr<PlaneMesh> plane;
 	};
 }
