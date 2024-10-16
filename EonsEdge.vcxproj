@@ -192,11 +192,33 @@
   <ItemGroup>
     <None Include=".gitattributes" />
     <None Include=".gitignore" />
+    <None Include="content\shaders\Billboard.frag" />
+    <None Include="content\shaders\Billboard.vert" />
+    <None Include="content\shaders\Chunk.frag" />
+    <None Include="content\shaders\Chunk.vert" />
+    <None Include="content\shaders\Plane.frag" />
+    <None Include="content\shaders\Plane.vert" />
+    <None Include="content\shaders\Skybox.frag" />
+    <None Include="content\shaders\Skybox.vert" />
     <None Include="vcpkg-configuration.json" />
     <None Include="vcpkg.json" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="C:\Users\GODDIDIDIIDID\Downloads\player.png" />
+    <Image Include="content\images\back.jpg" />
+    <Image Include="content\images\BlockAtlas.png" />
+    <Image Include="content\images\bottom.jpg" />
+    <Image Include="content\images\front.jpg" />
+    <Image Include="content\images\left.jpg" />
+    <Image Include="content\images\right.jpg" />
+    <Image Include="content\images\skybox\back.png" />
+    <Image Include="content\images\skybox\bottom.png" />
+    <Image Include="content\images\skybox\front.png" />
+    <Image Include="content\images\skybox\left.png" />
+    <Image Include="content\images\skybox\right.png" />
+    <Image Include="content\images\skybox\top.png" />
+    <Image Include="content\images\Test.png" />
+    <Image Include="content\images\top.jpg" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
