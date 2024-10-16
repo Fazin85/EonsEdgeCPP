@@ -53,7 +53,9 @@ Eon::Skybox::Skybox(std::string* faceFileNames)
 				GL_UNSIGNED_BYTE,
 				data
 			);
+			
 			stbi_image_free(data);
+			EON_INFO("Loaded image: " + faceFileNames[i]);
 		}
 		else
 		{
