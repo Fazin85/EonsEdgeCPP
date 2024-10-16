@@ -14,6 +14,8 @@ namespace Eon
 	{
 		level = nullptr;
 		exit = false;
+		meshing_all_chunks = false;
+		meshing_all_meshed_chunks_count = 0;
 
 		mesh_thread = std::thread(&LevelRenderer::MeshThread, this);
 
@@ -49,6 +51,25 @@ namespace Eon
 	void LevelRenderer::MeshChunk(ChunkPosition chunkPosition)
 	{
 		chunks_to_mesh.enqueue(chunkPosition);
+	}
+
+	void LevelRenderer::MeshAllChunks()
+	{
+		meshing_all_chunks = true;
+		meshing_all_meshed_chunks_count = 0;
+
+		for (int x = 0; x < LEVEL_WIDTH_CHUNKS; x++)
+		{
+			for (int z = 0; z < LEVEL_WIDTH_CHUNKS; z++)
+			{
+				MeshChunk(ChunkPosition(x, z));
+			}
+		}
+	}
+
+	bool LevelRenderer::MeshingAllChunks() const
+	{
+		return meshing_all_chunks;
 	}
 
 	void LevelRenderer::RemoveMesh(ChunkPosition chunkPosition)
@@ -117,6 +138,11 @@ namespace Eon
 		}
 	}
 
+	int LevelRenderer::ChunkRendererCount()
+	{
+		return chunk_renderers.size();
+	}
+
 	void LevelRenderer::MeshThread()
 	{
 		while (!exit)
@@ -126,8 +152,6 @@ namespace Eon
 			{
 				BuildChunkMesh(chunkPosition);
 			}
-
-			//std::this_thread::sleep_for(std::chrono::milliseconds(16));
 		}
 	}
 
@@ -289,6 +313,17 @@ namespace Eon
 		chunk_renderers[chunk->Position()] = std::make_unique<ChunkRenderer>(chunk, meshData);
 
 		meshes_to_setup.enqueue(chunk->Position());
+
+		if (meshing_all_chunks)
+		{
+			meshing_all_meshed_chunks_count++;
+
+			if (meshing_all_meshed_chunks_count == LEVEL_WIDTH_CHUNKS * LEVEL_WIDTH_CHUNKS)
+			{
+				meshing_all_chunks = false;
+				meshing_all_meshed_chunks_count = 0;
+			}
+		}
 	}
 
 	void LevelRenderer::AddFace(ChunkMeshData& meshData, const glm::ivec3& blockPosition, BlockType blockType, Directions direction)

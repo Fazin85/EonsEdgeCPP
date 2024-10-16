@@ -13,12 +13,18 @@ namespace Eon
 	{
 	public:
 		Chunk(ChunkPosition chunkPosition);
+		~Chunk();
 		Block* GetBlock(u8 x, u16 y, u8 z);
 		ChunkPosition Position() const;
+		void Compress();
+		void Decompress();
 
 	private:
 		u32 IndexFromPosition(u8 x, u16 y, u8 z);
 		ChunkPosition position;
-		Block blocks[CHUNK_WIDTH * CHUNK_HEIGHT * CHUNK_WIDTH];
+		Block* blocks;
+		char* compressed_blocks;
+		size_t compressed_blocks_size;
+		bool compressed;
 	};
 }  // namespace Eon

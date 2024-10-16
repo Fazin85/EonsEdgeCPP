@@ -29,9 +29,12 @@ namespace Eon
 		~LevelRenderer();
 		void SetLevel(Level* level);
 		void MeshChunk(ChunkPosition chunkPosition);
+		void MeshAllChunks();
+		bool MeshingAllChunks() const;
 		void RemoveMesh(ChunkPosition chunkPosition);
 		void Update();
 		void Render(Player& player);
+		int ChunkRendererCount();
 
 	private:
 		void BuildChunkMesh(ChunkPosition inChunkPosition);
@@ -41,6 +44,8 @@ namespace Eon
 		const std::map<Directions, std::vector<glm::vec2>> GetUVsFromCoordinates(std::map<const Directions, const glm::vec2>& coords);
 		void AddIndices(ChunkMeshData& meshData, int count);
 
+		std::atomic_bool meshing_all_chunks;
+		std::atomic_int meshing_all_meshed_chunks_count;
 		std::unique_ptr<Shader> chunk_shader;
 		std::unique_ptr<Texture> chunk_texture;
 		std::thread mesh_thread;

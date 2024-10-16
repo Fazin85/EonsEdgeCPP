@@ -9,7 +9,7 @@ namespace Eon
 		settings.majorVersion = 3;
 		settings.minorVersion = 3;
 
-		window = new sf::Window(sf::VideoMode(width, height), name, sf::Style::Close, settings);
+		window = new sf::Window(sf::VideoMode(width, height), name, sf::Style::Fullscreen, settings);
 		window->setFramerateLimit(fps);
 		window->setActive(true);
 	}

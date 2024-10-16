@@ -3,6 +3,7 @@
 #include <chrono>
 #include <SFML/Window.hpp>
 #include <thread>
+#include <chrono>
 
 namespace Eon
 {
@@ -14,7 +15,7 @@ namespace Eon
 
 		EON_INFO("Starting...");
 
-		Window::Create(1280, 720, 160, "Eon's Edge");
+		Window::Create(3440, 1440, 160, "Eon's Edge");
 
 		gladLoadGL();
 
@@ -89,18 +90,27 @@ namespace Eon
 		Image image("Test.png");
 		sprite = std::make_unique<BillboardSprite>(image);
 
-		for (int x = 0; x < LEVEL_WIDTH_CHUNKS; x++)
-		{
-			for (int z = 0; z < LEVEL_WIDTH_CHUNKS; z++)
-			{
-				level_renderer->MeshChunk(ChunkPosition(x, z));
-			}
-		}
+		level_renderer->MeshAllChunks();
 	}
 
+	int idx = 0;
 	void Game::Update(float dt)
 	{
 		level_renderer->Update();
+
+		if (idx < LEVEL_WIDTH_CHUNKS * LEVEL_WIDTH_CHUNKS && !level_renderer->MeshingAllChunks())
+		{
+			auto start = std::chrono::high_resolution_clock::now();
+
+			level->GetChunkFromIndex(idx)->Compress();
+			level->GetChunkFromIndex(idx)->Decompress();
+			idx++;
+
+			auto end = std::chrono::high_resolution_clock::now();
+			auto duration = duration_cast<std::chrono::microseconds>(end - start);
+			EON_INFO("time:");
+			EON_INFO(duration.count());
+		}
 
 		player->Update(dt);
 	}

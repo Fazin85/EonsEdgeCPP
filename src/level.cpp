@@ -64,6 +64,16 @@ namespace Eon
 		return chunks[index].get();
 	}
 
+	Chunk* Level::GetChunkFromIndex(size_t index)
+	{
+		if (index >= chunks.size() || index < 0 || chunks[index] == nullptr)
+		{
+			return nullptr;
+		}
+
+		return chunks[index].get();
+	}
+
 	Block* Level::GetBlock(i16 x, i16 y, i16 z)
 	{
 		auto chunk = GetChunk(ChunkPosition{ .x = static_cast<u8>(x >> 5),

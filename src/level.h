@@ -20,6 +20,7 @@ namespace Eon
 		Level();
 		Chunk* GetChunk(ChunkPosition position);
 		Chunk* GetChunkUnsafe(ChunkPosition position);
+		Chunk* GetChunkFromIndex(size_t index);
 		Block* GetBlock(i16 x, i16 y, i16 z);
 		Block* GetBlock(glm::ivec3 position);
 		glm::vec4& SkyColor();
