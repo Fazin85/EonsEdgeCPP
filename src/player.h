@@ -2,15 +2,17 @@
 
 #include "camera.h"
 #include "glm/vec3.hpp"
+#include "level.h"
 #include "log.h"
 #include <memory>
+#include "bounding_box.h"
 
 namespace Eon
 {
 	class Player
 	{
 	public:
-		Player();
+		Player(Level* level);
 		void Update(float dt);
 		Camera& GetCamera();
 		glm::vec3 Position() const;
@@ -21,6 +23,9 @@ namespace Eon
 		glm::vec3 position;
 		glm::vec3 acceleration;
 		glm::vec3 velocity;
+		Level* level;
+		BoundingBox bb;
+
 		std::unique_ptr<Camera> camera;
 	};
 }

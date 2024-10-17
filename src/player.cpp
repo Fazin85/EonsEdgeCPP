@@ -1,14 +1,21 @@
-#include <glm/gtc/matrix_transform.hpp>
+#include "level.h"
 #include "player.h"
+#include <glm/gtc/matrix_transform.hpp>
 
 namespace Eon
 {
-	Player::Player()
+	glm::vec3 dimensions{ 0.6f, 1.8f, 0.6f };
+
+	Player::Player(Level* level) : bb(glm::vec3(0), glm::vec3(0))
 	{
+		this->level = level;
 		camera = std::make_unique<Camera>(70, 0.1);
 		position = glm::vec3(0, 0, 0);
 		acceleration = glm::vec3(0, 0, 0);
 		velocity = glm::vec3(0, 0, 0);
+		glm::vec3 halfDim(dimensions.x / 2, dimensions.y / 2, dimensions.z / 2);
+
+		bb = BoundingBox(position - halfDim, position + halfDim);
 	}
 
 	void Player::Update(float dt)
@@ -86,6 +93,49 @@ namespace Eon
 
 	void Player::Move(glm::vec3 amount)
 	{
-		position += amount;
+		glm::vec3 originalVelocity = amount;
+		std::vector<BoundingBox> bbs = level->GetBlockAABBs(bb.Expand(amount));
+
+		for (const auto& boundingBox : bbs)
+		{
+			amount.y = boundingBox.ClipCollideY(bb, amount.y);
+		}
+
+		bb.Move(glm::vec3(0.0f, amount.y, 0.0f));
+
+		for (const auto& boundingBox : bbs)
+		{
+			amount.x = boundingBox.ClipCollideX(bb, amount.x);
+		}
+
+		bb.Move(glm::vec3(amount.x, 0.0f, 0.0f));
+
+		for (const auto& boundingBox : bbs)
+		{
+			amount.z = boundingBox.ClipCollideZ(bb, amount.z);
+		}
+
+		bb.Move(glm::vec3(0.0f, 0.0f, amount.z));
+
+		if (originalVelocity.x != amount.x)
+		{
+			velocity.x = 0.0f;
+		}
+
+		if (originalVelocity.y != amount.y)
+		{
+			velocity.y = 0.0f;
+		}
+
+		if (originalVelocity.z != amount.z)
+		{
+			velocity.z = 0.0f;
+		}
+
+		constexpr float cameraHeight = 1.62f;
+
+		position.x = (bb.min.x + bb.max.x) / 2.0f;
+		position.y = bb.min.y + cameraHeight;
+		position.z = (bb.min.z + bb.max.z) / 2.0f;
 	}
 }

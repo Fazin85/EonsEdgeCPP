@@ -78,8 +78,8 @@ namespace Eon
 
 		Window::Get().setMouseCursorVisible(false);
 
-		player = std::make_unique<Player>();
 		level = std::make_unique<Level>();
+		player = std::make_unique<Player>(level.get());
 
 		level->SkyColor() = glm::vec4(0.39f, 0.52f, 0.745f, 1.0f);
 
@@ -115,7 +115,7 @@ namespace Eon
 			}
 		}
 
-		bedrock_plane = std::make_unique<PlaneMesh>(glm::vec3(1, 1, -64), glm::vec2(1024 * 10, 1024 * 10), stone);
+		bedrock_plane = std::make_unique<PlaneMesh>(glm::vec3(1, 1, -64), glm::vec2(10240, 10240), stone);
 		bedrock_plane->Rotate(0, -90);
 
 		level_renderer->MeshAllChunks();

@@ -34,7 +34,7 @@ namespace Eon
 						int nx = (cx * CHUNK_WIDTH) + x;
 						int nz = (cz * CHUNK_WIDTH) + z;
 
-						int height = (noise.GetNoise(static_cast<float>(nx * 0.1f), static_cast<float>(nz * 0.1f)) + 1) * 128;
+						int height = (noise.GetNoise(static_cast<float>(nx * 0.1f), static_cast<float>(nz * 0.1f)) + 1) * 64;
 
 						if (cx == 31)
 						{
@@ -115,6 +115,35 @@ namespace Eon
 	glm::vec4& Level::SkyColor()
 	{
 		return sky_color;
+	}
+
+	std::vector<BoundingBox> Level::GetBlockAABBs(const BoundingBox& bb)
+	{
+		std::vector<BoundingBox> bbs;
+
+		glm::ivec3 min = glm::ivec3(static_cast<int>(bb.min.x), static_cast<int>(bb.min.y), static_cast<int>(bb.min.z));
+		glm::ivec3 max = glm::ivec3(static_cast<int>(bb.max.x) + 1, static_cast<int>(bb.max.y) + 1, static_cast<int>(bb.max.z) + 1);
+
+		for (int x = min.x; x <= max.x; x++)
+		{
+			for (int y = min.y; y <= max.y; y++)
+			{
+				for (int z = min.z; z <= max.z; z++)
+				{
+					Block* block = GetBlock(glm::ivec3(x, y, z));
+
+					if (block != nullptr)
+					{
+						if (block->type != BlockType::AIR)
+						{
+							bbs.emplace_back(glm::vec3(x, y, z), glm::vec3(x + 1, y + 1, z + 1));
+						}
+					}
+				}
+			}
+		}
+
+		return bbs;
 	}
 
 	u32 Level::IndexFromPosition(i16 x, i16 z)
