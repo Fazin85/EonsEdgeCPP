@@ -12,10 +12,10 @@ namespace Eon
 		}
 
 		float vertices[]{
-			 position.x + scale.x,  position.y + scale.y, position.z,   1.0f * scale.x, 1.0f * scale.y,
-			 position.x + scale.x, position.y - scale.y, position.z,   1.0f * scale.x, 0.0f,
+			 position.x + scale.x,  position.y + scale.y, position.z,   scale.x, scale.y,
+			 position.x + scale.x, position.y - scale.y, position.z,   scale.x, 0.0f,
 			 position.x - scale.x, position.y - scale.y, position.z,   0.0f, 0.0f,
-			 position.x - scale.x,  position.y + scale.y, position.z,   0.0f, 1.0f * scale.y
+			 position.x - scale.x,  position.y + scale.y, position.z,   0.0f, scale.y
 		};
 
 		glGenVertexArrays(1, &vao);
@@ -67,23 +67,6 @@ namespace Eon
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 	}
 
-	void PlaneMesh::Render(Camera& camera, glm::vec3 cameraPosition, Shader& shader)
-	{
-		glActiveTexture(GL_TEXTURE0);
-		texture->Bind();
-
-		shader.Bind();
-
-		camera.CalculateViewMatrix(cameraPosition);
-
-		shader.UniformMatrix4NoTranspose("model", model_matrix);
-		shader.UniformMatrix4NoTranspose("view", *camera.ViewMatrix());
-		shader.UniformMatrix4NoTranspose("projection", *camera.ProjectionMatrix());
-
-		glBindVertexArray(vao);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-	}
-
 	void PlaneMesh::Rotate(int axis, float degrees)
 	{
 		switch (axis)
@@ -101,10 +84,5 @@ namespace Eon
 			EON_ERROR("Invalid axis: " + std::to_string(axis));
 			break;
 		}
-	}
-
-	void PlaneMesh::Scale(glm::vec3 amount)
-	{
-		model_matrix = glm::scale(model_matrix, amount);
 	}
 }

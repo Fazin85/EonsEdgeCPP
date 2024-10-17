@@ -104,10 +104,18 @@ namespace Eon
 		Image water("WaterBlock.png");
 		Image stone("StoneBlock.png");
 
-		water_plane = std::make_unique<PlaneMesh>(glm::vec3(1, 1, 0), glm::vec2(10000, 10000), water);
-		water_plane->Rotate(0, -90);
+		water_planes.reserve(100);
 
-		bedrock_plane = std::make_unique<PlaneMesh>(glm::vec3(1, 1, -64), glm::vec2(10000, 10000), stone);
+		for (int x = 0; x < 10; x++)
+		{
+			for (int z = 0; z < 10; z++)
+			{
+				auto& p = water_planes.emplace_back(std::make_unique<PlaneMesh>(glm::vec3(9216 - 2048 * x, 9216 - 2048 * z, 0), glm::vec2(1024, 1024), water));
+				p->Rotate(0, -90);
+			}
+		}
+
+		bedrock_plane = std::make_unique<PlaneMesh>(glm::vec3(1, 1, -64), glm::vec2(1024 * 10, 1024 * 10), stone);
 		bedrock_plane->Rotate(0, -90);
 
 		level_renderer->MeshAllChunks();
@@ -150,7 +158,11 @@ namespace Eon
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 		bedrock_plane->Render(player->GetCamera(), player->Position());
-		water_plane->Render(player->GetCamera(), player->Position());
+
+		for (auto& waterPlane : water_planes)
+		{
+			waterPlane->Render(player->GetCamera(), player->Position());
+		}
 	}
 
 	void Game::OnExit()

@@ -3,9 +3,9 @@
 #include "billboard_sprite.h"
 #include "level.h"
 #include "level_renderer.h"
+#include "plane_mesh.h"
 #include "player.h"
 #include "skybox.h"
-#include "plane_mesh.h"
 
 namespace Eon
 {
@@ -27,7 +27,7 @@ namespace Eon
 		std::unique_ptr<LevelRenderer> level_renderer;
 		std::unique_ptr<BillboardSprite> sprite;
 		std::unique_ptr<Skybox> skybox;
-		std::unique_ptr<PlaneMesh> water_plane;
+		std::vector<std::unique_ptr<PlaneMesh>> water_planes;
 		std::unique_ptr<PlaneMesh> bedrock_plane;
 	};
 }

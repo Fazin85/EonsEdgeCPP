@@ -13,9 +13,7 @@ namespace Eon
 		PlaneMesh(glm::vec3 position, glm::vec2 scale, Image& image);
 		~PlaneMesh();
 		void Render(Camera& camera, glm::vec3 cameraPosition);
-		void Render(Camera& camera, glm::vec3 cameraPosition, Shader& shader);
 		void Rotate(int axis, float degrees);
-		void Scale(glm::vec3 amount);
 
 	private:
 		unsigned int vbo;

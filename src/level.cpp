@@ -18,7 +18,7 @@ namespace Eon
 		}
 
 		FastNoiseLite noise;
-		noise.SetFractalOctaves(6);
+		noise.SetFractalOctaves(7);
 		noise.SetFractalType(FastNoiseLite::FractalType_FBm);
 
 		for (int cx = 0; cx < LEVEL_WIDTH_CHUNKS; cx++)
@@ -35,6 +35,23 @@ namespace Eon
 						int nz = (cz * CHUNK_WIDTH) + z;
 
 						int height = (noise.GetNoise(static_cast<float>(nx * 0.1f), static_cast<float>(nz * 0.1f)) + 1) * 128;
+
+						if (cx == 31)
+						{
+							height -= x * 2;
+						}
+						if (cz == 31)
+						{
+							height -= z * 2;
+						}
+						if (cx == 0)
+						{
+							height -= (CHUNK_WIDTH - x) * 2;
+						}
+						if (cz == 0)
+						{
+							height -= (CHUNK_WIDTH - z) * 2;
+						}
 
 						for (int y = 0; y < height; y++)
 						{

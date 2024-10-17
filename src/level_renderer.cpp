@@ -248,11 +248,11 @@ namespace Eon
 							numFaces++;
 						}
 					}
-					else
+					/*else
 					{
 						AddFace(meshData, position, block->type, dir);
 						numFaces++;
-					}
+					}*/
 
 					dir = Directions::Front;
 					if (z < CHUNK_WIDTH - 1)
