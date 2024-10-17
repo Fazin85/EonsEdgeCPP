@@ -219,6 +219,7 @@
     <Image Include="content\images\skybox\top.png" />
     <Image Include="content\images\Test.png" />
     <Image Include="content\images\top.jpg" />
+    <Image Include="content\images\WaterBlock.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

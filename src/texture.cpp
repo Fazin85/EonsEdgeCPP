@@ -2,7 +2,7 @@
 
 namespace Eon
 {
-	Texture::Texture(Image& image) : size(image.Width(), image.Height())
+	Texture::Texture(Image& image, bool mipmaps) : size(image.Width(), image.Height())
 	{
 		glGenTextures(1, &id);
 
@@ -13,11 +13,16 @@ namespace Eon
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, mipmaps ? GL_NEAREST_MIPMAP_NEAREST : GL_NEAREST);
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image.Width(), image.Height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, image.Data());
+
+		if (mipmaps)
+		{
+			glGenerateMipmap(GL_TEXTURE_2D);
+		}
 	}
 
 	Texture::~Texture()

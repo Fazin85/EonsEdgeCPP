@@ -33,7 +33,7 @@ namespace Eon
 		chunk_shader->UniformFloat("fog_far", fogFar);
 
 		Image image("BlockAtlas.png");
-		chunk_texture = std::make_unique<Texture>(image);
+		chunk_texture = std::make_unique<Texture>(image, false);
 	}
 
 	LevelRenderer::~LevelRenderer()

@@ -99,8 +99,16 @@ namespace Eon
 			"skybox/right.png"
 		};
 
-		skybox = std::make_unique<Skybox>(&facesCubemap[0]);
-		plane = std::make_unique<PlaneMesh>(image);
+		skybox = std::make_unique<Skybox>(facesCubemap);
+
+		Image water("WaterBlock.png");
+		Image stone("StoneBlock.png");
+
+		water_plane = std::make_unique<PlaneMesh>(glm::vec3(1, 1, 0), glm::vec2(10000, 10000), water);
+		water_plane->Rotate(0, -90);
+
+		bedrock_plane = std::make_unique<PlaneMesh>(glm::vec3(1, 1, -64), glm::vec2(10000, 10000), stone);
+		bedrock_plane->Rotate(0, -90);
 
 		level_renderer->MeshAllChunks();
 	}
@@ -138,7 +146,11 @@ namespace Eon
 
 		skybox->Render(player->GetCamera(), player->Position());
 
-		plane->Render(player->GetCamera(), player->Position());
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+		bedrock_plane->Render(player->GetCamera(), player->Position());
+		water_plane->Render(player->GetCamera(), player->Position());
 	}
 
 	void Game::OnExit()

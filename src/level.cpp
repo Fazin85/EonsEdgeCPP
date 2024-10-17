@@ -34,7 +34,7 @@ namespace Eon
 						int nx = (cx * CHUNK_WIDTH) + x;
 						int nz = (cz * CHUNK_WIDTH) + z;
 
-						int height = (noise.GetNoise(static_cast<float>(nx * 0.1f), static_cast<float>(nz * 0.1f)) + 1) * 256;
+						int height = (noise.GetNoise(static_cast<float>(nx * 0.1f), static_cast<float>(nz * 0.1f)) + 1) * 128;
 
 						for (int y = 0; y < height; y++)
 						{

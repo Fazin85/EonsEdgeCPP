@@ -27,7 +27,7 @@ namespace Eon
 		yaw = -90.0f;
 
 		clipping_planes[0] = 0.01f;
-		clipping_planes[1] = 2000.0f;
+		clipping_planes[1] = 15000.0f;
 
 		last_mouse_pos.x = sf::Mouse::getPosition().x;
 		last_mouse_pos.y = sf::Mouse::getPosition().y;

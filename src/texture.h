@@ -10,7 +10,7 @@ namespace Eon
 	class Texture
 	{
 	public:
-		Texture(Image& image);
+		Texture(Image& image, bool mipmaps);
 		~Texture();
 
 		void Bind() const;

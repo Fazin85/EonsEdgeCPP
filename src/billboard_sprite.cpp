@@ -2,7 +2,7 @@
 
 Eon::BillboardSprite::BillboardSprite(Image& image) : position(0, 0, 0), size(1.0f, 1.0f)
 {
-	texture = std::make_unique<Texture>(image);
+	texture = std::make_unique<Texture>(image, true);
 
 	if (shader == nullptr)
 	{
