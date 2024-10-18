@@ -4,6 +4,7 @@
 #include <SFML/Window.hpp>
 #include <thread>
 #include <chrono>
+#include "fps.h"
 
 namespace Eon
 {
@@ -15,8 +16,7 @@ namespace Eon
 
 		EON_INFO("Starting...");
 
-		Window::Create(3440, 1440, 160, "Eon's Edge");
-
+		Window::Create(3440, 1440, 160, "Eon's Edge", false);
 		gladLoadGL();
 
 		Init();
@@ -24,9 +24,14 @@ namespace Eon
 		EON_INFO("Started successfully");
 
 		sf::Clock clock;
+		FPS fps;
+		int fpsCounter = 0;
 
 		while (!stop)
 		{
+			fps.Update();
+			fpsCounter++;
+
 			sf::Event event;
 			while (Window::Get().pollEvent(event))
 			{
@@ -53,6 +58,12 @@ namespace Eon
 			Render();
 
 			Window::Get().display();
+
+			if (fpsCounter % 160 == 0)
+			{
+				EON_INFO(fps.Get());
+				fpsCounter = 0;
+			}
 		}
 
 		EON_INFO("Shutting down...");

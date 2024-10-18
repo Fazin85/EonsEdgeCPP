@@ -8,13 +8,15 @@
 
 namespace Eon
 {
-	ChunkRenderer::ChunkRenderer(Chunk* chunk, ChunkMeshData& meshData)
+	ChunkRenderer::ChunkRenderer(Chunk* chunk, ChunkMeshData& meshData) : aabb(glm::vec3(CHUNK_WIDTH, CHUNK_HEIGHT, CHUNK_WIDTH))
 	{
 		this->chunk = chunk;
 		this->setup = false;
 		indices = meshData.indices;
 		this->water_mesh = nullptr;
 		ibo = IndexBufferObject();
+
+		aabb.Update(glm::vec3(chunk->Position().x * CHUNK_WIDTH, 0, chunk->Position().z * CHUNK_WIDTH));
 
 		vertex_position_data.reserve(meshData.vertexPositions.size());
 		dir_light_data.reserve(meshData.vertexPositions.size());
@@ -113,12 +115,8 @@ namespace Eon
 		}
 	}
 
-	AABB ChunkRenderer::GetAABB()
+	AABB& ChunkRenderer::GetAABB()
 	{
-		AABB aabb(glm::vec3(CHUNK_WIDTH, CHUNK_HEIGHT, CHUNK_WIDTH));
-
-		aabb.Update(glm::vec3(chunk->Position().x * CHUNK_WIDTH, 0, chunk->Position().z * CHUNK_WIDTH));
-
 		return aabb;
 	}
 }  // namespace Eon

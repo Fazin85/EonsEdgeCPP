@@ -23,7 +23,7 @@ namespace Eon
 		void Render();
 		void Setup();
 		void Destroy();
-		AABB GetAABB();
+		AABB& GetAABB();
 
 	private:
 		bool setup;
@@ -36,5 +36,6 @@ namespace Eon
 		IndexBufferObject ibo;
 		VertexBufferObject vertex_position_vbo;
 		VertexBufferObject dir_light_vbo;
+		AABB aabb;
 	};
 }  // namespace Eon
