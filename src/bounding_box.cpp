@@ -81,18 +81,10 @@ namespace Eon
 						xv = max;
 					}
 				}
+			}
+		}
 
-				return xv;
-			}
-			else
-			{
-				return xv;
-			}
-		}
-		else
-		{
-			return xv;
-		}
+		return xv;
 	}
 
 	float BoundingBox::ClipCollideY(BoundingBox& bb, float yv) const
@@ -119,18 +111,10 @@ namespace Eon
 						yv = max;
 					}
 				}
+			}
+		}
 
-				return yv;
-			}
-			else
-			{
-				return yv;
-			}
-		}
-		else
-		{
-			return yv;
-		}
+		return yv;
 	}
 
 	float BoundingBox::ClipCollideZ(BoundingBox& bb, float zv) const
@@ -157,18 +141,10 @@ namespace Eon
 						zv = max;
 					}
 				}
+			}
+		}
 
-				return zv;
-			}
-			else
-			{
-				return zv;
-			}
-		}
-		else
-		{
-			return zv;
-		}
+		return zv;
 	}
 
 	void BoundingBox::Move(glm::vec3 amount)
