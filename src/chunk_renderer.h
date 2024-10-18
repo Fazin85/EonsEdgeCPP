@@ -32,7 +32,7 @@ namespace Eon
 		u32* vertex_position_data;
 		u32* dir_light_data;
 		u32* indices;
-		size_t vertex_size;
+		size_t vertex_data_size;
 		size_t index_size;
 		ChunkRenderer* water_mesh;
 		VertexArrayObject vao;

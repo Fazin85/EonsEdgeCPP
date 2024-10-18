@@ -17,16 +17,16 @@ namespace Eon
 		ibo = IndexBufferObject();
 		aabb.Update(glm::vec3(chunk->Position().x * CHUNK_WIDTH, 0, chunk->Position().z * CHUNK_WIDTH));
 
-		vertex_size = meshData.vertexPositions.size();
+		vertex_data_size = meshData.vertexPositions.size();
 
 		index_size = meshData.indices.size();
 		indices = new u32[index_size];
 		std::memcpy(indices, meshData.indices.data(), sizeof(u32) * index_size);
 
-		vertex_position_data = new u32[vertex_size];
-		dir_light_data = new u32[vertex_size];
+		vertex_position_data = new u32[vertex_data_size];
+		dir_light_data = new u32[vertex_data_size];
 
-		for (int i = 0; i < vertex_size; i++)
+		for (int i = 0; i < vertex_data_size; i++)
 		{
 			u8 texX = static_cast<u8>(
 				std::floorf(meshData.uvs[i].x >= 1.0f ? 255.0f : meshData.uvs[i].x * 256.0f));
@@ -87,13 +87,13 @@ namespace Eon
 		vao.Init();
 		vao.Bind();
 
-		vertex_position_vbo.Init(vertex_position_data, vertex_size);
+		vertex_position_vbo.Init(vertex_position_data, vertex_data_size);
 		vao.Link(0, 1, vertex_position_vbo, GL_UNSIGNED_INT, true);
 
 		delete vertex_position_data;
 		vertex_position_data = nullptr;
 
-		dir_light_vbo.Init(dir_light_data, vertex_size);
+		dir_light_vbo.Init(dir_light_data, vertex_data_size);
 		vao.Link(1, 1, dir_light_vbo, GL_UNSIGNED_INT, true);
 
 		delete dir_light_data;
