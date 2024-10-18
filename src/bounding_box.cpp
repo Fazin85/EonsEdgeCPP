@@ -73,7 +73,7 @@ namespace Eon
 					}
 				}
 
-				if (xv < 0.0F && bb.min.x >= this->max.x)
+				if (xv < 0.0f && bb.min.x >= this->max.x)
 				{
 					max = this->max.x - bb.min.x;
 					if (max > xv)
@@ -94,7 +94,7 @@ namespace Eon
 			if (bb.max.z > min.z && bb.min.z < max.z)
 			{
 				float max;
-				if (yv > 0.0F && bb.max.y <= min.y)
+				if (yv > 0.0f && bb.max.y <= min.y)
 				{
 					max = min.y - bb.max.y;
 					if (max < yv)
@@ -103,7 +103,7 @@ namespace Eon
 					}
 				}
 
-				if (yv < 0.0F && bb.min.y >= this->max.y)
+				if (yv < 0.0f && bb.min.y >= this->max.y)
 				{
 					max = this->max.y - bb.min.y;
 					if (max > yv)
@@ -124,7 +124,7 @@ namespace Eon
 			if (bb.max.y > min.y && bb.min.y < max.y)
 			{
 				float max;
-				if (zv > 0.0F && bb.max.z <= min.z)
+				if (zv > 0.0f && bb.max.z <= min.z)
 				{
 					max = min.z - bb.max.z;
 					if (max < zv)
@@ -133,7 +133,7 @@ namespace Eon
 					}
 				}
 
-				if (zv < 0.0F && bb.min.z >= this->max.z)
+				if (zv < 0.0f && bb.min.z >= this->max.z)
 				{
 					max = this->max.z - bb.min.z;
 					if (max > zv)

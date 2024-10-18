@@ -148,7 +148,7 @@ namespace Eon
 		glm::vec4 skyColor = level->SkyColor();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		level_renderer->Render(*player.get());
+		level_renderer->Render(player->GetCamera(), player->Position());
 
 		sprite->Render(player->GetCamera(), player->Position());
 

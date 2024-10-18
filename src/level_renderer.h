@@ -12,13 +12,13 @@
 #include <map>
 #include <parallel_hashmap/phmap.h>
 
+#include "camera.h"
 #include "chunk_mesh_data.h"
 #include "chunk_renderer.h"
 #include "directions.h"
 #include "level.h"
 #include "shader.h"
 #include "texture.h"
-#include "player.h"
 
 namespace Eon
 {
@@ -33,7 +33,7 @@ namespace Eon
 		bool MeshingAllChunks() const;
 		void RemoveMesh(ChunkPosition chunkPosition);
 		void Update();
-		void Render(Player& player);
+		void Render(Camera& camera, glm::vec3 cameraPosition);
 		int ChunkRendererCount();
 
 	private:

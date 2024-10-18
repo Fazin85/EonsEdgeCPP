@@ -9,8 +9,8 @@
 
 #define Y_JUMP_VELOCITY 8.5f
 #define CAMERA_HEIGHT 1.62f
-#define WALKING_SPEED 0.75f
-#define SPRINTING_SPEED 1.0f
+#define WALKING_SPEED 2.0f
+#define SPRINTING_SPEED 2.75f
 
 namespace Eon
 {

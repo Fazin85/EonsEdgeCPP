@@ -27,7 +27,7 @@ namespace Eon
 
 		if (!on_ground)
 		{
-			realSpeed *= 0.5f;
+			realSpeed *= 0.2f;
 		}
 
 		if (Window::Get().hasFocus())
@@ -81,6 +81,8 @@ namespace Eon
 
 		on_ground = false;
 
+		Move(velocity * dt);
+
 		velocity.x *= 0.91f;
 		velocity.z *= 0.91f;
 
@@ -99,8 +101,6 @@ namespace Eon
 		{
 			velocity.z = 0;
 		}
-
-		Move(velocity * dt);
 	}
 
 	Camera& Player::GetCamera()

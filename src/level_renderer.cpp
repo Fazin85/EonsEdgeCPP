@@ -100,32 +100,32 @@ namespace Eon
 		}
 	}
 
-	void LevelRenderer::Render(Player& player)
+	void LevelRenderer::Render(Camera& camera, glm::vec3 cameraPosition)
 	{
 		if (level == nullptr)
 		{
 			return;
 		}
-		
+
 		glCullFace(GL_BACK);
 
 		chunk_texture->Bind();
 
 		chunk_shader->Bind();
 		chunk_shader->UniformFVec4("fog_color", level->SkyColor());
-		player.GetCamera().CalculateViewMatrix(glm::vec3(0, 0, 0));
-		chunk_shader->UniformMatrix4("view", *player.GetCamera().ViewMatrix());
-		chunk_shader->UniformMatrix4("projection", *player.GetCamera().ProjectionMatrix());
-		chunk_shader->UniformFVec3("camPos", player.Position());
+		camera.CalculateViewMatrix(glm::vec3(0, 0, 0));
+		chunk_shader->UniformMatrix4("view", *camera.ViewMatrix());
+		chunk_shader->UniformMatrix4("projection", *camera.ProjectionMatrix());
+		chunk_shader->UniformFVec3("camPos", cameraPosition);
 
-		player.GetCamera().CalculateViewMatrix(player.Position());
+		camera.CalculateViewMatrix(cameraPosition);
 
-		glm::vec3 playerChunkPosition = glm::vec3((static_cast<int>(player.Position().x) >> 5) * CHUNK_WIDTH, 0, (static_cast<int>(player.Position().z) >> 5) * CHUNK_WIDTH);
+		glm::vec3 playerChunkPosition = glm::vec3((static_cast<int>(cameraPosition.x) >> 5) * CHUNK_WIDTH, 0, (static_cast<int>(cameraPosition.z) >> 5) * CHUNK_WIDTH);
 
 		for (const auto& [chunkPosition, chunkRenderer] : chunk_renderers)
 		{
 			if (Distance(playerChunkPosition, glm::vec3(chunkPosition.x * CHUNK_WIDTH, 0, chunkPosition.z * CHUNK_WIDTH)) > GameSettings.render_distance * CHUNK_WIDTH ||
-				!player.GetCamera().GetFrustum().BoxInFrustum(chunkRenderer->GetAABB()))
+				!camera.GetFrustum().BoxInFrustum(chunkRenderer->GetAABB()))
 			{
 				continue;
 			}
