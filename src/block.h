@@ -16,6 +16,12 @@ namespace Eon
 
 	struct Block
 	{
+		Block()
+		{
+			type = BlockType::AIR;
+			light = 15;
+		}
+
 		BlockType type;
 		u8 light;
 	};

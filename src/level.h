@@ -10,7 +10,7 @@
 #include <glm/vec4.hpp>
 #include <memory>
 
-#define LEVEL_WIDTH_CHUNKS 32
+#define LEVEL_WIDTH_CHUNKS 64
 
 namespace Eon
 {

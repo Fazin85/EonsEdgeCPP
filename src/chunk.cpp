@@ -2,13 +2,17 @@
 #include <lz4.h>
 #include "log.h"
 
+#define INDEX_FROM_POSITION(x, y, z) x + CHUNK_WIDTH * (y + CHUNK_HEIGHT * z)
+
 namespace Eon
 {
 	Chunk::Chunk(ChunkPosition chunkPosition) : position(chunkPosition)
 	{
-		blocks = new Block[CHUNK_WIDTH * CHUNK_HEIGHT * CHUNK_WIDTH];
+		constexpr size_t blockCount = CHUNK_WIDTH * CHUNK_HEIGHT * CHUNK_WIDTH;
+		blocks = new Block[blockCount];
 		compressed = false;
 		compressed_blocks = nullptr;
+		compressed_blocks_size = 0;
 	}
 
 	Chunk::~Chunk()
@@ -23,14 +27,14 @@ namespace Eon
 		}
 	}
 
-	Block* Chunk::GetBlock(u8 x, u16 y, u8 z)
+	Block* Chunk::GetBlock(i8 x, i16 y, i8 z)
 	{
 		if (x >= CHUNK_WIDTH || z >= CHUNK_WIDTH || y >= CHUNK_HEIGHT || x < 0 || z < 0 || y < 0)
 		{
 			return nullptr;
-		};
+		}
 
-		return &blocks[IndexFromPosition(x, y, z)];
+		return &blocks[INDEX_FROM_POSITION(x, y, z)];
 	}
 
 	ChunkPosition Chunk::Position() const
@@ -88,10 +92,5 @@ namespace Eon
 
 		compressed_blocks_size = 0;
 		compressed = false;
-	}
-
-	u32 Chunk::IndexFromPosition(u8 x, u16 y, u8 z)
-	{
-		return x + CHUNK_WIDTH * (y + CHUNK_HEIGHT * z);
 	}
 } // namespace Eon

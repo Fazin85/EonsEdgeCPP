@@ -101,6 +101,13 @@ namespace Eon
 		{
 			velocity.z = 0;
 		}
+
+		/*position.x = glm::clamp(position.x, 5.0f, (float)LEVEL_WIDTH_CHUNKS * CHUNK_WIDTH - 5.0f);
+		position.y = glm::clamp(position.y, 0.0f, CHUNK_HEIGHT * 2.0f);
+		position.z = glm::clamp(position.z, 5.0f, (float)LEVEL_WIDTH_CHUNKS * CHUNK_WIDTH - 5.0f);
+		position.x = (bb.min.x + bb.max.x) / 2.0f;
+		position.y = bb.min.y + CAMERA_HEIGHT;
+		position.z = (bb.min.z + bb.max.z) / 2.0f;*/
 	}
 
 	Camera& Player::GetCamera()

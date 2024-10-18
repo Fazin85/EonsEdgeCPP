@@ -159,11 +159,11 @@ namespace Eon
 		glm::ivec3 chunkPosition(chunk->Position().x * CHUNK_WIDTH, 0, chunk->Position().z * CHUNK_WIDTH);
 		ChunkMeshData meshData{};
 
-		for (int x = 0; x < CHUNK_WIDTH; x++)
+		for (i8 x = 0; x < CHUNK_WIDTH; x++)
 		{
-			for (int z = 0; z < CHUNK_WIDTH; z++)
+			for (i16 y = 0; y < CHUNK_HEIGHT; y++)
 			{
-				for (int y = 0; y < CHUNK_HEIGHT; y++)
+				for (i8 z = 0; z < CHUNK_WIDTH; z++)
 				{
 					int numFaces = 0;
 					glm::ivec3 position(x, y, z);

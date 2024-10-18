@@ -36,11 +36,16 @@ namespace Eon
 
 						int height = (noise.GetNoise(static_cast<float>(nx * 0.1f), static_cast<float>(nz * 0.1f)) + 1) * 64;
 
-						if (cx == 31)
+						if (height >= CHUNK_HEIGHT)
+						{
+							continue;
+						}
+
+						if (cx == LEVEL_WIDTH_CHUNKS - 1)
 						{
 							height -= x * 2;
 						}
-						if (cz == 31)
+						if (cz == LEVEL_WIDTH_CHUNKS)
 						{
 							height -= z * 2;
 						}
@@ -55,7 +60,14 @@ namespace Eon
 
 						for (int y = 0; y < height; y++)
 						{
-							chunk->GetBlock(x, y, z)->type = BlockType::STONE;
+							if (y == height - 1)
+							{
+								chunk->GetBlock(x, y, z)->type = BlockType::GRASS;
+							}
+							else
+							{
+								chunk->GetBlock(x, y, z)->type = BlockType::STONE;
+							}
 						}
 					}
 				}
