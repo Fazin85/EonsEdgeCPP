@@ -2,15 +2,18 @@
 
 #include <glad/glad.h>
 
-namespace Eon {
-	void IndexBufferObject::Init(std::vector<u32>& data) {
+namespace Eon
+{
+	void IndexBufferObject::Init(u32* data, size_t dataSize)
+	{
 		glGenBuffers(1, &id);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, id);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, data.size() * sizeof(u32), data.data(),
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, dataSize * sizeof(u32), data,
 			GL_STATIC_DRAW);
 	}
 
-	void IndexBufferObject::Bind() const {
+	void IndexBufferObject::Bind() const
+	{
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, id);
 	}
 

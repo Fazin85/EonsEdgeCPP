@@ -29,9 +29,11 @@ namespace Eon
 	private:
 		bool setup;
 		Chunk* chunk;
-		std::vector<u32> vertex_position_data;
-		std::vector<u32> dir_light_data;
-		std::vector<u32> indices;
+		u32* vertex_position_data;
+		size_t vertex_size;
+		size_t index_size;
+		u32* dir_light_data;
+		u32* indices;
 		ChunkRenderer* water_mesh;
 		VertexArrayObject vao;
 		IndexBufferObject ibo;

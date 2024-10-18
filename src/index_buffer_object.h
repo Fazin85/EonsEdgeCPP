@@ -9,7 +9,7 @@ namespace Eon
 	class IndexBufferObject
 	{
 	public:
-		void Init(std::vector<u32>& data);
+		void Init(u32* data, size_t dataSize);
 		void Bind() const;
 		void Unbind();
 		void Destroy() const;

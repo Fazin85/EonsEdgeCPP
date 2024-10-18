@@ -4,12 +4,12 @@
 
 namespace Eon
 {
-	void VertexBufferObject::Init(std::vector<u32>& data)
+	void VertexBufferObject::Init(u32* data, size_t dataSize)
 	{
 		glGenBuffers(1, &id);
 
 		Bind();
-		glBufferData(GL_ARRAY_BUFFER, data.size() * sizeof(u32), data.data(),
+		glBufferData(GL_ARRAY_BUFFER, dataSize * sizeof(u32), data,
 			GL_STATIC_DRAW);
 	}
 

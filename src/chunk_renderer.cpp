@@ -8,27 +8,32 @@
 
 namespace Eon
 {
-	ChunkRenderer::ChunkRenderer(Chunk* chunk, ChunkMeshData& meshData) : aabb(glm::vec3(CHUNK_WIDTH, CHUNK_HEIGHT, CHUNK_WIDTH))
+	ChunkRenderer::ChunkRenderer(Chunk* chunk, ChunkMeshData& meshData) : aabb(glm::vec3(CHUNK_WIDTH, CHUNK_HEIGHT, CHUNK_WIDTH)), vertex_position_data(nullptr), dir_light_data(nullptr)
 	{
 		this->chunk = chunk;
 		this->setup = false;
-		indices = meshData.indices;
 		this->water_mesh = nullptr;
-		ibo = IndexBufferObject();
 
+		ibo = IndexBufferObject();
 		aabb.Update(glm::vec3(chunk->Position().x * CHUNK_WIDTH, 0, chunk->Position().z * CHUNK_WIDTH));
 
-		vertex_position_data.reserve(meshData.vertexPositions.size());
-		dir_light_data.reserve(meshData.vertexPositions.size());
+		vertex_size = meshData.vertexPositions.size();
 
-		for (int i = 0; i < meshData.vertexPositions.size(); i++)
+		index_size = meshData.indices.size();
+		indices = new u32[index_size];
+		std::memcpy(indices, meshData.indices.data(), sizeof(u32) * index_size);
+
+		vertex_position_data = new u32[vertex_size];
+		dir_light_data = new u32[vertex_size];
+
+		for (int i = 0; i < vertex_size; i++)
 		{
 			u8 texX = static_cast<u8>(
 				std::floorf(meshData.uvs[i].x >= 1.0f ? 255.0f : meshData.uvs[i].x * 256.0f));
 			u8 texY = static_cast<u8>(
 				std::floorf(meshData.uvs[i].y >= 1.0f ? 255.0f : meshData.uvs[i].y * 256.0f));
 
-			dir_light_data.emplace_back((meshData.light[i] << 24) | (meshData.directions[i] << 16) |
+			dir_light_data[i] = ((meshData.light[i] << 24) | (meshData.directions[i] << 16) |
 				(texX << 8) | (texY));
 
 			u8 px = static_cast<u8>(meshData.vertexPositions[i].x);
@@ -37,7 +42,7 @@ namespace Eon
 
 			u8* yy = reinterpret_cast<u8*>(&y16);
 
-			vertex_position_data.emplace_back((px << 24) | (pz << 16) | (yy[0] << 8) | (yy[1]));
+			vertex_position_data[i] = ((px << 24) | (pz << 16) | (yy[0] << 8) | (yy[1]));
 		}
 	}
 
@@ -61,7 +66,7 @@ namespace Eon
 		vao.Bind();
 		ibo.Bind();
 
-		glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_TRIANGLES, index_size, GL_UNSIGNED_INT, 0);
 
 		if (water_mesh != nullptr)
 		{
@@ -82,13 +87,22 @@ namespace Eon
 		vao.Init();
 		vao.Bind();
 
-		vertex_position_vbo.Init(vertex_position_data);
+		vertex_position_vbo.Init(vertex_position_data, vertex_size);
 		vao.Link(0, 1, vertex_position_vbo, GL_UNSIGNED_INT, true);
 
-		dir_light_vbo.Init(dir_light_data);
+		delete vertex_position_data;
+		vertex_position_data = nullptr;
+
+		dir_light_vbo.Init(dir_light_data, vertex_size);
 		vao.Link(1, 1, dir_light_vbo, GL_UNSIGNED_INT, true);
 
-		ibo.Init(indices);
+		delete dir_light_data;
+		dir_light_data = nullptr;
+
+		ibo.Init(indices, index_size);
+
+		delete indices;
+		indices = nullptr;
 
 		if (water_mesh != nullptr)
 		{
@@ -107,6 +121,21 @@ namespace Eon
 
 			vertex_position_vbo.Destroy();
 			dir_light_vbo.Destroy();
+		}
+
+		if (dir_light_data != nullptr)
+		{
+			delete dir_light_data;
+		}
+
+		if (vertex_position_data != nullptr)
+		{
+			delete vertex_position_data;
+		}
+
+		if (indices != nullptr)
+		{
+			delete indices;
 		}
 
 		if (water_mesh != nullptr)
