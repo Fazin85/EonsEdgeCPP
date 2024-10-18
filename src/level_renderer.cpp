@@ -302,7 +302,6 @@ namespace Eon
 				}
 			}
 		}
-		//if(chunk_renderers.)
 
 		if (chunk_renderers.contains(chunk->Position()))
 		{

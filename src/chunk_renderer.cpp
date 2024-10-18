@@ -119,4 +119,9 @@ namespace Eon
 	{
 		return aabb;
 	}
+
+	Chunk& ChunkRenderer::GetChunk()
+	{
+		return *chunk;
+	}
 }  // namespace Eon

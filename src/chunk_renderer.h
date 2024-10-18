@@ -24,6 +24,7 @@ namespace Eon
 		void Setup();
 		void Destroy();
 		AABB& GetAABB();
+		Chunk& GetChunk();
 
 	private:
 		bool setup;
