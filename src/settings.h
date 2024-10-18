@@ -4,7 +4,7 @@ namespace Eon
 {
 	struct Settings
 	{
-		int render_distance = 10;
+		int render_distance = 16;
 		bool fog = true;
 	};
 

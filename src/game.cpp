@@ -46,7 +46,7 @@ namespace Eon
 			}
 
 			sf::Time time = clock.restart();
-			float dt = time.asSeconds() * 160;
+			float dt = time.asSeconds();
 
 			Update(dt);
 

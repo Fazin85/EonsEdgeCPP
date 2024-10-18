@@ -4,69 +4,91 @@
 
 namespace Eon
 {
-	glm::vec3 dimensions{ 0.6f, 1.8f, 0.6f };
+	constexpr glm::vec3 dimensions{ 0.6f, 1.8f, 0.6f };
 
 	Player::Player(Level* level) : bb(glm::vec3(0), glm::vec3(0))
 	{
 		this->level = level;
-		camera = std::make_unique<Camera>(70, 0.1);
-		position = glm::vec3(0, 0, 0);
+		camera = std::make_unique<Camera>(90, 8);
+		position = glm::vec3(256, 200, 256);
 		acceleration = glm::vec3(0, 0, 0);
 		velocity = glm::vec3(0, 0, 0);
 		glm::vec3 halfDim(dimensions.x / 2, dimensions.y / 2, dimensions.z / 2);
-
+		on_ground = false;
 		bb = BoundingBox(position - halfDim, position + halfDim);
+		speed = WALKING_SPEED;
 	}
 
 	void Player::Update(float dt)
 	{
 		camera->Update(dt);
 
-		constexpr float speed = 0.08f;
+		float realSpeed = speed;
+
+		if (!on_ground)
+		{
+			realSpeed *= 0.5f;
+		}
 
 		if (Window::Get().hasFocus())
 		{
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
 			{
-				acceleration.x -= std::cosf(glm::radians(camera->Yaw() + 180.0f)) * speed;
-				acceleration.z -= std::sinf(glm::radians(camera->Yaw() + 180.0f)) * speed;
+				acceleration.x -= std::cosf(glm::radians(camera->Yaw() + 180.0f)) * realSpeed;
+				acceleration.z -= std::sinf(glm::radians(camera->Yaw() + 180.0f)) * realSpeed;
 			}
 
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
 			{
-				acceleration.x += std::cosf(glm::radians(camera->Yaw() + 180.0f)) * speed;
-				acceleration.z += std::sinf(glm::radians(camera->Yaw() + 180.0f)) * speed;
+				acceleration.x += std::cosf(glm::radians(camera->Yaw() + 180.0f)) * realSpeed;
+				acceleration.z += std::sinf(glm::radians(camera->Yaw() + 180.0f)) * realSpeed;
 			}
 
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
 			{
-				acceleration.x -= std::cosf(glm::radians(camera->Yaw() + 90.0f)) * speed;
-				acceleration.z -= std::sinf(glm::radians(camera->Yaw() + 90.0f)) * speed;
+				acceleration.x -= std::cosf(glm::radians(camera->Yaw() + 90.0f)) * realSpeed;
+				acceleration.z -= std::sinf(glm::radians(camera->Yaw() + 90.0f)) * realSpeed;
 			}
 
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
 			{
-				acceleration.x += std::cosf(glm::radians(camera->Yaw() + 90.0f)) * speed;
-				acceleration.z += std::sinf(glm::radians(camera->Yaw() + 90.0f)) * speed;
+				acceleration.x += std::cosf(glm::radians(camera->Yaw() + 90.0f)) * realSpeed;
+				acceleration.z += std::sinf(glm::radians(camera->Yaw() + 90.0f)) * realSpeed;
 			}
 
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::BackSpace))
 			{
-				acceleration.y += speed;
+				Jump();
 			}
 
-			if (sf::Keyboard::isKeyPressed(sf::Keyboard::LShift))
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl))
 			{
-				acceleration.y -= speed;
+				speed = SPRINTING_SPEED;
+			}
+			else
+			{
+				speed = WALKING_SPEED;
 			}
 		}
 
 		velocity += acceleration;
 		acceleration = glm::vec3(0, 0, 0);
 
+		if (!on_ground)
+		{
+			velocity.y -= 32 * dt;
+		}
+
+		on_ground = false;
+
 		velocity.x *= 0.91f;
 		velocity.z *= 0.91f;
-		velocity.y *= 0.91f;
+
+		if (on_ground)
+		{
+			velocity.x *= 0.6f;
+			velocity.z *= 0.6f;
+		}
 
 		if (std::abs(velocity.x) <= 0.0001f)
 		{
@@ -117,6 +139,8 @@ namespace Eon
 
 		bb.Move(glm::vec3(0.0f, 0.0f, amount.z));
 
+		on_ground = originalVelocity.y != amount.y && originalVelocity.y < 0.0f;
+
 		if (originalVelocity.x != amount.x)
 		{
 			velocity.x = 0.0f;
@@ -132,10 +156,16 @@ namespace Eon
 			velocity.z = 0.0f;
 		}
 
-		constexpr float cameraHeight = 1.62f;
-
 		position.x = (bb.min.x + bb.max.x) / 2.0f;
-		position.y = bb.min.y + cameraHeight;
+		position.y = bb.min.y + CAMERA_HEIGHT;
 		position.z = (bb.min.z + bb.max.z) / 2.0f;
+	}
+
+	void Player::Jump()
+	{
+		if (on_ground)
+		{
+			acceleration.y += Y_JUMP_VELOCITY;
+		}
 	}
 }
