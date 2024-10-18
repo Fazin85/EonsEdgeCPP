@@ -30,10 +30,10 @@ namespace Eon
 		bool setup;
 		Chunk* chunk;
 		u32* vertex_position_data;
-		size_t vertex_size;
-		size_t index_size;
 		u32* dir_light_data;
 		u32* indices;
+		size_t vertex_size;
+		size_t index_size;
 		ChunkRenderer* water_mesh;
 		VertexArrayObject vao;
 		IndexBufferObject ibo;
