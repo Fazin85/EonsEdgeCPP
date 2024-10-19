@@ -27,7 +27,7 @@ namespace Eon
 		}
 	}
 
-	Block* Chunk::GetBlock(i8 x, i16 y, i8 z)
+	Block* Chunk::GetBlock(u8 x, i16 y, u8 z)
 	{
 		if (x >= CHUNK_WIDTH || z >= CHUNK_WIDTH || y >= CHUNK_HEIGHT || x < 0 || z < 0 || y < 0)
 		{

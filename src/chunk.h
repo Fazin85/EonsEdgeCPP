@@ -3,8 +3,10 @@
 #include "block.h"
 #include "chunk_position.h"
 
-#define CHUNK_WIDTH 32
+#define CHUNK_WIDTH 128
 #define CHUNK_HEIGHT 256
+#define CHUNK_BITSHIFT_AMOUNT 7
+#define CHUNK_MAX_LOD 8
 
 namespace Eon
 {
@@ -13,7 +15,7 @@ namespace Eon
 	public:
 		Chunk(ChunkPosition chunkPosition);
 		~Chunk();
-		Block* GetBlock(i8 x, i16 y, i8 z);
+		Block* GetBlock(u8 x, i16 y, u8 z);
 		ChunkPosition Position() const;
 		void Compress();
 		void Decompress();

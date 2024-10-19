@@ -11,7 +11,7 @@ namespace Eon
 	{
 	public:
 		std::vector<glm::ivec3> vertexPositions;
-		std::vector<glm::vec2> uvs;
+		std::vector<glm::ivec2> uvs;
 		std::vector<u32> indices;
 		std::vector<u8> directions;
 		std::vector<u8> light;

@@ -1,4 +1,5 @@
 #version 330
+
 layout (location = 0) in uint vertexPositionData;
 layout (location = 1) in uint uvDirLightData;
 
@@ -7,6 +8,7 @@ out vec4 v_color;
 out vec3 v_viewpos;
 out vec3 v_normal;
 out vec3 frag_pos;
+flat out uint blockType;
 
 // uniform variables
 uniform mat4 model;
@@ -55,14 +57,21 @@ void main()
 	}
 
 	uint valX = ((uvDirLightData & 0xFF00U) >> 8U);
-	uint valY = (uvDirLightData & 0xFFU);
+	blockType = (uvDirLightData & 0xFFU);
 	
-	float texUX = float(valX);
-	float texUY = float(valY);
-	float divX = valX == 255U ? 255.0 : 256.0;
-	float divY = valY == 255U ? 255.0 : 256.0;
-	
-	texCoord = vec2(texUX / divX, texUY / divY);
+	if(valX == 0U) {
+		texCoord = vec2(0.0, 1.0);
+	}
+	else if(valX == 1U) {
+		texCoord = vec2(0.0, 0.0);
+	}
+	else if(valX == 2U) {
+		texCoord = vec2(1.0, 0.0);
+	}
+	else if(valX == 3U) {
+		texCoord = vec2(1.0, 1.0);
+	}
+
 	v_color = vec4(light, 1.0);
 	v_viewpos = ((view * model) * worldPosition).xyz;
 	

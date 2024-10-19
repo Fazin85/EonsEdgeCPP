@@ -5,6 +5,7 @@ in vec4 v_color;
 in vec3 v_viewpos;
 in vec3 v_normal;
 in vec3 frag_pos;
+flat in uint blockType;
 
 out vec4 FragColor;
 
@@ -14,14 +15,14 @@ uniform float ambient_light;
 uniform float fog_near;
 uniform float fog_far;
 uniform vec3 light_color;
-uniform sampler2D texture0;
+uniform sampler2DArray textureSampler;
 
 const float MIN_DIFFUSE_LIGHT = 0.35;
 
 void main() 
 {
-	FragColor = texture(texture0, texCoord) * v_color;
-	
+	FragColor = texture(textureSampler, vec3(texCoord, blockType)) * v_color;
+	//FragColor = v_color;
 	//diffuse lighting
 	vec3 norm = normalize(v_normal);
 	vec3 lightDir = normalize(-sunlight_dir);

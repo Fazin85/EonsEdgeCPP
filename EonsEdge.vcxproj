@@ -147,6 +147,7 @@
     <ClCompile Include="src\level.cpp" />
     <ClCompile Include="src\level_renderer.cpp" />
     <ClCompile Include="src\level_renderer.h" />
+    <ClCompile Include="src\lod_chunk_renderer.cpp" />
     <ClCompile Include="src\log.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\plane_mesh.cpp" />
@@ -154,6 +155,7 @@
     <ClCompile Include="src\shader.cpp" />
     <ClCompile Include="src\skybox.cpp" />
     <ClCompile Include="src\texture.cpp" />
+    <ClCompile Include="src\texture_array.cpp" />
     <ClCompile Include="src\vertex_array_object.cpp" />
     <ClCompile Include="src\vertex_buffer_object.cpp" />
     <ClCompile Include="src\vertex_buffer_object.h" />
@@ -163,6 +165,7 @@
     <ClInclude Include="src\aabb.h" />
     <ClInclude Include="src\billboard_sprite.h" />
     <ClInclude Include="src\bounding_box.h" />
+    <ClInclude Include="src\lod_chunk_renderer.h" />
     <ClInclude Include="src\plane_mesh.h" />
     <ClInclude Include="src\skybox.h" />
     <ClInclude Include="src\fast_noise_lite.h" />
@@ -188,6 +191,7 @@
     <ClInclude Include="src\shader.h" />
     <ClInclude Include="src\stb_image.h" />
     <ClInclude Include="src\texture.h" />
+    <ClInclude Include="src\texture_array.h" />
     <ClInclude Include="src\vertex_array_object.h" />
     <ClInclude Include="src\window.h" />
   </ItemGroup>

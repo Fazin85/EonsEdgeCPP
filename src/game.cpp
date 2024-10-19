@@ -16,7 +16,7 @@ namespace Eon
 
 		EON_INFO("Starting...");
 
-		Window::Create(3440, 1440, 160, "Eon's Edge", false);
+		Window::Create(3440, 1440, 0, "Eon's Edge", false);
 		gladLoadGL();
 
 		Init();

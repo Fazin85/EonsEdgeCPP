@@ -8,14 +8,12 @@
 
 namespace Eon
 {
-	ChunkRenderer::ChunkRenderer(Chunk* chunk, ChunkMeshData& meshData) : aabb(glm::vec3(CHUNK_WIDTH, CHUNK_HEIGHT, CHUNK_WIDTH)), vertex_position_data(nullptr), dir_light_data(nullptr)
+	ChunkRenderer::ChunkRenderer(ChunkMeshData& meshData) : vertex_position_data(nullptr), dir_light_data(nullptr)
 	{
-		this->chunk = chunk;
 		this->setup = false;
 		this->water_mesh = nullptr;
 
 		ibo = IndexBufferObject();
-		aabb.Update(glm::vec3(chunk->Position().x * CHUNK_WIDTH, 0, chunk->Position().z * CHUNK_WIDTH));
 
 		vertex_data_size = meshData.vertexPositions.size();
 
@@ -28,21 +26,13 @@ namespace Eon
 
 		for (int i = 0; i < vertex_data_size; i++)
 		{
-			u8 texX = static_cast<u8>(
-				std::floorf(meshData.uvs[i].x >= 1.0f ? 255.0f : meshData.uvs[i].x * 256.0f));
-			u8 texY = static_cast<u8>(
-				std::floorf(meshData.uvs[i].y >= 1.0f ? 255.0f : meshData.uvs[i].y * 256.0f));
-
 			dir_light_data[i] = ((meshData.light[i] << 24) | (meshData.directions[i] << 16) |
-				(texX << 8) | (texY));
+				(static_cast<u8>(meshData.uvs[i].x) << 8) | (static_cast<u8>(meshData.uvs[i].y)));
 
-			u8 px = static_cast<u8>(meshData.vertexPositions[i].x);
-			u8 pz = static_cast<u8>(meshData.vertexPositions[i].z);
 			u16 y16 = static_cast<u16>(meshData.vertexPositions[i].y);
-
 			u8* yy = reinterpret_cast<u8*>(&y16);
 
-			vertex_position_data[i] = ((px << 24) | (pz << 16) | (yy[0] << 8) | (yy[1]));
+			vertex_position_data[i] = ((static_cast<u8>(meshData.vertexPositions[i].x) << 24) | (static_cast<u8>(meshData.vertexPositions[i].z) << 16) | (yy[0] << 8) | (yy[1]));
 		}
 	}
 
@@ -142,15 +132,5 @@ namespace Eon
 		{
 			water_mesh->Destroy();
 		}
-	}
-
-	AABB& ChunkRenderer::GetAABB()
-	{
-		return aabb;
-	}
-
-	Chunk& ChunkRenderer::GetChunk()
-	{
-		return *chunk;
 	}
 }  // namespace Eon

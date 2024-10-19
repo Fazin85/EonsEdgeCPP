@@ -10,9 +10,9 @@ Image::Image(const std::string& filePath)
 	stbi_set_flip_vertically_on_load(true);
 
 	int channels;
-	data = stbi_load(realFilePath.c_str(), &width, &height, &channels, 0);
+	data = stbi_load(realFilePath.c_str(), &width, &height, &channels, STBI_rgb_alpha);
 
-	if (data == NULL)
+	if (data == nullptr)
 	{
 		EON_ERROR("Failed to load image: " + filePath);
 		return;
@@ -23,7 +23,11 @@ Image::Image(const std::string& filePath)
 
 Image::~Image()
 {
-	stbi_image_free(data);
+	if (data != nullptr)
+	{
+		stbi_image_free(data);
+		data = nullptr;
+	}
 }
 
 u32 Image::Width() const

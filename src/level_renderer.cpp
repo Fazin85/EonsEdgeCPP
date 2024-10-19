@@ -27,13 +27,17 @@ namespace Eon
 		chunk_shader->UniformFloat("ambient_light", 0.15f);
 		chunk_shader->UniformMatrix4("model", glm::mat4(1.0f));
 		chunk_shader->UniformFloat("fog_near", ((GameSettings.render_distance * CHUNK_WIDTH) / 2) + CHUNK_WIDTH);
+		chunk_shader->UniformInt1("textureSampler", 0);
 
 		int fogFar = GameSettings.fog ? GameSettings.render_distance * CHUNK_WIDTH - CHUNK_WIDTH : 100000;
 
 		chunk_shader->UniformFloat("fog_far", fogFar);
 
-		Image image("BlockAtlas.png");
-		chunk_texture = std::make_unique<Texture>(image, false);
+		std::vector<std::string> imageNames;
+		imageNames.emplace_back("Error.png");
+		imageNames.emplace_back("StoneBlock.png");
+		imageNames.emplace_back("GrassBlock.png");
+		chunk_texture = std::make_unique<TextureArray>(imageNames, 16, 16);
 	}
 
 	LevelRenderer::~LevelRenderer()
@@ -120,11 +124,12 @@ namespace Eon
 
 		camera.CalculateViewMatrix(cameraPosition);
 
-		glm::vec3 playerChunkPosition = glm::vec3((static_cast<int>(cameraPosition.x) >> 5) * CHUNK_WIDTH, 0, (static_cast<int>(cameraPosition.z) >> 5) * CHUNK_WIDTH);
+		glm::vec3 playerChunkPosition = glm::vec3((static_cast<int>(cameraPosition.x) >> CHUNK_BITSHIFT_AMOUNT) * CHUNK_WIDTH, 0, (static_cast<int>(cameraPosition.z) >> CHUNK_BITSHIFT_AMOUNT) * CHUNK_WIDTH);
 
 		for (const auto& [chunkPosition, chunkRenderer] : chunk_renderers)
 		{
-			if (Distance(playerChunkPosition, glm::vec3(chunkPosition.x * CHUNK_WIDTH, 0, chunkPosition.z * CHUNK_WIDTH)) > GameSettings.render_distance * CHUNK_WIDTH ||
+			float distance = Distance(playerChunkPosition, glm::vec3(chunkPosition.x * CHUNK_WIDTH, 0, chunkPosition.z * CHUNK_WIDTH));
+			if (distance > GameSettings.render_distance * CHUNK_WIDTH ||
 				!camera.GetFrustum().BoxInFrustum(chunkRenderer->GetAABB()))
 			{
 				continue;
@@ -132,7 +137,7 @@ namespace Eon
 
 			chunk_shader->UniformFVec3("chunkPos", glm::vec3(chunkPosition.x * CHUNK_WIDTH, 0, chunkPosition.z * CHUNK_WIDTH));
 
-			chunkRenderer->Render();
+			chunkRenderer->Render(GetLod(distance));
 		}
 	}
 
@@ -158,149 +163,151 @@ namespace Eon
 		Chunk* chunk = level->GetChunk(inChunkPosition);
 		glm::ivec3 chunkPosition(chunk->Position().x * CHUNK_WIDTH, 0, chunk->Position().z * CHUNK_WIDTH);
 		ChunkMeshData meshData{};
+		sf::Clock timer;
+		std::vector<ChunkRenderer*> chunkRenderers;
 
-		for (i8 x = 0; x < CHUNK_WIDTH; x++)
+		for (unsigned int lod = 1; lod <= CHUNK_MAX_LOD; lod *= 2)
 		{
-			for (i16 y = 0; y < CHUNK_HEIGHT; y++)
+			for (u8 x = 0; x < CHUNK_WIDTH; x += lod)
 			{
-				for (i8 z = 0; z < CHUNK_WIDTH; z++)
+				for (i16 y = 0; y < CHUNK_HEIGHT; y += lod)
 				{
-					int numFaces = 0;
-					glm::ivec3 position(x, y, z);
-					auto block = chunk->GetBlock(x, y, z);
-
-					if (block == nullptr)
+					for (u8 z = 0; z < CHUNK_WIDTH; z += lod)
 					{
-						EON_ERROR("Block was nullptr");
-						break;
-					}
+						int numFaces = 0;
+						glm::ivec3 position(x, y, z);
+						auto block = chunk->GetBlock(x, y, z);
 
-					if (block->type == BlockType::AIR)
-					{
-						continue;
-					}
-
-					Directions dir = Directions::Left;
-					if (x > 0)
-					{
-						if (chunk->GetBlock(x - 1, y, z)->type == BlockType::AIR)
+						if (block == nullptr)
 						{
-							AddFace(meshData, position, block->type, dir);
-							numFaces++;
+							EON_ERROR("Block was nullptr");
+							break;
 						}
-					}
-					else
-					{
-						auto sideBlock = level->GetBlock(chunkPosition + glm::ivec3(x - 1, y, z));
-						if (sideBlock != nullptr)
+
+						if (block->type == BlockType::AIR)
 						{
-							if (sideBlock->type == BlockType::AIR)
+							continue;
+						}
+
+						Directions dir = Directions::Left;
+						if (x > 0)
+						{
+							if (chunk->GetBlock(x - lod, y, z)->type == BlockType::AIR)
 							{
-								AddFace(meshData, position, block->type, dir);
+								AddFace(meshData, position, block->type, dir, lod);
 								numFaces++;
 							}
 						}
-					}
-
-					dir = Directions::Right;
-					if (x < CHUNK_WIDTH - 1)
-					{
-						if (chunk->GetBlock(x + 1, y, z)->type == BlockType::AIR)
+						else
 						{
-							AddFace(meshData, position, block->type, dir);
-							numFaces++;
-						}
-					}
-					else
-					{
-						auto sideBlock = level->GetBlock(chunkPosition + glm::ivec3(x + 1, y, z));
-						if (sideBlock != nullptr)
-						{
-							if (sideBlock->type == BlockType::AIR)
+							auto sideBlock = level->GetBlock(chunkPosition + glm::ivec3(x - lod, y, z));
+							if (sideBlock != nullptr)
 							{
-								AddFace(meshData, position, block->type, dir);
+								if (sideBlock->type == BlockType::AIR)
+								{
+									AddFace(meshData, position, block->type, dir, lod);
+									numFaces++;
+								}
+							}
+						}
+
+						dir = Directions::Right;
+						if (x < CHUNK_WIDTH - lod)
+						{
+							if (chunk->GetBlock(x + lod, y, z)->type == BlockType::AIR)
+							{
+								AddFace(meshData, position, block->type, dir, lod);
 								numFaces++;
 							}
 						}
-					}
-
-					dir = Directions::Top;
-					if (y < CHUNK_HEIGHT - 1)
-					{
-						if (chunk->GetBlock(x, y + 1, z)->type == BlockType::AIR)
+						else
 						{
-							AddFace(meshData, position, block->type, dir);
-							numFaces++;
-						}
-					}
-					else
-					{
-						AddFace(meshData, position, block->type, dir);
-						numFaces++;
-					}
-
-					dir = Directions::Bottom;
-					if (y > 0)
-					{
-						if (chunk->GetBlock(x, y - 1, z)->type == BlockType::AIR)
-						{
-							AddFace(meshData, position, block->type, dir);
-							numFaces++;
-						}
-					}
-					/*else
-					{
-						AddFace(meshData, position, block->type, dir);
-						numFaces++;
-					}*/
-
-					dir = Directions::Front;
-					if (z < CHUNK_WIDTH - 1)
-					{
-						if (chunk->GetBlock(x, y, z + 1)->type == BlockType::AIR)
-						{
-							AddFace(meshData, position, block->type, dir);
-							numFaces++;
-						}
-					}
-					else
-					{
-						auto sideBlock = level->GetBlock(chunkPosition + glm::ivec3(x, y, z + 1));
-						if (sideBlock != nullptr)
-						{
-							if (sideBlock->type == BlockType::AIR)
+							auto sideBlock = level->GetBlock(chunkPosition + glm::ivec3(x + lod, y, z));
+							if (sideBlock != nullptr)
 							{
-								AddFace(meshData, position, block->type, dir);
+								if (sideBlock->type == BlockType::AIR)
+								{
+									AddFace(meshData, position, block->type, dir, lod);
+									numFaces++;
+								}
+							}
+						}
+
+						dir = Directions::Top;
+						if (y < CHUNK_HEIGHT - lod)
+						{
+							if (chunk->GetBlock(x, y + lod, z)->type == BlockType::AIR)
+							{
+								AddFace(meshData, position, block->type, dir, lod);
 								numFaces++;
 							}
 						}
-					}
-
-					dir = Directions::Back;
-					if (z > 0)
-					{
-						if (chunk->GetBlock(x, y, z - 1)->type == BlockType::AIR)
+						else
 						{
-							AddFace(meshData, position, block->type, dir);
+							AddFace(meshData, position, block->type, dir, lod);
 							numFaces++;
 						}
-					}
-					else
-					{
-						auto sideBlock = level->GetBlock(chunkPosition + glm::ivec3(x, y, z - 1));
-						if (sideBlock != nullptr)
+
+						dir = Directions::Bottom;
+						if (y > 0)
 						{
-							if (sideBlock->type == BlockType::AIR)
+							if (chunk->GetBlock(x, y - lod, z)->type == BlockType::AIR)
 							{
-								AddFace(meshData, position, block->type, dir);
+								AddFace(meshData, position, block->type, dir, lod);
 								numFaces++;
 							}
 						}
-					}
 
-					AddIndices(meshData, numFaces);
+						dir = Directions::Front;
+						if (z < CHUNK_WIDTH - lod)
+						{
+							if (chunk->GetBlock(x, y, z + lod)->type == BlockType::AIR)
+							{
+								AddFace(meshData, position, block->type, dir, lod);
+								numFaces++;
+							}
+						}
+						else
+						{
+							auto sideBlock = level->GetBlock(chunkPosition + glm::ivec3(x, y, z + lod));
+							if (sideBlock != nullptr)
+							{
+								if (sideBlock->type == BlockType::AIR)
+								{
+									AddFace(meshData, position, block->type, dir, lod);
+									numFaces++;
+								}
+							}
+						}
+
+						dir = Directions::Back;
+						if (z > 0)
+						{
+							if (chunk->GetBlock(x, y, z - lod)->type == BlockType::AIR)
+							{
+								AddFace(meshData, position, block->type, dir, lod);
+								numFaces++;
+							}
+						}
+						else
+						{
+							auto sideBlock = level->GetBlock(chunkPosition + glm::ivec3(x, y, z - lod));
+							if (sideBlock != nullptr)
+							{
+								if (sideBlock->type == BlockType::AIR)
+								{
+									AddFace(meshData, position, block->type, dir, lod);
+									numFaces++;
+								}
+							}
+						}
+
+						AddIndices(meshData, numFaces);
+					}
 				}
 			}
+
+			chunkRenderers.emplace_back(new ChunkRenderer(meshData));
 		}
 
 		if (chunk_renderers.contains(chunk->Position()))
@@ -308,9 +315,12 @@ namespace Eon
 			chunk_renderers.erase(chunk->Position());
 		}
 
-		chunk_renderers[chunk->Position()] = std::make_unique<ChunkRenderer>(chunk, meshData);
+		chunk_renderers[chunk->Position()] = std::make_unique<LODChunkRenderer>(chunk, chunkRenderers);
 
 		meshes_to_setup.enqueue(chunk->Position());
+
+		auto time = timer.getElapsedTime();
+		meshing_all_chunks_time_sum += time.asMilliseconds();
 
 		if (meshing_all_chunks)
 		{
@@ -320,27 +330,28 @@ namespace Eon
 			{
 				meshing_all_chunks = false;
 				meshing_all_meshed_chunks_count = 0;
+
+				EON_INFO("AVG chunk meshing time: " + std::to_string((float)meshing_all_chunks_time_sum / ((float)LEVEL_WIDTH_CHUNKS * (float)LEVEL_WIDTH_CHUNKS)));
+				meshing_all_chunks_time_sum = 0;
 			}
 		}
 	}
 
-	void LevelRenderer::AddFace(ChunkMeshData& meshData, const glm::ivec3& blockPosition, BlockType blockType, Directions direction)
+	void LevelRenderer::AddFace(ChunkMeshData& meshData, const glm::ivec3& blockPosition, BlockType blockType, Directions direction, unsigned int lod)
 	{
 		auto faceData = GetFaceDataFromDirection(direction);
-		auto blockUVs = BlockTexture::GetUVCoordsFromBlockID(blockType);
-		auto uvs = GetUVsFromCoordinates(blockUVs);
 
 		int index = 0;
 		for (int i = 0; i < 4; i++)
 		{
-			int x = faceData[index++] + blockPosition.x;
-			int y = faceData[index++] + blockPosition.y;
-			int z = faceData[index++] + blockPosition.z;
+			int x = (faceData[index++] * lod) + blockPosition.x;
+			int y = (faceData[index++] * lod) + blockPosition.y;
+			int z = (faceData[index++] * lod) + blockPosition.z;
 
 			meshData.vertexPositions.emplace_back(x, y, z);
 			meshData.directions.push_back(static_cast<u8>(direction));
 			meshData.light.push_back(15);
-			meshData.uvs.push_back(uvs[direction][i]);
+			meshData.uvs.push_back({ i, blockType });
 		}
 	}
 
@@ -365,25 +376,6 @@ namespace Eon
 		return {};
 	}
 
-	const std::map<Directions, std::vector<glm::vec2>> LevelRenderer::GetUVsFromCoordinates(std::map<const Directions, const glm::vec2>& coords)
-	{
-		std::map<Directions, std::vector<glm::vec2>> faceData;
-		constexpr int TEX_SIZE = 16;
-
-		for (const auto& faceCoord : coords)
-		{
-			faceData[faceCoord.first] =
-			{
-				glm::vec2((faceCoord.second.x + 1) / TEX_SIZE, (faceCoord.second.y + 1) / TEX_SIZE),
-				glm::vec2(faceCoord.second.x / TEX_SIZE, (faceCoord.second.y + 1) / TEX_SIZE),
-				glm::vec2(faceCoord.second.x / TEX_SIZE, faceCoord.second.y / TEX_SIZE),
-				glm::vec2((faceCoord.second.x + 1) / TEX_SIZE, faceCoord.second.y / TEX_SIZE)
-			};
-		}
-
-		return faceData;
-	}
-
 	void LevelRenderer::AddIndices(ChunkMeshData& meshData, int count)
 	{
 		for (int i = 0; i < count; i++)
@@ -397,5 +389,25 @@ namespace Eon
 
 			meshData.index_count += 4;
 		}
+	}
+
+	unsigned int LevelRenderer::GetLod(float distance)
+	{
+		unsigned int lod = 0;
+
+		if (distance > (CHUNK_WIDTH * GameSettings.render_distance) / 4.0f)
+		{
+			lod++;
+		}
+		if (distance > (CHUNK_WIDTH * GameSettings.render_distance) / 2.0f)
+		{
+			lod++;
+		}
+		if (distance > (CHUNK_WIDTH * GameSettings.render_distance) / 1.5f)
+		{
+			lod++;
+		}
+
+		return lod;
 	}
 }  // namespace Eon

@@ -27,7 +27,7 @@ namespace Eon
 
 		if (!on_ground)
 		{
-			realSpeed *= 0.2f;
+			realSpeed *= 5.0f;
 		}
 
 		if (Window::Get().hasFocus())
@@ -170,9 +170,12 @@ namespace Eon
 
 	void Player::Jump()
 	{
-		if (on_ground)
+		/*if (on_ground)
 		{
 			acceleration.y += Y_JUMP_VELOCITY;
-		}
+		}*/
+
+		acceleration.y += Y_JUMP_VELOCITY * 0.05f;
+
 	}
 }

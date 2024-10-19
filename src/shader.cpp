@@ -32,8 +32,44 @@ namespace Eon
 		glShaderSource(vertexShader, 1, &vertexShaderData, nullptr);
 		glCompileShader(vertexShader);
 
+		GLint isCompiled = 0;
+		glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &isCompiled);
+		if (isCompiled == GL_FALSE)
+		{
+			GLint maxLength = 0;
+			glGetShaderiv(vertexShader, GL_INFO_LOG_LENGTH, &maxLength);
+
+			// The maxLength includes the NULL character
+			std::vector<GLchar> errorLog(maxLength);
+			glGetShaderInfoLog(vertexShader, maxLength, &maxLength, &errorLog[0]);
+			EON_INFO(errorLog.data());
+
+			// Provide the infolog in whatever manor you deem best.
+			// Exit with failure.
+			glDeleteShader(vertexShader); // Don't leak the shader.
+			return;
+		}
+
 		glShaderSource(fragmentShader, 1, &fragmentShaderData, nullptr);
 		glCompileShader(fragmentShader);
+
+		isCompiled = 0;
+		glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &isCompiled);
+		if (isCompiled == GL_FALSE)
+		{
+			GLint maxLength = 0;
+			glGetShaderiv(fragmentShader, GL_INFO_LOG_LENGTH, &maxLength);
+
+			// The maxLength includes the NULL character
+			std::vector<GLchar> errorLog(maxLength);
+			glGetShaderInfoLog(fragmentShader, maxLength, &maxLength, &errorLog[0]);
+			EON_INFO(errorLog.data());
+
+			// Provide the infolog in whatever manor you deem best.
+			// Exit with failure.
+			glDeleteShader(fragmentShader); // Don't leak the shader.
+			return;
+		}
 
 		glAttachShader(id, vertexShader);
 		glAttachShader(id, fragmentShader);

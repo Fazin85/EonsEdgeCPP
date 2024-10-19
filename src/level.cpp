@@ -105,8 +105,8 @@ namespace Eon
 
 	Block* Level::GetBlock(i16 x, i16 y, i16 z)
 	{
-		auto chunk = GetChunk(ChunkPosition{ .x = static_cast<u8>(x >> 5),
-											  .z = static_cast<u8>(z >> 5) });
+		auto chunk = GetChunk(ChunkPosition{ .x = static_cast<u8>(x >> CHUNK_BITSHIFT_AMOUNT),
+											  .z = static_cast<u8>(z >> CHUNK_BITSHIFT_AMOUNT) });
 
 		if (chunk != nullptr)
 		{
