@@ -135,9 +135,11 @@ namespace Eon
 				continue;
 			}
 
-			chunk_shader->UniformFVec3("chunkPos", glm::vec3(chunkPosition.x * CHUNK_WIDTH, 0, chunkPosition.z * CHUNK_WIDTH));
+			unsigned int lod = GetLod(distance);
 
-			chunkRenderer->Render(GetLod(distance));
+			chunk_shader->UniformFVec3("chunkPos", glm::vec3(chunkPosition.x * CHUNK_WIDTH, -((int)lod * CHUNK_MAX_LOD), chunkPosition.z * CHUNK_WIDTH));
+
+			chunkRenderer->Render(lod);
 		}
 	}
 
@@ -162,12 +164,13 @@ namespace Eon
 	{
 		Chunk* chunk = level->GetChunk(inChunkPosition);
 		glm::ivec3 chunkPosition(chunk->Position().x * CHUNK_WIDTH, 0, chunk->Position().z * CHUNK_WIDTH);
-		ChunkMeshData meshData{};
 		sf::Clock timer;
 		std::vector<ChunkRenderer*> chunkRenderers;
 
 		for (unsigned int lod = 1; lod <= CHUNK_MAX_LOD; lod *= 2)
 		{
+			ChunkMeshData meshData{};
+
 			for (u8 x = 0; x < CHUNK_WIDTH; x += lod)
 			{
 				for (i16 y = 0; y < CHUNK_HEIGHT; y += lod)

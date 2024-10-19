@@ -121,7 +121,7 @@ namespace Eon
 		{
 			for (int z = 0; z < 10; z++)
 			{
-				auto& p = water_planes.emplace_back(std::make_unique<PlaneMesh>(glm::vec3(9216 - 2048 * x, 9216 - 2048 * z, 0), glm::vec2(1024, 1024), water));
+				auto& p = water_planes.emplace_back(std::make_unique<PlaneMesh>(glm::vec3(9216 - 2048 * x, 9216 - 2048 * z, -25.0f), glm::vec2(1024, 1024), water));
 				p->Rotate(0, -90);
 			}
 		}

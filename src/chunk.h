@@ -3,9 +3,9 @@
 #include "block.h"
 #include "chunk_position.h"
 
-#define CHUNK_WIDTH 128
+#define CHUNK_WIDTH 64
 #define CHUNK_HEIGHT 256
-#define CHUNK_BITSHIFT_AMOUNT 7
+#define CHUNK_BITSHIFT_AMOUNT 6
 #define CHUNK_MAX_LOD 8
 
 namespace Eon

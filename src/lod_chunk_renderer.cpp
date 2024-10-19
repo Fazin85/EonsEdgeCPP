@@ -54,7 +54,7 @@ namespace Eon
 
 	ChunkRenderer* LODChunkRenderer::GetLodRenderer(unsigned int lod)
 	{
-		if (lod > CHUNK_MAX_LOD || lod < 1)
+		if (lod > CHUNK_MAX_LOD / 2 || lod < 0)
 		{
 			EON_ERROR("Tried to get lod renderer with lod: " + std::to_string(lod));
 			return nullptr;
