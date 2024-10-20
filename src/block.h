@@ -19,10 +19,10 @@ namespace Eon
 		Block()
 		{
 			type = BlockType::AIR;
-			light = 15;
+			//light = 15;
 		}
 
 		BlockType type;
-		u8 light;
+		//u8 light;
 	};
 }  // namespace Eon

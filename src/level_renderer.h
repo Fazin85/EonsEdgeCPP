@@ -4,9 +4,9 @@
 #include "chunk.h"
 #include "chunk_mesh_data.h"
 #include "chunk_renderer.h"
-#include "lod_chunk_renderer.h"
 #include "directions.h"
 #include "level.h"
+#include "lod_chunk_renderer.h"
 #include "shader.h"
 #include "texture_array.h"
 #include <array>
@@ -14,9 +14,7 @@
 #include <concurrentqueue/concurrentqueue.h>
 #include <map>
 #include <memory>
-#include <mutex>
 #include <parallel_hashmap/phmap.h>
-#include <queue>
 #include <thread>
 
 namespace Eon
@@ -31,7 +29,7 @@ namespace Eon
 		void MeshAllChunks();
 		bool MeshingAllChunks() const;
 		void RemoveMesh(ChunkPosition chunkPosition);
-		void Update();
+		void Update(glm::vec3 cameraPosition);
 		void Render(Camera& camera, glm::vec3 cameraPosition);
 		int ChunkRendererCount();
 
@@ -48,7 +46,7 @@ namespace Eon
 		int meshing_all_chunks_time_sum = 0;
 		std::unique_ptr<Shader> chunk_shader;
 		std::unique_ptr<TextureArray> chunk_texture;
-		std::thread mesh_thread;
+		std::vector<std::thread> mesh_threads;
 		std::atomic_bool exit;
 		moodycamel::ConcurrentQueue<ChunkPosition> chunks_to_mesh;
 		moodycamel::ConcurrentQueue<ChunkPosition> meshes_to_setup;

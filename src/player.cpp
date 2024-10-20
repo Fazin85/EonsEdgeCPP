@@ -58,7 +58,7 @@ namespace Eon
 
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::BackSpace))
 			{
-				Jump();
+				Jump(dt);
 			}
 
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl))
@@ -76,7 +76,7 @@ namespace Eon
 
 		if (!on_ground)
 		{
-			velocity.y -= 32 * dt;
+			velocity.y -= 0.2f;
 		}
 
 		on_ground = false;
@@ -168,14 +168,14 @@ namespace Eon
 		position.z = (bb.min.z + bb.max.z) / 2.0f;
 	}
 
-	void Player::Jump()
+	void Player::Jump(float dt)
 	{
 		/*if (on_ground)
 		{
 			acceleration.y += Y_JUMP_VELOCITY;
 		}*/
 
-		acceleration.y += Y_JUMP_VELOCITY * 0.05f;
+		acceleration.y += Y_JUMP_VELOCITY * 0.1f;
 
 	}
 }

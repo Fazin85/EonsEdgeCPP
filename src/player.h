@@ -24,7 +24,7 @@ namespace Eon
 
 	private:
 		void Move(glm::vec3 amount);
-		void Jump();
+		void Jump(float dt);
 
 		glm::vec3 position;
 		glm::vec3 acceleration;

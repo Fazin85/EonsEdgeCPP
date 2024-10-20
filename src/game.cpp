@@ -1,10 +1,9 @@
+#include "fps.h"
 #include "game.h"
+#include "settings.h"
 #include "window.h"
 #include <chrono>
 #include <SFML/Window.hpp>
-#include <thread>
-#include <chrono>
-#include "fps.h"
 
 namespace Eon
 {
@@ -16,7 +15,7 @@ namespace Eon
 
 		EON_INFO("Starting...");
 
-		Window::Create(3440, 1440, 0, "Eon's Edge", false);
+		Window::Create(3440, 1440, GameSettings.maxFps, "Eon's Edge", false);
 		gladLoadGL();
 
 		Init();
@@ -59,7 +58,7 @@ namespace Eon
 
 			Window::Get().display();
 
-			if (fpsCounter % 160 == 0)
+			if (fpsCounter % GameSettings.maxFps == 0)
 			{
 				EON_INFO(fps.Get());
 				fpsCounter = 0;
@@ -135,7 +134,7 @@ namespace Eon
 	int idx = 0;
 	void Game::Update(float dt)
 	{
-		level_renderer->Update();
+		level_renderer->Update(player->Position());
 
 		/*if (idx < LEVEL_WIDTH_CHUNKS * LEVEL_WIDTH_CHUNKS && !level_renderer->MeshingAllChunks())
 		{

@@ -17,7 +17,10 @@ namespace Eon
 		meshing_all_chunks = false;
 		meshing_all_meshed_chunks_count = 0;
 
-		mesh_thread = std::thread(&LevelRenderer::MeshThread, this);
+		for (int i = 0; i < GameSettings.mesh_gen_threads_count; i++)
+		{
+			mesh_threads.emplace_back(&LevelRenderer::MeshThread, this);
+		}
 
 		chunk_shader = std::make_unique<Shader>("Chunk.vert", "Chunk.frag");
 
@@ -44,7 +47,10 @@ namespace Eon
 	{
 		this->exit = true;
 
-		mesh_thread.join();
+		for (int i = 0; i < mesh_threads.size(); i++)
+		{
+			mesh_threads[i].join();
+		}
 	}
 
 	void LevelRenderer::SetLevel(Level* level)
@@ -87,7 +93,7 @@ namespace Eon
 		}
 	}
 
-	void LevelRenderer::Update()
+	void LevelRenderer::Update(glm::vec3 cameraPosition)
 	{
 		ChunkPosition position;
 
@@ -100,6 +106,23 @@ namespace Eon
 			else
 			{
 				chunk_renderers[position]->Setup();
+			}
+		}
+
+		ChunkPosition playerChunkPosition = ChunkPosition((int)cameraPosition.x >> CHUNK_BITSHIFT_AMOUNT, (int)cameraPosition.z >> CHUNK_BITSHIFT_AMOUNT);
+
+		for (int cx = 0; cx < LEVEL_WIDTH_CHUNKS; cx++)
+		{
+			for (int cz = 0; cz < LEVEL_WIDTH_CHUNKS; cz++)
+			{
+				ChunkPosition position(cx, cz);
+
+				if (chunk_renderers.contains(ChunkPosition(cx + 1, cz)) && chunk_renderers.contains(ChunkPosition(cx - 1, cz))
+					&& chunk_renderers.contains(ChunkPosition(cx, cz + 1)) && chunk_renderers.contains(ChunkPosition(cx, cz - 1))
+					&& position != playerChunkPosition)
+				{
+					level->GetChunk(ChunkPosition(cx, cz))->Compress();
+				}
 			}
 		}
 	}
@@ -334,6 +357,7 @@ namespace Eon
 				meshing_all_chunks = false;
 				meshing_all_meshed_chunks_count = 0;
 
+				EON_INFO("Overall chunk meshing time: " + std::to_string(meshing_all_chunks_time_sum));
 				EON_INFO("AVG chunk meshing time: " + std::to_string((float)meshing_all_chunks_time_sum / ((float)LEVEL_WIDTH_CHUNKS * (float)LEVEL_WIDTH_CHUNKS)));
 				meshing_all_chunks_time_sum = 0;
 			}
@@ -396,17 +420,18 @@ namespace Eon
 
 	unsigned int LevelRenderer::GetLod(float distance)
 	{
+		int width = GameSettings.percent_lod ? CHUNK_WIDTH : CHUNK_WIDTH / 2;
 		unsigned int lod = 0;
 
-		if (distance > (CHUNK_WIDTH * GameSettings.render_distance) / 4.0f)
+		if (distance > (width * GameSettings.render_distance) / 4.0f)
 		{
 			lod++;
 		}
-		if (distance > (CHUNK_WIDTH * GameSettings.render_distance) / 2.0f)
+		if (distance > (width * GameSettings.render_distance) / 2.0f)
 		{
 			lod++;
 		}
-		if (distance > (CHUNK_WIDTH * GameSettings.render_distance) / 1.5f)
+		if (distance > (width * GameSettings.render_distance) / 1.5f)
 		{
 			lod++;
 		}

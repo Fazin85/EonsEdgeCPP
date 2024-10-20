@@ -45,7 +45,7 @@ namespace Eon
 						{
 							height -= x * 2;
 						}
-						if (cz == LEVEL_WIDTH_CHUNKS)
+						if (cz == LEVEL_WIDTH_CHUNKS - 1)
 						{
 							height -= z * 2;
 						}
@@ -71,6 +71,8 @@ namespace Eon
 						}
 					}
 				}
+
+				//chunk->Compress();
 			}
 		}
 	}
@@ -142,7 +144,7 @@ namespace Eon
 			{
 				for (int z = min.z; z <= max.z; z++)
 				{
-					Block* block = GetBlock(glm::ivec3(x, y, z));
+					Block* block = GetBlockDecompressChunk(glm::ivec3(x, y, z));
 
 					if (block != nullptr)
 					{
@@ -161,5 +163,22 @@ namespace Eon
 	u32 Level::IndexFromPosition(i16 x, i16 z)
 	{
 		return (z * LEVEL_WIDTH_CHUNKS) + x;
+	}
+
+	Block* Level::GetBlockDecompressChunk(glm::ivec3 position)
+	{
+		auto chunk = GetChunk(ChunkPosition{ .x = static_cast<u8>(position.x >> CHUNK_BITSHIFT_AMOUNT),
+											  .z = static_cast<u8>(position.z >> CHUNK_BITSHIFT_AMOUNT) });
+		if (chunk != nullptr)
+		{
+			chunk->Decompress();
+
+			u8 bpx = position.x - (chunk->Position().x * CHUNK_WIDTH);
+			u8 bpz = position.z - (chunk->Position().z * CHUNK_WIDTH);
+
+			return chunk->GetBlock(bpx, position.y, bpz);
+		}
+
+		return nullptr;
 	}
 }  // namespace Eon
