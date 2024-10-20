@@ -3,9 +3,10 @@
     "concurrentqueue",
     "glad",
     "glm",
+    "lz4",
     "parallel-hashmap",
     "sfml",
     "spdlog",
-    "lz4"
+    "nlohmann-json"
   ]
 }

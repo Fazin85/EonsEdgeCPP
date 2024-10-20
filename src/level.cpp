@@ -1,11 +1,17 @@
 #include "level.h"
 #include "log.h"
 #include "fast_noise_lite.h"
+#include <filesystem>
 
 namespace Eon
 {
 	Level::Level() : sky_color{}
 	{
+		//bool write = !std::filesystem::exists("level.dat");
+		bool write = true;
+
+		save_file.open("level.dat", std::ios::binary);
+
 		//allocate all chunks in the level
 
 		for (int x = 0; x < LEVEL_WIDTH_CHUNKS; x++)
@@ -75,6 +81,28 @@ namespace Eon
 				//chunk->Compress();
 			}
 		}
+
+		if (write)
+		{
+			//save_file.seekp(0, std::ios::beg);
+			//constexpr size_t bufferSize = CHUNK_BLOCK_COUNT * sizeof(Block) * (LEVEL_WIDTH_CHUNKS * LEVEL_WIDTH_CHUNKS);
+			//char* buffer = new char[bufferSize];
+			//std::fill_n(buffer, bufferSize, 0);
+
+			//save_file.write(buffer, bufferSize);
+
+			//delete[] buffer;
+
+			//save_file.seekp(0, std::ios::beg);
+
+			//for (int i = 0; i < LEVEL_WIDTH_CHUNKS * LEVEL_WIDTH_CHUNKS; i++)
+			//{
+			//	std::vector<char> compressedBlocks = chunks[i]->CompressToBuffer();
+			//	save_file.write(reinterpret_cast<char*>(chunks[i]->GetBlocks()), sizeof(Block) * CHUNK_BLOCK_COUNT);
+			//}
+		}
+
+		save_file.close();
 	}
 
 	Chunk* Level::GetChunk(ChunkPosition position)
@@ -180,5 +208,10 @@ namespace Eon
 		}
 
 		return nullptr;
+	}
+
+	void Level::LoadChunkDataFromFilesystem(Chunk& chunk)
+	{
+
 	}
 }  // namespace Eon

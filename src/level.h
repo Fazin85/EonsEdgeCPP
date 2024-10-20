@@ -9,6 +9,7 @@
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 #include <memory>
+#include <fstream>
 
 #define LEVEL_WIDTH_CHUNKS 40
 
@@ -29,7 +30,9 @@ namespace Eon
 
 	private:
 		Block* GetBlockDecompressChunk(glm::ivec3 position);
+		void LoadChunkDataFromFilesystem(Chunk& chunk);
 		std::array<std::unique_ptr<Chunk>, LEVEL_WIDTH_CHUNKS* LEVEL_WIDTH_CHUNKS> chunks;
 		glm::vec4 sky_color;
+		std::ofstream save_file;
 	};
 } // namespace Eon

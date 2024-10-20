@@ -1,5 +1,6 @@
 #include "level.h"
 #include "player.h"
+#include "settings.h"
 #include <glm/gtc/matrix_transform.hpp>
 
 namespace Eon
@@ -9,7 +10,7 @@ namespace Eon
 	Player::Player(Level* level) : bb(glm::vec3(0), glm::vec3(0))
 	{
 		this->level = level;
-		camera = std::make_unique<Camera>(90, 8);
+		camera = std::make_unique<Camera>(GameSettings.fov, 8);
 		position = glm::vec3(256, 200, 256);
 		acceleration = glm::vec3(0, 0, 0);
 		velocity = glm::vec3(0, 0, 0);

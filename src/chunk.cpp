@@ -102,4 +102,27 @@ namespace Eon
 			blocks = nullptr;
 		}
 	}
+
+	Block* Chunk::GetBlocks()
+	{
+		return blocks;
+	}
+
+	std::vector<char> Chunk::CompressToBuffer() const
+	{
+		constexpr int DstSize = LZ4_COMPRESSBOUND(SrcSize);
+		std::vector<char> buffer;
+		buffer.reserve(DstSize);
+
+		int size = LZ4_compress_default(reinterpret_cast<char*>(blocks), buffer.data(), SrcSize, DstSize);
+
+		if (size <= 0)
+		{
+			EON_ERROR("Failed to compress chunk");
+			return std::vector<char>();
+		}
+
+		buffer.resize(size);
+		return buffer;
+	}
 } // namespace Eon
