@@ -203,6 +203,7 @@ namespace Eon
 						int numFaces = 0;
 						glm::ivec3 position(x, y, z);
 						auto block = chunk->GetBlock(x, y, z);
+						i16 height = *chunk->GetHeightestBlockY(x, z);
 
 						if (block == nullptr)
 						{
@@ -215,12 +216,19 @@ namespace Eon
 							continue;
 						}
 
+						BlockType type = block->type;
+
+						if (lod != 1 && y < height + (lod - 1))
+						{
+							type = chunk->GetBlock(x, height, z)->type;
+						}
+
 						Directions dir = Directions::Left;
 						if (x > 0)
 						{
 							if (chunk->GetBlock(x - lod, y, z)->type == BlockType::AIR)
 							{
-								AddFace(meshData, position, block->type, dir, lod);
+								AddFace(meshData, position, type, dir, lod);
 								numFaces++;
 							}
 						}
@@ -231,7 +239,7 @@ namespace Eon
 							{
 								if (sideBlock->type == BlockType::AIR)
 								{
-									AddFace(meshData, position, block->type, dir, lod);
+									AddFace(meshData, position, type, dir, lod);
 									numFaces++;
 								}
 							}
@@ -242,7 +250,7 @@ namespace Eon
 						{
 							if (chunk->GetBlock(x + lod, y, z)->type == BlockType::AIR)
 							{
-								AddFace(meshData, position, block->type, dir, lod);
+								AddFace(meshData, position, type, dir, lod);
 								numFaces++;
 							}
 						}
@@ -253,7 +261,7 @@ namespace Eon
 							{
 								if (sideBlock->type == BlockType::AIR)
 								{
-									AddFace(meshData, position, block->type, dir, lod);
+									AddFace(meshData, position, type, dir, lod);
 									numFaces++;
 								}
 							}
@@ -264,13 +272,13 @@ namespace Eon
 						{
 							if (chunk->GetBlock(x, y + lod, z)->type == BlockType::AIR)
 							{
-								AddFace(meshData, position, block->type, dir, lod);
+								AddFace(meshData, position, type, dir, lod);
 								numFaces++;
 							}
 						}
 						else
 						{
-							AddFace(meshData, position, block->type, dir, lod);
+							AddFace(meshData, position, type, dir, lod);
 							numFaces++;
 						}
 
@@ -279,7 +287,7 @@ namespace Eon
 						{
 							if (chunk->GetBlock(x, y - lod, z)->type == BlockType::AIR)
 							{
-								AddFace(meshData, position, block->type, dir, lod);
+								AddFace(meshData, position, type, dir, lod);
 								numFaces++;
 							}
 						}
@@ -289,7 +297,7 @@ namespace Eon
 						{
 							if (chunk->GetBlock(x, y, z + lod)->type == BlockType::AIR)
 							{
-								AddFace(meshData, position, block->type, dir, lod);
+								AddFace(meshData, position, type, dir, lod);
 								numFaces++;
 							}
 						}
@@ -300,7 +308,7 @@ namespace Eon
 							{
 								if (sideBlock->type == BlockType::AIR)
 								{
-									AddFace(meshData, position, block->type, dir, lod);
+									AddFace(meshData, position, type, dir, lod);
 									numFaces++;
 								}
 							}
@@ -311,7 +319,7 @@ namespace Eon
 						{
 							if (chunk->GetBlock(x, y, z - lod)->type == BlockType::AIR)
 							{
-								AddFace(meshData, position, block->type, dir, lod);
+								AddFace(meshData, position, type, dir, lod);
 								numFaces++;
 							}
 						}
@@ -322,7 +330,7 @@ namespace Eon
 							{
 								if (sideBlock->type == BlockType::AIR)
 								{
-									AddFace(meshData, position, block->type, dir, lod);
+									AddFace(meshData, position, type, dir, lod);
 									numFaces++;
 								}
 							}

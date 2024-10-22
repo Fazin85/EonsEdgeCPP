@@ -108,6 +108,11 @@ namespace Eon
 		return blocks;
 	}
 
+	i16* Chunk::GetHeightestBlockY(u8 x, u8 z)
+	{
+		return &highest_blocks[(x * CHUNK_WIDTH) + z];
+	}
+
 	std::vector<char> Chunk::CompressToBuffer() const
 	{
 		constexpr int DstSize = LZ4_COMPRESSBOUND(SrcSize);

@@ -124,6 +124,10 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
+      <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -152,6 +156,7 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\plane_mesh.cpp" />
     <ClCompile Include="src\player.cpp" />
+    <ClCompile Include="src\scope_timer.cpp" />
     <ClCompile Include="src\shader.cpp" />
     <ClCompile Include="src\skybox.cpp" />
     <ClCompile Include="src\texture.cpp" />
@@ -167,6 +172,7 @@
     <ClInclude Include="src\bounding_box.h" />
     <ClInclude Include="src\lod_chunk_renderer.h" />
     <ClInclude Include="src\plane_mesh.h" />
+    <ClInclude Include="src\scope_timer.h" />
     <ClInclude Include="src\skybox.h" />
     <ClInclude Include="src\fast_noise_lite.h" />
     <ClInclude Include="src\fps.h" />

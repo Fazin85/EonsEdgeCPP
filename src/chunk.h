@@ -22,11 +22,13 @@ namespace Eon
 		void Decompress();
 		void DeleteBlocks();
 		Block* GetBlocks();
+		i16* GetHeightestBlockY(u8 x, u8 z);
 		std::vector<char> CompressToBuffer() const;
 
 	private:
 		ChunkPosition position;
 		Block* blocks;
+		i16 highest_blocks[CHUNK_WIDTH * CHUNK_WIDTH];
 		char* compressed_blocks;
 		size_t compressed_blocks_size;
 		bool compressed;

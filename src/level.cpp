@@ -1,7 +1,10 @@
+#include "fast_noise_lite.h"
 #include "level.h"
 #include "log.h"
-#include "fast_noise_lite.h"
 #include <filesystem>
+#include <future>
+#include <thread>
+#include "scope_timer.h"
 
 namespace Eon
 {
@@ -9,6 +12,23 @@ namespace Eon
 	{
 		//bool write = !std::filesystem::exists("level.dat");
 		bool write = true;
+		std::filesystem::path directoryPath = "level";
+
+		if (!std::filesystem::exists(directoryPath))
+		{
+			if (std::filesystem::create_directory(directoryPath))
+			{
+				EON_INFO("Directory created successfully: level");
+			}
+			else
+			{
+				EON_ERROR("Error creating directory: level");
+			}
+		}
+		else
+		{
+			EON_INFO("Directory already exists: level");
+		}
 
 		save_file.open("level.dat", std::ios::binary);
 
@@ -69,6 +89,7 @@ namespace Eon
 							if (y == height - 1)
 							{
 								chunk->GetBlock(x, y, z)->type = BlockType::GRASS;
+								*chunk->GetHeightestBlockY(x, z) = y;
 							}
 							else
 							{
@@ -84,22 +105,32 @@ namespace Eon
 
 		if (write)
 		{
-			//save_file.seekp(0, std::ios::beg);
-			//constexpr size_t bufferSize = CHUNK_BLOCK_COUNT * sizeof(Block) * (LEVEL_WIDTH_CHUNKS * LEVEL_WIDTH_CHUNKS);
-			//char* buffer = new char[bufferSize];
-			//std::fill_n(buffer, bufferSize, 0);
+			/*ScopeTimer timer("Write");
+			for (int x = 0; x < LEVEL_WIDTH_CHUNKS; x++)
+			{
+				for (int z = 0; z < LEVEL_WIDTH_CHUNKS; z++)
+				{
+					ChunkPosition position(x, z);
 
-			//save_file.write(buffer, bufferSize);
+					auto future = std::async(std::launch::async, [this, position]
+						{
+							auto chunkFile = std::fstream("level/" + std::to_string(position.x) + "." + std::to_string(position.z) + ".dat", std::ios::binary);
 
-			//delete[] buffer;
+							Chunk* chunk = GetChunk(position);
 
-			//save_file.seekp(0, std::ios::beg);
+							if (chunk != nullptr)
+							{
+								auto data = chunk->CompressToBuffer();
+								size_t size = data.size();
 
-			//for (int i = 0; i < LEVEL_WIDTH_CHUNKS * LEVEL_WIDTH_CHUNKS; i++)
-			//{
-			//	std::vector<char> compressedBlocks = chunks[i]->CompressToBuffer();
-			//	save_file.write(reinterpret_cast<char*>(chunks[i]->GetBlocks()), sizeof(Block) * CHUNK_BLOCK_COUNT);
-			//}
+								chunkFile.write(reinterpret_cast<char*>(&size), sizeof(size_t));
+								chunkFile.write(data.data(), data.size());
+							}
+
+							chunkFile.close();
+						});
+				}
+			}*/
 		}
 
 		save_file.close();
