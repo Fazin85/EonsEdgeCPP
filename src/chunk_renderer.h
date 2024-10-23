@@ -5,10 +5,7 @@
 #include <vector>
 
 #include "chunk_mesh_data.h"
-#include "index_buffer_object.h"
 #include "num.h"
-#include "vertex_array_object.h"
-#include "vertex_buffer_object.h"
 
 namespace Eon
 {
@@ -30,9 +27,13 @@ namespace Eon
 		size_t vertex_data_size;
 		size_t index_size;
 		ChunkRenderer* water_mesh;
-		VertexArrayObject vao;
-		IndexBufferObject ibo;
-		VertexBufferObject vertex_position_vbo;
-		VertexBufferObject dir_light_vbo;
+		//VertexArrayObject vao;
+		unsigned int vao;
+		//IndexBufferObject ibo;
+		unsigned int ibo;
+		//VertexBufferObject vertex_position_vbo;
+		unsigned int vertex_position_vbo;
+		//VertexBufferObject dir_light_vbo;
+		unsigned int dir_light_vbo;
 	};
 }  // namespace Eon

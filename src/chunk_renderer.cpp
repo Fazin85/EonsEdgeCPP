@@ -8,13 +8,8 @@
 
 namespace Eon
 {
-	ChunkRenderer::ChunkRenderer(ChunkMeshData& meshData) : vertex_position_data(nullptr), dir_light_data(nullptr)
+	ChunkRenderer::ChunkRenderer(ChunkMeshData& meshData) : vertex_position_data(nullptr), dir_light_data(nullptr), setup(false), water_mesh(nullptr)
 	{
-		this->setup = false;
-		this->water_mesh = nullptr;
-
-		ibo = IndexBufferObject();
-
 		vertex_data_size = meshData.vertexPositions.size();
 
 		index_size = meshData.indices.size();
@@ -53,8 +48,8 @@ namespace Eon
 			return;
 		}
 
-		vao.Bind();
-		ibo.Bind();
+		glBindVertexArray(vao);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 
 		glDrawElements(GL_TRIANGLES, index_size, GL_UNSIGNED_INT, 0);
 
@@ -74,22 +69,36 @@ namespace Eon
 
 		setup = false;
 
-		vao.Init();
-		vao.Bind();
+		glGenVertexArrays(1, &vao);
+		glBindVertexArray(vao);
+		glGenBuffers(1, &vertex_position_vbo);
 
-		vertex_position_vbo.Init(vertex_position_data, vertex_data_size);
-		vao.Link(0, 1, vertex_position_vbo, GL_UNSIGNED_INT, true);
+		glBindBuffer(GL_ARRAY_BUFFER, vertex_position_vbo);
+		glBufferData(GL_ARRAY_BUFFER, vertex_data_size * sizeof(u32), vertex_position_data,
+			GL_STATIC_DRAW);
+
+		glVertexAttribIPointer(0, 1, GL_UNSIGNED_INT, 0, 0);
+		glEnableVertexAttribArray(0);
 
 		delete vertex_position_data;
 		vertex_position_data = nullptr;
 
-		dir_light_vbo.Init(dir_light_data, vertex_data_size);
-		vao.Link(1, 1, dir_light_vbo, GL_UNSIGNED_INT, true);
+		glGenBuffers(1, &dir_light_vbo);
+
+		glBindBuffer(GL_ARRAY_BUFFER, dir_light_vbo);
+		glBufferData(GL_ARRAY_BUFFER, vertex_data_size * sizeof(u32), dir_light_data,
+			GL_STATIC_DRAW);
+
+		glVertexAttribIPointer(1, 1, GL_UNSIGNED_INT, 0, 0);
+		glEnableVertexAttribArray(1);
 
 		delete dir_light_data;
 		dir_light_data = nullptr;
 
-		ibo.Init(indices, index_size);
+		glGenBuffers(1, &ibo);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, index_size * sizeof(u32), indices,
+			GL_STATIC_DRAW);
 
 		delete indices;
 		indices = nullptr;
@@ -106,11 +115,11 @@ namespace Eon
 	{
 		if (setup)
 		{
-			vao.Destroy();
-			ibo.Destroy();
+			glDeleteVertexArrays(1, &vao);
+			glDeleteBuffers(1, &ibo);
 
-			vertex_position_vbo.Destroy();
-			dir_light_vbo.Destroy();
+			glDeleteBuffers(1, &vertex_position_vbo);
+			glDeleteBuffers(1, &dir_light_vbo);
 		}
 
 		if (dir_light_data != nullptr)
