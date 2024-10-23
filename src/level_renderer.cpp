@@ -149,6 +149,9 @@ namespace Eon
 
 		glm::vec3 playerChunkPosition = glm::vec3((static_cast<int>(cameraPosition.x) >> CHUNK_BITSHIFT_AMOUNT) * CHUNK_WIDTH, 0, (static_cast<int>(cameraPosition.z) >> CHUNK_BITSHIFT_AMOUNT) * CHUNK_WIDTH);
 
+		static std::vector<std::pair<LODChunkRenderer*, float>> renderers;
+		renderers.clear();
+
 		for (const auto& [chunkPosition, chunkRenderer] : chunk_renderers)
 		{
 			float distance = Distance(playerChunkPosition, glm::vec3(chunkPosition.x * CHUNK_WIDTH, 0, chunkPosition.z * CHUNK_WIDTH));
@@ -158,11 +161,30 @@ namespace Eon
 				continue;
 			}
 
-			unsigned int lod = GetLod(distance);
+			renderers.emplace_back(chunkRenderer.get(), distance);
+		}
+
+		std::sort(renderers.begin(), renderers.end(), [cameraPosition](std::pair<LODChunkRenderer*, float> first, std::pair<LODChunkRenderer*, float> second) -> bool
+			{
+				ChunkPosition firstPosition = first.first->GetChunk().Position();
+				ChunkPosition secondPosition = second.first->GetChunk().Position();
+
+				return Distance(cameraPosition, glm::vec3(firstPosition.x, 0, firstPosition.z)) > Distance(cameraPosition, glm::vec3(secondPosition.x, 0, secondPosition.z));
+			});
+
+		for (const auto& pair : renderers)
+		{
+			unsigned int lod = GetLod(pair.second);
+			ChunkPosition chunkPosition = pair.first->GetChunk().Position();
 
 			chunk_shader->UniformFVec3("chunkPos", glm::vec3(chunkPosition.x * CHUNK_WIDTH, -((int)lod * CHUNK_MAX_LOD), chunkPosition.z * CHUNK_WIDTH));
 
-			chunkRenderer->Render(lod);
+			pair.first->Render(lod);
+
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::G))
+			{
+				EON_INFO(pair.second);
+			}
 		}
 	}
 
