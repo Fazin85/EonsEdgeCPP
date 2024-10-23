@@ -180,11 +180,6 @@ namespace Eon
 			chunk_shader->UniformFVec3("chunkPos", glm::vec3(chunkPosition.x * CHUNK_WIDTH, -((int)lod * CHUNK_MAX_LOD), chunkPosition.z * CHUNK_WIDTH));
 
 			pair.first->Render(lod);
-
-			if (sf::Keyboard::isKeyPressed(sf::Keyboard::G))
-			{
-				EON_INFO(pair.second);
-			}
 		}
 	}
 
