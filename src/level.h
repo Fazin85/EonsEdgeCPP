@@ -19,6 +19,7 @@ namespace Eon
 	{
 	public:
 		Level();
+		~Level();
 		Chunk* GetChunk(ChunkPosition position);
 		Chunk* GetChunkUnsafe(ChunkPosition position);
 		Chunk* GetChunkFromIndex(size_t index);
@@ -32,6 +33,7 @@ namespace Eon
 		Block* GetBlockDecompressChunk(glm::ivec3 position);
 		void LoadChunkDataFromFilesystem(Chunk& chunk);
 		std::array<std::unique_ptr<Chunk>, LEVEL_WIDTH_CHUNKS* LEVEL_WIDTH_CHUNKS> chunks;
+		std::array<std::unique_ptr<std::fstream>, LEVEL_WIDTH_CHUNKS* LEVEL_WIDTH_CHUNKS> chunks_files;
 		glm::vec4 sky_color;
 		std::ofstream save_file;
 	};

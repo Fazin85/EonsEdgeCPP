@@ -101,7 +101,7 @@ namespace Eon
 		{
 			if (!chunk_renderers.contains(position))
 			{
-				EON_ERROR("POWPDOAW");
+				EON_ERROR("OH NO");
 			}
 			else
 			{
@@ -173,6 +173,14 @@ namespace Eon
 
 	void LevelRenderer::MeshThread()
 	{
+		//is this a good idea?
+		/*HANDLE thread = GetCurrentThread();
+		if (SetThreadPriority(thread, THREAD_PRIORITY_HIGHEST) == 0)
+		{
+			EON_ERROR("Failed to set thread priority");
+		}*/
+		//it was not a good idea.
+
 		while (!exit)
 		{
 			ChunkPosition chunkPosition;

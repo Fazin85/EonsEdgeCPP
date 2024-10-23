@@ -8,7 +8,7 @@
 
 namespace Eon
 {
-	Level::Level() : sky_color{}
+	Level::Level() : chunks_files{}, sky_color{}
 	{
 		//bool write = !std::filesystem::exists("level.dat");
 		bool write = true;
@@ -30,7 +30,7 @@ namespace Eon
 			EON_INFO("Directory already exists: level");
 		}
 
-		save_file.open("level.dat", std::ios::binary);
+		//save_file.open("level.dat", std::ios::binary);
 
 		//allocate all chunks in the level
 
@@ -60,7 +60,7 @@ namespace Eon
 						int nx = (cx * CHUNK_WIDTH) + x;
 						int nz = (cz * CHUNK_WIDTH) + z;
 
-						int height = (noise.GetNoise(static_cast<float>(nx * 0.1f), static_cast<float>(nz * 0.1f)) + 1) * 64;
+						int height = (noise.GetNoise(static_cast<float>(nx * 0.1f), static_cast<float>(nz * 0.1f)) + 1) * 128;
 
 						if (height >= CHUNK_HEIGHT)
 						{
@@ -103,19 +103,29 @@ namespace Eon
 			}
 		}
 
+		//set the max file handles
+		if (_setmaxstdio(2048) == -1)
+		{
+			EON_CRITICAL("_setmaxstdio failed");
+			std::abort();
+		}
+
 		if (write)
 		{
-			/*ScopeTimer timer("Write");
+			ScopeTimer timer("Write");
+			std::vector<std::future<void>> fileFutures;
+
 			for (int x = 0; x < LEVEL_WIDTH_CHUNKS; x++)
 			{
 				for (int z = 0; z < LEVEL_WIDTH_CHUNKS; z++)
 				{
 					ChunkPosition position(x, z);
 
-					auto future = std::async(std::launch::async, [this, position]
+					fileFutures.push_back(std::async(std::launch::async, [this, position]
 						{
-							auto chunkFile = std::fstream("level/" + std::to_string(position.x) + "." + std::to_string(position.z) + ".dat", std::ios::binary);
-
+							auto index = IndexFromPosition(position.x, position.z);
+							chunks_files[index] = std::make_unique<std::fstream>("level/" + std::to_string(position.x) + "." + std::to_string(position.z) + ".dat", std::ios::out | std::ios::binary);
+							std::fstream& chunkFile = *chunks_files[index];
 							Chunk* chunk = GetChunk(position);
 
 							if (chunk != nullptr)
@@ -126,14 +136,32 @@ namespace Eon
 								chunkFile.write(reinterpret_cast<char*>(&size), sizeof(size_t));
 								chunkFile.write(data.data(), data.size());
 							}
-
-							chunkFile.close();
-						});
+						}));
 				}
-			}*/
+			}
+
+			for (auto& future : fileFutures)
+			{
+				future.wait();
+			}
 		}
 
-		save_file.close();
+		//save_file.close();
+	}
+
+	Level::~Level()
+	{
+		for (auto& file : chunks_files)
+		{
+			if (file == nullptr)
+			{
+				EON_ERROR("Chunk file was nullptr");
+			}
+			else
+			{
+				file->close();
+			}
+		}
 	}
 
 	Chunk* Level::GetChunk(ChunkPosition position)
@@ -221,7 +249,7 @@ namespace Eon
 
 	u32 Level::IndexFromPosition(i16 x, i16 z)
 	{
-		return (z * LEVEL_WIDTH_CHUNKS) + x;
+		return (x * LEVEL_WIDTH_CHUNKS) + z;
 	}
 
 	Block* Level::GetBlockDecompressChunk(glm::ivec3 position)
