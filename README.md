@@ -1,1 +1,1 @@
-A (voxel) game engine.
+A voxel game.
