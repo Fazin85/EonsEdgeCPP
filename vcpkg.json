@@ -4,9 +4,10 @@
     "glad",
     "glm",
     "lz4",
+    "nlohmann-json",
     "parallel-hashmap",
     "sfml",
     "spdlog",
-    "nlohmann-json"
+    "zlib"
   ]
 }

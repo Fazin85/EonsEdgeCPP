@@ -16,19 +16,19 @@ namespace Eon
 	public:
 		Chunk(ChunkPosition chunkPosition);
 		~Chunk();
-		Block* GetBlock(u8 x, i16 y, u8 z);
+		Block* GetBlock(unsigned char x, short y, unsigned char z);
 		ChunkPosition Position() const;
 		void Compress();
 		void Decompress();
 		void DeleteBlocks();
 		Block* GetBlocks();
-		i16* GetHeightestBlockY(u8 x, u8 z);
+		short* GetHeightestBlockY(unsigned char x, unsigned char z);
 		std::vector<char> CompressToBuffer() const;
 
 	private:
 		ChunkPosition position;
 		Block* blocks;
-		i16 highest_blocks[CHUNK_WIDTH * CHUNK_WIDTH];
+		short highest_blocks[CHUNK_WIDTH * CHUNK_WIDTH];
 		char* compressed_blocks;
 		size_t compressed_blocks_size;
 		bool compressed;

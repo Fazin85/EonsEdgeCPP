@@ -177,6 +177,6 @@ namespace Eon
 
 	void Game::OnExit()
 	{
-
+		level_renderer->SaveMeshDataToFilesystem();
 	}
 }

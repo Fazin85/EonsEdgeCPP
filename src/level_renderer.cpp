@@ -2,6 +2,7 @@
 #include "level_renderer.h"
 #include "log.h"
 #include "settings.h"
+#include <zlib.h>
 
 static float Distance(const glm::vec3& pos1, const glm::vec3& pos2)
 {
@@ -183,6 +184,63 @@ namespace Eon
 		}
 	}
 
+	static Bytef* eon_compress(Bytef* data, size_t srcSize, uLongf* dstSize)
+	{
+		*dstSize = compressBound(srcSize);
+		Bytef* compressed = new Bytef[*dstSize];
+
+		compress(compressed, dstSize, data, srcSize);
+
+		std::realloc(compressed, *dstSize);
+
+		return compressed;
+	}
+
+	void LevelRenderer::SaveMeshDataToFilesystem()
+	{
+		//if (chunk_renderers.size() != LEVEL_WIDTH_CHUNKS * LEVEL_WIDTH_CHUNKS)
+		//{
+		//	return;
+		//}
+
+		mesh_save_file.open("mesh_data.dat", std::ios::out | std::ios::binary);
+
+		for (const auto& [chunkPosition, chunkRenderer] : chunk_renderers)
+		{
+			std::vector<eon_chunk_mesh_data> chunkMeshData = chunkRenderer->GetAllMeshDataFromGpu();
+
+			unsigned char x = chunkPosition.x;
+			unsigned char z = chunkPosition.z;
+
+			mesh_save_file.write(reinterpret_cast<char*>(&x), sizeof(unsigned char));
+			mesh_save_file.write(reinterpret_cast<char*>(&z), sizeof(unsigned char));
+
+			for (auto& meshData : chunkMeshData)
+			{
+				uLongf compressedVertexPositionDataSize;
+				uLongf compressedDirLightDataSize;
+				uLongf compressedIndicesSize;
+
+				Bytef* compressedVertexPositionData = eon_compress(reinterpret_cast<Bytef*>(meshData.vertex_position_data), sizeof(unsigned int) * meshData.vertex_data_size, &compressedVertexPositionDataSize);
+				Bytef* compressedDirLightData = eon_compress(reinterpret_cast<Bytef*>(meshData.dir_light_data), sizeof(unsigned int) * meshData.vertex_data_size, &compressedDirLightDataSize);
+				Bytef* compressedIndices = eon_compress(reinterpret_cast<Bytef*>(meshData.indices), sizeof(unsigned int) * meshData.index_size, &compressedIndicesSize);
+
+				mesh_save_file.write(reinterpret_cast<char*>(&compressedVertexPositionDataSize), sizeof(uLongf));
+				mesh_save_file.write(reinterpret_cast<char*>(compressedVertexPositionData), compressedVertexPositionDataSize);
+
+				mesh_save_file.write(reinterpret_cast<char*>(&compressedDirLightDataSize), sizeof(uLongf));
+				mesh_save_file.write(reinterpret_cast<char*>(compressedDirLightData), compressedDirLightDataSize);
+
+				mesh_save_file.write(reinterpret_cast<char*>(&compressedIndicesSize), sizeof(uLongf));
+				mesh_save_file.write(reinterpret_cast<char*>(compressedIndices), compressedIndicesSize);
+
+				eon_chunk_mesh_data_free(&meshData);
+			}
+		}
+
+		mesh_save_file.close();
+	}
+
 	int LevelRenderer::ChunkRendererCount()
 	{
 		return chunk_renderers.size();
@@ -217,18 +275,18 @@ namespace Eon
 
 		for (unsigned int lod = 1; lod <= CHUNK_MAX_LOD; lod *= 2)
 		{
-			ChunkMeshData meshData{};
+			ChunkMeshConstructionData meshData{};
 
-			for (u8 x = 0; x < CHUNK_WIDTH; x += lod)
+			for (unsigned char x = 0; x < CHUNK_WIDTH; x += lod)
 			{
-				for (i16 y = 0; y < CHUNK_HEIGHT; y += lod)
+				for (short y = 0; y < CHUNK_HEIGHT; y += lod)
 				{
-					for (u8 z = 0; z < CHUNK_WIDTH; z += lod)
+					for (unsigned char z = 0; z < CHUNK_WIDTH; z += lod)
 					{
 						int numFaces = 0;
 						glm::ivec3 position(x, y, z);
 						auto block = chunk->GetBlock(x, y, z);
-						i16 height = *chunk->GetHeightestBlockY(x, z);
+						short height = *chunk->GetHeightestBlockY(x, z);
 
 						if (block == nullptr)
 						{
@@ -397,7 +455,7 @@ namespace Eon
 		}
 	}
 
-	void LevelRenderer::AddFace(ChunkMeshData& meshData, const glm::ivec3& blockPosition, BlockType blockType, Directions direction, unsigned int lod)
+	void LevelRenderer::AddFace(ChunkMeshConstructionData& meshData, const glm::ivec3& blockPosition, BlockType blockType, Directions direction, unsigned int lod)
 	{
 		auto faceData = GetFaceDataFromDirection(direction);
 
@@ -409,34 +467,34 @@ namespace Eon
 			int z = (faceData[index++] * lod) + blockPosition.z;
 
 			meshData.vertexPositions.emplace_back(x, y, z);
-			meshData.directions.push_back(static_cast<u8>(direction));
+			meshData.directions.push_back(static_cast<unsigned char>(direction));
 			meshData.light.push_back(15);
 			meshData.uvs.push_back({ i, blockType });
 		}
 	}
 
-	std::array<u8, 12> LevelRenderer::GetFaceDataFromDirection(Directions dir)
+	std::array<unsigned char, 12> LevelRenderer::GetFaceDataFromDirection(Directions dir)
 	{
 		switch (dir)
 		{
 		case Directions::Front:
-			return std::array<u8, 12>({ 0, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1 });
+			return std::array<unsigned char, 12>({ 0, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1 });
 		case Directions::Back:
-			return std::array<u8, 12>({ 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0 });
+			return std::array<unsigned char, 12>({ 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0 });
 		case Directions::Left:
-			return std::array<u8, 12>({ 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0 });
+			return std::array<unsigned char, 12>({ 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0 });
 		case Directions::Right:
-			return std::array<u8, 12>({ 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 1, 1 });
+			return std::array<unsigned char, 12>({ 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 1, 1 });
 		case Directions::Top:
-			return std::array<u8, 12>({ 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0 });
+			return std::array<unsigned char, 12>({ 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0 });
 		case Directions::Bottom:
-			return std::array<u8, 12>({ 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1 });
+			return std::array<unsigned char, 12>({ 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1 });
 		}
 
 		return {};
 	}
 
-	void LevelRenderer::AddIndices(ChunkMeshData& meshData, int count)
+	void LevelRenderer::AddIndices(ChunkMeshConstructionData& meshData, int count)
 	{
 		for (int i = 0; i < count; i++)
 		{

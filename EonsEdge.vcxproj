@@ -128,6 +128,7 @@
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
       <FloatingPointModel>Fast</FloatingPointModel>
+      <LanguageStandard_C>stdc11</LanguageStandard_C>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -139,6 +140,7 @@
   <ItemGroup>
     <ClCompile Include="src\billboard_sprite.cpp" />
     <ClCompile Include="src\bounding_box.cpp" />
+    <ClCompile Include="src\chunk_mesh_data.c" />
     <ClCompile Include="src\frustum.cpp" />
     <ClCompile Include="src\game.cpp" />
     <ClCompile Include="src\image.cpp" />
@@ -166,6 +168,7 @@
     <ClInclude Include="src\aabb.h" />
     <ClInclude Include="src\billboard_sprite.h" />
     <ClInclude Include="src\bounding_box.h" />
+    <ClInclude Include="src\chunk_mesh_data.h" />
     <ClInclude Include="src\lod_chunk_renderer.h" />
     <ClInclude Include="src\plane_mesh.h" />
     <ClInclude Include="src\scope_timer.h" />
@@ -179,14 +182,13 @@
     <ClInclude Include="src\block_texture.h" />
     <ClInclude Include="src\camera.h" />
     <ClInclude Include="src\chunk.h" />
-    <ClInclude Include="src\chunk_mesh_data.h" />
+    <ClInclude Include="src\chunk_mesh_construction_data.h" />
     <ClInclude Include="src\chunk_position.h" />
     <ClInclude Include="src\chunk_renderer.h" />
     <ClInclude Include="src\directions.h" />
     <ClInclude Include="src\file_util.h" />
     <ClInclude Include="src\level.h" />
     <ClInclude Include="src\log.h" />
-    <ClInclude Include="src\num.h" />
     <ClInclude Include="src\player.h" />
     <ClInclude Include="src\settings.h" />
     <ClInclude Include="src\shader.h" />

@@ -87,11 +87,11 @@
     <ClCompile Include="src\scope_timer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\chunk_mesh_data.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\num.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -122,7 +122,7 @@
     <ClInclude Include="src\block_texture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\chunk_mesh_data.h">
+    <ClInclude Include="src\chunk_mesh_construction_data.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\shader.h">
@@ -180,6 +180,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\scope_timer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\chunk_mesh_data.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

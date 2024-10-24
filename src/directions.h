@@ -1,10 +1,10 @@
 #pragma once
 
-#include "num.h"
+
 
 namespace Eon
 {
-	enum class Directions : u8
+	enum class Directions : unsigned char
 	{
 		Front,
 		Back,

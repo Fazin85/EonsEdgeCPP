@@ -31,14 +31,15 @@ namespace Eon
 		void RemoveMesh(ChunkPosition chunkPosition);
 		void Update(glm::vec3 cameraPosition);
 		void Render(Camera& camera, glm::vec3 cameraPosition);
+		void SaveMeshDataToFilesystem();
 		int ChunkRendererCount();
 
 	private:
 		void BuildChunkMesh(ChunkPosition inChunkPosition);
 		void MeshThread();
-		void AddFace(ChunkMeshData& meshData, const glm::ivec3& blockPosition, BlockType blockType, Directions direction, unsigned int lod);
-		std::array<u8, 12> GetFaceDataFromDirection(Directions dir);
-		void AddIndices(ChunkMeshData& meshData, int count);
+		void AddFace(ChunkMeshConstructionData& meshData, const glm::ivec3& blockPosition, BlockType blockType, Directions direction, unsigned int lod);
+		std::array<unsigned char, 12> GetFaceDataFromDirection(Directions dir);
+		void AddIndices(ChunkMeshConstructionData& meshData, int count);
 		unsigned int GetLod(float distance);
 
 		std::atomic_bool meshing_all_chunks;
@@ -48,6 +49,7 @@ namespace Eon
 		std::unique_ptr<TextureArray> chunk_texture;
 		std::vector<std::thread> mesh_threads;
 		std::atomic_bool exit;
+		std::fstream mesh_save_file;
 		moodycamel::ConcurrentQueue<ChunkPosition> chunks_to_mesh;
 		moodycamel::ConcurrentQueue<ChunkPosition> meshes_to_setup;
 		Level* level;

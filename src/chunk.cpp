@@ -27,7 +27,7 @@ namespace Eon
 		}
 	}
 
-	Block* Chunk::GetBlock(u8 x, i16 y, u8 z)
+	Block* Chunk::GetBlock(unsigned char x, short y, unsigned char z)
 	{
 		if (x >= CHUNK_WIDTH || z >= CHUNK_WIDTH || y >= CHUNK_HEIGHT || x < 0 || z < 0 || y < 0 || compressed || blocks == nullptr)
 		{
@@ -108,7 +108,7 @@ namespace Eon
 		return blocks;
 	}
 
-	i16* Chunk::GetHeightestBlockY(u8 x, u8 z)
+	short* Chunk::GetHeightestBlockY(unsigned char x, unsigned char z)
 	{
 		return &highest_blocks[(x * CHUNK_WIDTH) + z];
 	}

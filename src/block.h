@@ -1,10 +1,10 @@
 #pragma once
 
-#include "num.h"
+
 
 namespace Eon
 {
-	enum class BlockType : u8
+	enum class BlockType : unsigned char
 	{
 		AIR,
 		STONE,
@@ -23,6 +23,6 @@ namespace Eon
 		}
 
 		BlockType type;
-		//u8 light;
+		//unsigned char light;
 	};
 }  // namespace Eon

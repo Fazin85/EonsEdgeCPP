@@ -1,14 +1,14 @@
 #pragma once
 
-#include "num.h"
+
 #include <functional>
 
 namespace Eon
 {
 	struct ChunkPosition
 	{
-		u8 x;
-		u8 z;
+		unsigned char x;
+		unsigned char z;
 
 		bool operator==(ChunkPosition const& rhs) const
 		{

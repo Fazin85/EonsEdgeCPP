@@ -19,6 +19,7 @@ namespace Eon
 		ChunkRenderer* GetLodRenderer(unsigned int lod);
 		AABB& GetAABB();
 		Chunk& GetChunk();
+		std::vector<eon_chunk_mesh_data> GetAllMeshDataFromGpu();
 
 	private:
 		std::array<ChunkRenderer*, CHUNK_MAX_LOD / 2> lods;

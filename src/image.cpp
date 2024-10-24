@@ -30,17 +30,17 @@ Image::~Image()
 	}
 }
 
-u32 Image::Width() const
+unsigned int Image::Width() const
 {
 	return width;
 }
 
-u32 Image::Height() const
+unsigned int Image::Height() const
 {
 	return height;
 }
 
-u8* Image::Data()
+unsigned char* Image::Data()
 {
 	return data;
 }

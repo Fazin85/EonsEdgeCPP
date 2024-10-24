@@ -38,7 +38,7 @@ namespace Eon
 		{
 			for (int z = 0; z < LEVEL_WIDTH_CHUNKS; z++)
 			{
-				u32 index = IndexFromPosition(x, z);
+				unsigned int index = IndexFromPosition(x, z);
 				chunks[index] = std::make_unique<Chunk>(ChunkPosition(x, z));
 			}
 		}
@@ -166,7 +166,7 @@ namespace Eon
 
 	Chunk* Level::GetChunk(ChunkPosition position)
 	{
-		u32 index = IndexFromPosition(position.x, position.z);
+		unsigned int index = IndexFromPosition(position.x, position.z);
 
 		if (index >= chunks.size() || index < 0 || chunks[index] == nullptr)
 		{
@@ -178,7 +178,7 @@ namespace Eon
 
 	Chunk* Level::GetChunkUnsafe(ChunkPosition position)
 	{
-		u32 index = IndexFromPosition(position.x, position.z);
+		unsigned int index = IndexFromPosition(position.x, position.z);
 		return chunks[index].get();
 	}
 
@@ -192,15 +192,15 @@ namespace Eon
 		return chunks[index].get();
 	}
 
-	Block* Level::GetBlock(i16 x, i16 y, i16 z)
+	Block* Level::GetBlock(short x, short y, short z)
 	{
-		auto chunk = GetChunk(ChunkPosition{ .x = static_cast<u8>(x >> CHUNK_BITSHIFT_AMOUNT),
-											  .z = static_cast<u8>(z >> CHUNK_BITSHIFT_AMOUNT) });
+		auto chunk = GetChunk(ChunkPosition{ .x = static_cast<unsigned char>(x >> CHUNK_BITSHIFT_AMOUNT),
+											  .z = static_cast<unsigned char>(z >> CHUNK_BITSHIFT_AMOUNT) });
 
 		if (chunk != nullptr)
 		{
-			u8 bpx = x - (chunk->Position().x * CHUNK_WIDTH);
-			u8 bpz = z - (chunk->Position().z * CHUNK_WIDTH);
+			unsigned char bpx = x - (chunk->Position().x * CHUNK_WIDTH);
+			unsigned char bpz = z - (chunk->Position().z * CHUNK_WIDTH);
 
 			return chunk->GetBlock(bpx, y, bpz);
 		}
@@ -210,7 +210,7 @@ namespace Eon
 
 	Block* Level::GetBlock(glm::ivec3 position)
 	{
-		return GetBlock(static_cast<i16>(position.x), static_cast<i16>(position.y), static_cast<i16>(position.z));
+		return GetBlock(static_cast<short>(position.x), static_cast<short>(position.y), static_cast<short>(position.z));
 	}
 
 	glm::vec4& Level::SkyColor()
@@ -247,21 +247,21 @@ namespace Eon
 		return bbs;
 	}
 
-	u32 Level::IndexFromPosition(i16 x, i16 z)
+	unsigned int Level::IndexFromPosition(short x, short z)
 	{
 		return (x * LEVEL_WIDTH_CHUNKS) + z;
 	}
 
 	Block* Level::GetBlockDecompressChunk(glm::ivec3 position)
 	{
-		auto chunk = GetChunk(ChunkPosition{ .x = static_cast<u8>(position.x >> CHUNK_BITSHIFT_AMOUNT),
-											  .z = static_cast<u8>(position.z >> CHUNK_BITSHIFT_AMOUNT) });
+		auto chunk = GetChunk(ChunkPosition{ .x = static_cast<unsigned char>(position.x >> CHUNK_BITSHIFT_AMOUNT),
+											  .z = static_cast<unsigned char>(position.z >> CHUNK_BITSHIFT_AMOUNT) });
 		if (chunk != nullptr)
 		{
 			chunk->Decompress();
 
-			u8 bpx = position.x - (chunk->Position().x * CHUNK_WIDTH);
-			u8 bpz = position.z - (chunk->Position().z * CHUNK_WIDTH);
+			unsigned char bpx = position.x - (chunk->Position().x * CHUNK_WIDTH);
+			unsigned char bpz = position.z - (chunk->Position().z * CHUNK_WIDTH);
 
 			return chunk->GetBlock(bpx, position.y, bpz);
 		}

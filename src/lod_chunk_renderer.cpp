@@ -15,20 +15,20 @@ namespace Eon
 
 		aabb.Update(glm::vec3(chunk->Position().x * CHUNK_WIDTH, 0, chunk->Position().z * CHUNK_WIDTH));
 
-		for (int i = 0; i < CHUNK_MAX_LOD / 2; i++)
+		for (int lod = 0; lod < CHUNK_MAX_LOD / 2; lod++)
 		{
-			lods[i] = chunkRenderers[i];
+			lods[lod] = chunkRenderers[lod];
 		}
 	}
 
 	LODChunkRenderer::~LODChunkRenderer()
 	{
-		for (int i = 0; i < CHUNK_MAX_LOD / 2; i++)
+		for (int lod = 0; lod < CHUNK_MAX_LOD / 2; lod++)
 		{
-			if (lods[i] != nullptr)
+			if (lods[lod] != nullptr)
 			{
-				delete lods[i];
-				lods[i] = nullptr;
+				delete lods[lod];
+				lods[lod] = nullptr;
 			}
 		}
 	}
@@ -46,9 +46,9 @@ namespace Eon
 
 	void LODChunkRenderer::Setup()
 	{
-		for (int i = 0; i < CHUNK_MAX_LOD / 2; i++)
+		for (int lod = 0; lod < CHUNK_MAX_LOD / 2; lod++)
 		{
-			lods[i]->Setup();
+			lods[lod]->Setup();
 		}
 	}
 
@@ -71,5 +71,17 @@ namespace Eon
 	Chunk& LODChunkRenderer::GetChunk()
 	{
 		return *chunk;
+	}
+
+	std::vector<eon_chunk_mesh_data> LODChunkRenderer::GetAllMeshDataFromGpu()
+	{
+		std::vector<eon_chunk_mesh_data> chunkMeshData;
+
+		for (int lod = 0; lod < CHUNK_MAX_LOD / 2; lod++)
+		{
+			chunkMeshData.emplace_back(lods[lod]->GetMeshDataFromGpu());
+		}
+
+		return chunkMeshData;
 	}
 }
