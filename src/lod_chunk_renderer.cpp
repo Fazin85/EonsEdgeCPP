@@ -73,9 +73,9 @@ namespace Eon
 		return *chunk;
 	}
 
-	std::vector<eon_chunk_mesh_data> LODChunkRenderer::GetAllMeshDataFromGpu()
+	std::vector<CHUNK_MESH_DATA> LODChunkRenderer::GetAllMeshDataFromGpu()
 	{
-		std::vector<eon_chunk_mesh_data> chunkMeshData;
+		std::vector<CHUNK_MESH_DATA> chunkMeshData;
 
 		for (int lod = 0; lod < CHUNK_MAX_LOD / 2; lod++)
 		{

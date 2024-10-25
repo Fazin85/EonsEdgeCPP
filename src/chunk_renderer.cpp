@@ -143,13 +143,13 @@ namespace Eon
 		}
 	}
 
-	eon_chunk_mesh_data ChunkRenderer::GetMeshDataFromGpu() const
+	CHUNK_MESH_DATA ChunkRenderer::GetMeshDataFromGpu() const
 	{
-		eon_chunk_mesh_data chunkMeshData{};
-		chunkMeshData.vertex_data_size = vertex_data_size;
-		chunkMeshData.index_size = index_size;
+		CHUNK_MESH_DATA chunkMeshData{};
+		chunkMeshData.VertexDataSize = vertex_data_size;
+		chunkMeshData.IndexSize = index_size;
 
-		eon_get_data_from_gl_buffer_handles(&chunkMeshData, vertex_position_vbo, dir_light_vbo, ibo);
+		GetDataFromGlBufferHandles(&chunkMeshData, vertex_position_vbo, dir_light_vbo, ibo);
 
 		return chunkMeshData;
 	}

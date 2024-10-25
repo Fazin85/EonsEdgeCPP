@@ -90,6 +90,9 @@
     <ClCompile Include="src\chunk_mesh_data.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\eon_std.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\camera.h">
@@ -185,6 +188,9 @@
     <ClInclude Include="src\chunk_mesh_data.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\eon_std.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="vcpkg.json" />
@@ -201,9 +207,6 @@
     <None Include="content\shaders\Skybox.vert" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="C:\Users\GODDIDIDIIDID\Downloads\player.png">
-      <Filter>Resource Files</Filter>
-    </Image>
     <Image Include="content\images\back.jpg">
       <Filter>Resource Files</Filter>
     </Image>

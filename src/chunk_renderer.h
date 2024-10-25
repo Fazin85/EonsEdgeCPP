@@ -18,7 +18,7 @@ namespace Eon
 		void Render();
 		void Setup();
 		void Destroy();
-		eon_chunk_mesh_data GetMeshDataFromGpu() const;
+		CHUNK_MESH_DATA GetMeshDataFromGpu() const;
 
 	private:
 		bool setup;

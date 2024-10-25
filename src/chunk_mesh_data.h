@@ -1,26 +1,25 @@
 #ifndef CHUNK_MESH_DATA_H
 #define CHUNK_MESH_DATA_H
 
+#include "eon_std.h"
 #include <stddef.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-	struct eon_chunk_mesh_data
+	typedef struct _CHUNK_MESH_DATA
 	{
-		unsigned int* vertex_position_data;
-		unsigned int* dir_light_data;
-		unsigned int* indices;
-		size_t vertex_data_size;
-		size_t index_size;
-	};
+		UINT* VertexPositionData;
+		UINT* DirLightData;
+		UINT* Indices;
+		SIZE_T VertexDataSize;
+		SIZE_T IndexSize;
+	} CHUNK_MESH_DATA;
 
-	//vp_buffer_id: the opengl buffer handle for the vertex position buffer
-	//dl_buffer_id: the opengl buffer handle for the dir light buffer
-	void eon_get_data_from_gl_buffer_handles(struct eon_chunk_mesh_data* mesh_data, unsigned int vp_buffer_id, unsigned int dl_buffer_id, unsigned int indices_buffer_id);
+	void GetDataFromGlBufferHandles(CHUNK_MESH_DATA* MeshData, UINT VpBufferId, UINT DlBufferId, UINT IndicesBufferId);
 
-	void eon_chunk_mesh_data_free(struct eon_chunk_mesh_data* mesh_data);
+	void ChunkMeshDataFree(CHUNK_MESH_DATA* MeshData);
 
 #ifdef __cplusplus
 }
