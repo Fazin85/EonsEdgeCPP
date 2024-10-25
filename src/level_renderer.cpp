@@ -2,9 +2,7 @@
 #include "level_renderer.h"
 #include "log.h"
 #include "settings.h"
-#include <lz4.h>
 #include <zlib.h>
-#include "eon_std.h"
 
 static float Distance(const glm::vec3& pos1, const glm::vec3& pos2)
 {
@@ -186,22 +184,16 @@ namespace Eon
 		}
 	}
 
-	INTERNAL CHAR* CompressFast(CHAR* Data, INT SrcSize, INT* OutSize)
+	static Bytef* eon_compress(Bytef* data, size_t srcSize, uLongf* dstSize)
 	{
-		INT DstSize = LZ4_COMPRESSBOUND(SrcSize);
-		CHAR* Compressed = (CHAR*)malloc(DstSize);
+		*dstSize = compressBound(srcSize);
+		Bytef* compressed = new Bytef[*dstSize];
 
-		*OutSize = LZ4_compress_default(Data, Compressed, SrcSize, DstSize);
+		compress(compressed, dstSize, data, srcSize);
 
-		if (*OutSize <= 0)
-		{
-			EON_ERROR("Failed to compress data");
-			return NULL;
-		}
+		std::realloc(compressed, *dstSize);
 
-		Compressed = (CHAR*)realloc(Compressed, *OutSize);
-
-		return Compressed;
+		return compressed;
 	}
 
 	void LevelRenderer::SaveMeshDataToFilesystem()
@@ -211,53 +203,42 @@ namespace Eon
 		//	return;
 		//}
 
-		//FILE* mesh_save_file_c = fopen("mesh_data.dat", "wb");
-		BINARY_FILE* mesh_save_file = FileOpenBinary("mesh_data.dat");
+		mesh_save_file.open("mesh_data.dat", std::ios::out | std::ios::binary);
 
-		if (mesh_save_file == NULL)
-		{
-			EON_ERROR("Failed to open file: mesh_data.dat");
-			return;
-		}
-
-		//mesh_save_file.open("mesh_data.dat", std::ios::out | std::ios::binary);
-		int index = 0;
 		for (const auto& [chunkPosition, chunkRenderer] : chunk_renderers)
 		{
-			std::vector<CHUNK_MESH_DATA> chunkMeshData = chunkRenderer->GetAllMeshDataFromGpu();
+			std::vector<eon_chunk_mesh_data> chunkMeshData = chunkRenderer->GetAllMeshDataFromGpu();
 
-			UCHAR x = chunkPosition.x;
-			UCHAR z = chunkPosition.z;
+			unsigned char x = chunkPosition.x;
+			unsigned char z = chunkPosition.z;
 
-			FileWriteBinary(mesh_save_file, (CHAR*)&x, sizeof(UCHAR));
-			FileWriteBinary(mesh_save_file, (CHAR*)&z, sizeof(UCHAR));
+			mesh_save_file.write(reinterpret_cast<char*>(&x), sizeof(unsigned char));
+			mesh_save_file.write(reinterpret_cast<char*>(&z), sizeof(unsigned char));
 
 			for (auto& meshData : chunkMeshData)
 			{
-				INT compressedVertexPositionDataSize;
-				INT compressedDirLightDataSize;
-				INT compressedIndicesSize;
+				uLongf compressedVertexPositionDataSize;
+				uLongf compressedDirLightDataSize;
+				uLongf compressedIndicesSize;
 
-				CHAR* compressedVertexPositionData = CompressFast((CHAR*)meshData.VertexPositionData, sizeof(UINT) * meshData.VertexDataSize, &compressedVertexPositionDataSize);
-				CHAR* compressedDirLightData = CompressFast((CHAR*)meshData.DirLightData, sizeof(UINT) * meshData.VertexDataSize, &compressedDirLightDataSize);
-				CHAR* compressedIndices = CompressFast((CHAR*)meshData.Indices, sizeof(UINT) * meshData.IndexSize, &compressedIndicesSize);
+				Bytef* compressedVertexPositionData = eon_compress(reinterpret_cast<Bytef*>(meshData.vertex_position_data), sizeof(unsigned int) * meshData.vertex_data_size, &compressedVertexPositionDataSize);
+				Bytef* compressedDirLightData = eon_compress(reinterpret_cast<Bytef*>(meshData.dir_light_data), sizeof(unsigned int) * meshData.vertex_data_size, &compressedDirLightDataSize);
+				Bytef* compressedIndices = eon_compress(reinterpret_cast<Bytef*>(meshData.indices), sizeof(unsigned int) * meshData.index_size, &compressedIndicesSize);
 
-				FileWriteBinary(mesh_save_file, (CHAR*)&compressedVertexPositionDataSize, sizeof(INT));
-				FileWriteBinary(mesh_save_file, compressedVertexPositionData, compressedVertexPositionDataSize);
+				mesh_save_file.write(reinterpret_cast<char*>(&compressedVertexPositionDataSize), sizeof(uLongf));
+				mesh_save_file.write(reinterpret_cast<char*>(compressedVertexPositionData), compressedVertexPositionDataSize);
 
-				FileWriteBinary(mesh_save_file, (CHAR*)&compressedDirLightDataSize, sizeof(INT));
-				FileWriteBinary(mesh_save_file, compressedDirLightData, compressedDirLightDataSize);
+				mesh_save_file.write(reinterpret_cast<char*>(&compressedDirLightDataSize), sizeof(uLongf));
+				mesh_save_file.write(reinterpret_cast<char*>(compressedDirLightData), compressedDirLightDataSize);
 
-				FileWriteBinary(mesh_save_file, (CHAR*)&compressedIndicesSize, sizeof(INT));
-				FileWriteBinary(mesh_save_file, compressedIndices, compressedIndicesSize);
+				mesh_save_file.write(reinterpret_cast<char*>(&compressedIndicesSize), sizeof(uLongf));
+				mesh_save_file.write(reinterpret_cast<char*>(compressedIndices), compressedIndicesSize);
 
-				ChunkMeshDataFree(&meshData);
-				index++;
-				EON_INFO(index);
+				eon_chunk_mesh_data_free(&meshData);
 			}
 		}
 
-		FileCloseBinary(mesh_save_file);
+		mesh_save_file.close();
 	}
 
 	int LevelRenderer::ChunkRendererCount()
