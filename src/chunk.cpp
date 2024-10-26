@@ -1,8 +1,8 @@
 #include "chunk.h"
-#include <lz4.h>
 #include "log.h"
+#include <lz4.h>
 
-#define INDEX_FROM_POSITION(x, y, z) x + CHUNK_WIDTH * (y + CHUNK_HEIGHT * z)
+#define INDEX_FROM_POSITION(x, y, z) x + CHUNK_WIDTH *(y + CHUNK_HEIGHT * z)
 
 namespace Eon
 {
@@ -29,7 +29,8 @@ namespace Eon
 
 	Block* Chunk::GetBlock(unsigned char x, short y, unsigned char z)
 	{
-		if (x >= CHUNK_WIDTH || z >= CHUNK_WIDTH || y >= CHUNK_HEIGHT || x < 0 || z < 0 || y < 0 || compressed || blocks == nullptr)
+		if (x >= CHUNK_WIDTH || z >= CHUNK_WIDTH || y >= CHUNK_HEIGHT || x < 0 ||
+			z < 0 || y < 0 || compressed || blocks == nullptr)
 		{
 			return nullptr;
 		}
@@ -37,12 +38,10 @@ namespace Eon
 		return &blocks[INDEX_FROM_POSITION(x, y, z)];
 	}
 
-	ChunkPosition Chunk::Position() const
-	{
-		return position;
-	}
+	ChunkPosition Chunk::Position() const { return position; }
 
-	constexpr int SrcSize = sizeof(Block) * (CHUNK_WIDTH * CHUNK_HEIGHT * CHUNK_WIDTH);
+	constexpr int SrcSize =
+		sizeof(Block) * (CHUNK_WIDTH * CHUNK_HEIGHT * CHUNK_WIDTH);
 
 	void Chunk::Compress()
 	{
@@ -55,7 +54,8 @@ namespace Eon
 
 		compressed_blocks = new char[DstSize];
 
-		compressed_blocks_size = LZ4_compress_default(reinterpret_cast<char*>(blocks), compressed_blocks, SrcSize, DstSize);
+		compressed_blocks_size = LZ4_compress_default(
+			reinterpret_cast<char*>(blocks), compressed_blocks, SrcSize, DstSize);
 
 		if (compressed_blocks_size <= 0)
 		{
@@ -63,7 +63,8 @@ namespace Eon
 			return;
 		}
 
-		compressed_blocks = reinterpret_cast<char*>(std::realloc(compressed_blocks, compressed_blocks_size));
+		compressed_blocks = reinterpret_cast<char*>(
+			std::realloc(compressed_blocks, compressed_blocks_size));
 
 		delete[] blocks;
 		blocks = nullptr;
@@ -80,7 +81,9 @@ namespace Eon
 
 		blocks = new Block[CHUNK_WIDTH * CHUNK_HEIGHT * CHUNK_WIDTH];
 
-		int decompressedSize = LZ4_decompress_safe(compressed_blocks, reinterpret_cast<char*>(blocks), compressed_blocks_size, SrcSize);
+		int decompressedSize =
+			LZ4_decompress_safe(compressed_blocks, reinterpret_cast<char*>(blocks),
+				compressed_blocks_size, SrcSize);
 
 		delete[] compressed_blocks;
 		compressed_blocks = nullptr;
@@ -103,10 +106,7 @@ namespace Eon
 		}
 	}
 
-	Block* Chunk::GetBlocks()
-	{
-		return blocks;
-	}
+	Block* Chunk::GetBlocks() { return blocks; }
 
 	short* Chunk::GetHeightestBlockY(unsigned char x, unsigned char z)
 	{
@@ -119,7 +119,8 @@ namespace Eon
 		std::vector<char> buffer;
 		buffer.reserve(DstSize);
 
-		int size = LZ4_compress_default(reinterpret_cast<char*>(blocks), buffer.data(), SrcSize, DstSize);
+		int size = LZ4_compress_default(reinterpret_cast<char*>(blocks),
+			buffer.data(), SrcSize, DstSize);
 
 		if (size <= 0)
 		{

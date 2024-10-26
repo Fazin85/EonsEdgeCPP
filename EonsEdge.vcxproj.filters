@@ -90,6 +90,9 @@
     <ClCompile Include="src\chunk_mesh_data.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\eon_std.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\camera.h">
@@ -183,6 +186,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\chunk_mesh_data.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\eon_std.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
