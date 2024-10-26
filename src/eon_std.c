@@ -29,8 +29,7 @@ VOID EonFree(EON_PVOID Block)
 	free(Block);
 }
 
-VOID
-EonMemset(EON_PVOID Buffer, EON_INT Value, EON_SIZE_T SizeBytes)
+VOID EonMemset(EON_PVOID Buffer, EON_INT Value, EON_SIZE_T SizeBytes)
 {
 	EON_PVOID Result = memset(Buffer, Value, SizeBytes);
 
