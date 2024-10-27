@@ -542,39 +542,39 @@ namespace Eon
 		return lod;
 	}
 
-	TextureId LevelRenderer::GetTextureId(BlockType blockType, Directions faceDirection)
+	BlockFaceTexture LevelRenderer::GetTextureId(BlockType blockType, Directions faceDirection)
 	{
 		switch (blockType)
 		{
 		case Eon::BlockType::AIR:
-			return TextureId::Error;
+			return BlockFaceTexture::Error;
 		case Eon::BlockType::STONE:
-			return TextureId::Stone;
+			return BlockFaceTexture::Stone;
 		case Eon::BlockType::GRASS:
 			switch (faceDirection)
 			{
 			case Eon::Directions::Front:
-				return TextureId::GrassSide;
+				return BlockFaceTexture::GrassSide;
 			case Eon::Directions::Back:
-				return TextureId::GrassSide;
+				return BlockFaceTexture::GrassSide;
 			case Eon::Directions::Left:
-				return TextureId::GrassSide;
+				return BlockFaceTexture::GrassSide;
 			case Eon::Directions::Right:
-				return TextureId::GrassSide;
+				return BlockFaceTexture::GrassSide;
 			case Eon::Directions::Top:
-				return TextureId::GrassTop;
+				return BlockFaceTexture::GrassTop;
 			case Eon::Directions::Bottom:
-				return TextureId::Dirt;
+				return BlockFaceTexture::Dirt;
 			}
 			break;
 		case Eon::BlockType::DIRT:
-			return TextureId::Dirt;
+			return BlockFaceTexture::Dirt;
 		case Eon::BlockType::WATER:
-			return TextureId::Water;
+			return BlockFaceTexture::Water;
 		case Eon::BlockType::SAND:
-			return TextureId::Sand;
+			return BlockFaceTexture::Sand;
 		}
 
-		return TextureId::Error;
+		return BlockFaceTexture::Error;
 	}
 }  // namespace Eon

@@ -167,6 +167,7 @@
   <ItemGroup>
     <ClInclude Include="src\aabb.h" />
     <ClInclude Include="src\billboard_sprite.h" />
+    <ClInclude Include="src\block_face_texture.h" />
     <ClInclude Include="src\bounding_box.h" />
     <ClInclude Include="src\chunk_mesh_data.h" />
     <ClInclude Include="src\lod_chunk_renderer.h" />
