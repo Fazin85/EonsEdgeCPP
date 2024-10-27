@@ -19,6 +19,17 @@
 
 namespace Eon
 {
+	enum class TextureId : unsigned int
+	{
+		Error,
+		Stone,
+		GrassTop,
+		GrassSide,
+		Dirt,
+		Water,
+		Sand
+	};
+
 	class LevelRenderer
 	{
 	public:
@@ -41,7 +52,7 @@ namespace Eon
 		std::array<unsigned char, 12> GetFaceDataFromDirection(Directions dir);
 		void AddIndices(ChunkMeshConstructionData& meshData, int count);
 		unsigned int GetLod(float distance);
-		unsigned int GetTextureId(BlockType blockType, Directions faceDirection);
+		TextureId GetTextureId(BlockType blockType, Directions faceDirection);
 
 		std::atomic_bool meshing_all_chunks;
 		std::atomic_int meshing_all_meshed_chunks_count;

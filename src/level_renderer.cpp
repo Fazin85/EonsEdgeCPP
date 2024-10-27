@@ -2,9 +2,8 @@
 #include "level_renderer.h"
 #include "log.h"
 #include "settings.h"
-#include <zlib.h>
-#include "eon_std.h"
 #include <lz4.h>
+#include <zlib.h>
 
 static float Distance(const glm::vec3& pos1, const glm::vec3& pos2)
 {
@@ -42,7 +41,11 @@ namespace Eon
 		std::vector<std::string> imageNames;
 		imageNames.emplace_back("Error.png");
 		imageNames.emplace_back("StoneBlock.png");
-		imageNames.emplace_back("GrassBlock.png");
+		imageNames.emplace_back("GrassBlockTop.png");
+		imageNames.emplace_back("GrassBlockSide.png");
+		imageNames.emplace_back("DirtBlock.png");
+		imageNames.emplace_back("WaterBlock.png");
+		imageNames.emplace_back("SandBlock.png");
 		chunk_texture = std::make_unique<TextureArray>(imageNames, 16, 16);
 	}
 
@@ -186,34 +189,24 @@ namespace Eon
 		}
 	}
 
-	static Bytef* eon_compress(Bytef* data, size_t srcSize, uLongf* dstSize)
+	static std::vector<char> EonCompressFast(char* data, size_t srcSize)
 	{
-		*dstSize = compressBound(srcSize);
-		Bytef* compressed = new Bytef[*dstSize];
+		size_t dstSize = LZ4_COMPRESSBOUND(srcSize);
+		std::vector<char> output;
+		output.reserve(dstSize);
 
-		compress(compressed, dstSize, data, srcSize);
+		dstSize = LZ4_compress_default(
+			data, output.data(), srcSize, dstSize);
 
-		std::realloc(compressed, *dstSize);
-
-		return compressed;
-	}
-
-	static EON_PCHAR EonCompressFast(EON_PCHAR Data, EON_SIZE_T SrcSize, EON_PSIZE_T DstSize)
-	{
-		*DstSize = LZ4_COMPRESSBOUND(SrcSize);
-
-		EON_PCHAR Output = (EON_PCHAR)EonMalloc(*DstSize);
-
-		*DstSize = LZ4_compress_default(
-			Data, Output, SrcSize, *DstSize);
-
-		if (*DstSize <= 0)
+		if (dstSize <= 0)
 		{
 			EON_ERROR("Failed to compress");
-			return (EON_PCHAR)EON_NULL;
+			return std::vector<char>();
 		}
 
-		return (EON_PCHAR)EonRealloc(Output, *DstSize);
+		output.resize(dstSize);
+
+		return output;
 	}
 
 	void LevelRenderer::SaveMeshDataToFilesystem()
@@ -222,8 +215,9 @@ namespace Eon
 		//{
 		//	return;
 		//}
+		//return;
 
-		PBINARY_FILE binaryFile = BinaryFileOpen("mesh_data.dat");
+		mesh_save_file.open("mesh_data.dat", std::ios::out | std::ios::binary);
 
 		for (const auto& [chunkPosition, chunkRenderer] : chunk_renderers)
 		{
@@ -232,33 +226,31 @@ namespace Eon
 			unsigned char x = chunkPosition.x;
 			unsigned char z = chunkPosition.z;
 
-			BinaryFileWrite(binaryFile, (EON_PCHAR)&x, sizeof(EON_UCHAR));
-			BinaryFileWrite(binaryFile, (EON_PCHAR)&z, sizeof(EON_UCHAR));
+			mesh_save_file.write(reinterpret_cast<char*>(&x), sizeof(unsigned char));
+			mesh_save_file.write(reinterpret_cast<char*>(&z), sizeof(unsigned char));
 
 			for (auto& meshData : chunkMeshData)
 			{
-				EON_SIZE_T compressedVertexPositionDataSize;
-				EON_SIZE_T compressedDirLightDataSize;
-				EON_SIZE_T compressedIndicesSize;
+				auto compressedVertexPositionData = EonCompressFast((char*)meshData.vertex_position_data, sizeof(unsigned int) * meshData.vertex_data_size);
+				auto compressedDirLightData = EonCompressFast((char*)meshData.dir_light_data, sizeof(unsigned int) * meshData.vertex_data_size);
+				auto compressedIndices = EonCompressFast((char*)meshData.indices, sizeof(unsigned int) * meshData.index_size);
 
-				EON_PCHAR compressedVertexPositionData = EonCompressFast((EON_PCHAR)&meshData.vertex_position_data, sizeof(unsigned int) * meshData.vertex_data_size, &compressedVertexPositionDataSize);
-				EON_PCHAR compressedDirLightData = EonCompressFast((EON_PCHAR)&meshData.dir_light_data, sizeof(unsigned int) * meshData.vertex_data_size, &compressedDirLightDataSize);
-				EON_PCHAR compressedIndices = EonCompressFast((EON_PCHAR)&meshData.indices, sizeof(unsigned int) * meshData.index_size, &compressedIndicesSize);
+				auto compressedVertexPositionDataSize = compressedVertexPositionData.size();
+				auto compressedDirLightDataSize = compressedDirLightData.size();
+				auto compressedIndicesSize = compressedIndices.size();
 
-				BinaryFileWrite(binaryFile, (EON_PCHAR)&compressedVertexPositionDataSize, sizeof(EON_SIZE_T));
-				BinaryFileWrite(binaryFile, (EON_PCHAR)compressedVertexPositionData, compressedVertexPositionDataSize);
-
-				BinaryFileWrite(binaryFile, (EON_PCHAR)&compressedDirLightDataSize, sizeof(EON_SIZE_T));
-				BinaryFileWrite(binaryFile, (EON_PCHAR)compressedDirLightData, compressedDirLightDataSize);
-
-				BinaryFileWrite(binaryFile, (EON_PCHAR)&compressedIndicesSize, sizeof(EON_SIZE_T));
-				BinaryFileWrite(binaryFile, (EON_PCHAR)compressedIndices, compressedIndicesSize);
+				mesh_save_file.write(reinterpret_cast<char*>(&compressedVertexPositionDataSize), sizeof(size_t));
+				mesh_save_file.write(compressedVertexPositionData.data(), compressedVertexPositionDataSize);
+				mesh_save_file.write(reinterpret_cast<char*>(&compressedDirLightDataSize), sizeof(size_t));
+				mesh_save_file.write(compressedDirLightData.data(), compressedDirLightDataSize);
+				mesh_save_file.write(reinterpret_cast<char*>(&compressedIndicesSize), sizeof(size_t));
+				mesh_save_file.write(compressedIndices.data(), compressedIndicesSize);
 
 				eon_chunk_mesh_data_free(&meshData);
 			}
 		}
 
-		BinaryFileClose(binaryFile);
+		mesh_save_file.close();
 	}
 
 	int LevelRenderer::ChunkRendererCount()
@@ -489,7 +481,7 @@ namespace Eon
 			meshData.vertexPositions.emplace_back(x, y, z);
 			meshData.directions.push_back(static_cast<unsigned char>(direction));
 			meshData.light.push_back(15);
-			meshData.uvs.push_back({ i, blockType });
+			meshData.uvs.push_back({ i, GetTextureId(blockType, direction) });
 		}
 	}
 
@@ -548,5 +540,41 @@ namespace Eon
 		}
 
 		return lod;
+	}
+
+	TextureId LevelRenderer::GetTextureId(BlockType blockType, Directions faceDirection)
+	{
+		switch (blockType)
+		{
+		case Eon::BlockType::AIR:
+			return TextureId::Error;
+		case Eon::BlockType::STONE:
+			return TextureId::Stone;
+		case Eon::BlockType::GRASS:
+			switch (faceDirection)
+			{
+			case Eon::Directions::Front:
+				return TextureId::GrassSide;
+			case Eon::Directions::Back:
+				return TextureId::GrassSide;
+			case Eon::Directions::Left:
+				return TextureId::GrassSide;
+			case Eon::Directions::Right:
+				return TextureId::GrassSide;
+			case Eon::Directions::Top:
+				return TextureId::GrassTop;
+			case Eon::Directions::Bottom:
+				return TextureId::Dirt;
+			}
+			break;
+		case Eon::BlockType::DIRT:
+			return TextureId::Dirt;
+		case Eon::BlockType::WATER:
+			return TextureId::Water;
+		case Eon::BlockType::SAND:
+			return TextureId::Sand;
+		}
+
+		return TextureId::Error;
 	}
 }  // namespace Eon
