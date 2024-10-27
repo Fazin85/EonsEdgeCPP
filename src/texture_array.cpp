@@ -25,7 +25,7 @@ namespace Eon
 			std::string filePath = "content/images/" + imagefilePaths[i];
 			unsigned char* imageData = stbi_load(filePath.c_str(), &x, &y, &channels, STBI_rgb_alpha);
 
-			if (imageData == nullptr || channels != 4 || x != width || y != height)
+			if (imageData == nullptr || channels != STBI_rgb_alpha || x != width || y != height)
 			{
 				EON_ERROR("Failed to load image: " + imagefilePaths[i]);
 				return;
