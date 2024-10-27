@@ -4,6 +4,7 @@
 #include "settings.h"
 #include <zlib.h>
 #include "eon_std.h"
+#include <lz4.h>
 
 static float Distance(const glm::vec3& pos1, const glm::vec3& pos2)
 {
@@ -197,6 +198,24 @@ namespace Eon
 		return compressed;
 	}
 
+	static EON_PCHAR EonCompressFast(EON_PCHAR Data, EON_SIZE_T SrcSize, EON_PSIZE_T DstSize)
+	{
+		*DstSize = LZ4_COMPRESSBOUND(SrcSize);
+
+		EON_PCHAR Output = (EON_PCHAR)EonMalloc(*DstSize);
+
+		*DstSize = LZ4_compress_default(
+			Data, Output, SrcSize, *DstSize);
+
+		if (*DstSize <= 0)
+		{
+			EON_ERROR("Failed to compress");
+			return (EON_PCHAR)EON_NULL;
+		}
+
+		return (EON_PCHAR)EonRealloc(Output, *DstSize);
+	}
+
 	void LevelRenderer::SaveMeshDataToFilesystem()
 	{
 		//if (chunk_renderers.size() != LEVEL_WIDTH_CHUNKS * LEVEL_WIDTH_CHUNKS)
@@ -218,21 +237,21 @@ namespace Eon
 
 			for (auto& meshData : chunkMeshData)
 			{
-				uLongf compressedVertexPositionDataSize;
-				uLongf compressedDirLightDataSize;
-				uLongf compressedIndicesSize;
+				EON_SIZE_T compressedVertexPositionDataSize;
+				EON_SIZE_T compressedDirLightDataSize;
+				EON_SIZE_T compressedIndicesSize;
 
-				Bytef* compressedVertexPositionData = eon_compress(reinterpret_cast<Bytef*>(meshData.vertex_position_data), sizeof(unsigned int) * meshData.vertex_data_size, &compressedVertexPositionDataSize);
-				Bytef* compressedDirLightData = eon_compress(reinterpret_cast<Bytef*>(meshData.dir_light_data), sizeof(unsigned int) * meshData.vertex_data_size, &compressedDirLightDataSize);
-				Bytef* compressedIndices = eon_compress(reinterpret_cast<Bytef*>(meshData.indices), sizeof(unsigned int) * meshData.index_size, &compressedIndicesSize);
+				EON_PCHAR compressedVertexPositionData = EonCompressFast((EON_PCHAR)&meshData.vertex_position_data, sizeof(unsigned int) * meshData.vertex_data_size, &compressedVertexPositionDataSize);
+				EON_PCHAR compressedDirLightData = EonCompressFast((EON_PCHAR)&meshData.dir_light_data, sizeof(unsigned int) * meshData.vertex_data_size, &compressedDirLightDataSize);
+				EON_PCHAR compressedIndices = EonCompressFast((EON_PCHAR)&meshData.indices, sizeof(unsigned int) * meshData.index_size, &compressedIndicesSize);
 
-				BinaryFileWrite(binaryFile, (EON_PCHAR)&compressedVertexPositionDataSize, sizeof(uLongf));
+				BinaryFileWrite(binaryFile, (EON_PCHAR)&compressedVertexPositionDataSize, sizeof(EON_SIZE_T));
 				BinaryFileWrite(binaryFile, (EON_PCHAR)compressedVertexPositionData, compressedVertexPositionDataSize);
 
-				BinaryFileWrite(binaryFile, (EON_PCHAR)&compressedDirLightDataSize, sizeof(uLongf));
+				BinaryFileWrite(binaryFile, (EON_PCHAR)&compressedDirLightDataSize, sizeof(EON_SIZE_T));
 				BinaryFileWrite(binaryFile, (EON_PCHAR)compressedDirLightData, compressedDirLightDataSize);
 
-				BinaryFileWrite(binaryFile, (EON_PCHAR)&compressedIndicesSize, sizeof(uLongf));
+				BinaryFileWrite(binaryFile, (EON_PCHAR)&compressedIndicesSize, sizeof(EON_SIZE_T));
 				BinaryFileWrite(binaryFile, (EON_PCHAR)compressedIndices, compressedIndicesSize);
 
 				eon_chunk_mesh_data_free(&meshData);

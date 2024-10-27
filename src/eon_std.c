@@ -24,6 +24,18 @@ EON_PVOID EonCalloc(EON_SIZE_T NumElements, EON_SIZE_T ElementSizeBytes)
 	return Memory;
 }
 
+EON_PVOID EonRealloc(EON_PVOID Block, EON_SIZE_T SizeBytes)
+{
+	EON_PVOID Memory = realloc(Block, SizeBytes);
+
+	if (Memory == EON_NULL)
+	{
+		abort();
+	}
+
+	return Memory;
+}
+
 VOID EonFree(EON_PVOID Block)
 {
 	free(Block);

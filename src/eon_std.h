@@ -19,6 +19,7 @@ extern "C"
 #define EON_FALSE 0
 
 	// data types
+
 	typedef char EON_CHAR;
 	typedef uint8_t EON_UCHAR;
 	typedef int16_t EON_SHORT;
@@ -33,6 +34,7 @@ extern "C"
 	typedef uint8_t EON_BOOL;
 
 	// pointer types
+
 	typedef char* EON_PCHAR;
 	typedef uint8_t* EON_PUCHAR;
 	typedef int16_t* EON_PSHORT;
@@ -50,6 +52,7 @@ extern "C"
 
 	EON_PVOID EonMalloc(EON_SIZE_T SizeBytes);
 	EON_PVOID EonCalloc(EON_SIZE_T NumElements, EON_SIZE_T ElementSizeBytes);
+	EON_PVOID EonRealloc(EON_PVOID Block, EON_SIZE_T SizeBytes);
 	VOID EonFree(EON_PVOID Block);
 
 	VOID EonMemset(EON_PVOID Buffer, EON_INT Value, EON_SIZE_T SizeBytes);
