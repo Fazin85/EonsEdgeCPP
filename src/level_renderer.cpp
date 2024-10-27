@@ -1,4 +1,5 @@
 #include "block_texture.h"
+#include "compress.h"
 #include "level_renderer.h"
 #include "log.h"
 #include "settings.h"
@@ -189,26 +190,6 @@ namespace Eon
 		}
 	}
 
-	static std::vector<char> EonCompressFast(char* data, size_t srcSize)
-	{
-		size_t dstSize = LZ4_COMPRESSBOUND(srcSize);
-		std::vector<char> output;
-		output.reserve(dstSize);
-
-		dstSize = LZ4_compress_default(
-			data, output.data(), srcSize, dstSize);
-
-		if (dstSize <= 0)
-		{
-			EON_ERROR("Failed to compress");
-			return std::vector<char>();
-		}
-
-		output.resize(dstSize);
-
-		return output;
-	}
-
 	void LevelRenderer::SaveMeshDataToFilesystem()
 	{
 		//if (chunk_renderers.size() != LEVEL_WIDTH_CHUNKS * LEVEL_WIDTH_CHUNKS)
@@ -231,9 +212,9 @@ namespace Eon
 
 			for (auto& meshData : chunkMeshData)
 			{
-				auto compressedVertexPositionData = EonCompressFast((char*)meshData.vertex_position_data, sizeof(unsigned int) * meshData.vertex_data_size);
-				auto compressedDirLightData = EonCompressFast((char*)meshData.dir_light_data, sizeof(unsigned int) * meshData.vertex_data_size);
-				auto compressedIndices = EonCompressFast((char*)meshData.indices, sizeof(unsigned int) * meshData.index_size);
+				auto compressedVertexPositionData = Compress::Fast((char*)meshData.vertex_position_data, sizeof(unsigned int) * meshData.vertex_data_size);
+				auto compressedDirLightData = Compress::Fast((char*)meshData.dir_light_data, sizeof(unsigned int) * meshData.vertex_data_size);
+				auto compressedIndices = Compress::Fast((char*)meshData.indices, sizeof(unsigned int) * meshData.index_size);
 
 				auto compressedVertexPositionDataSize = compressedVertexPositionData.size();
 				auto compressedDirLightDataSize = compressedDirLightData.size();

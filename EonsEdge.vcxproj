@@ -141,6 +141,7 @@
     <ClCompile Include="src\billboard_sprite.cpp" />
     <ClCompile Include="src\bounding_box.cpp" />
     <ClCompile Include="src\chunk_mesh_data.c" />
+    <ClCompile Include="src\compress.cpp" />
     <ClCompile Include="src\frustum.cpp" />
     <ClCompile Include="src\game.cpp" />
     <ClCompile Include="src\image.cpp" />
@@ -170,6 +171,7 @@
     <ClInclude Include="src\block_face_texture.h" />
     <ClInclude Include="src\bounding_box.h" />
     <ClInclude Include="src\chunk_mesh_data.h" />
+    <ClInclude Include="src\compress.h" />
     <ClInclude Include="src\lod_chunk_renderer.h" />
     <ClInclude Include="src\plane_mesh.h" />
     <ClInclude Include="src\scope_timer.h" />
