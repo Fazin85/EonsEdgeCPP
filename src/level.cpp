@@ -1,10 +1,11 @@
 #include "fast_noise_lite.h"
 #include "level.h"
 #include "log.h"
+#include "scope_timer.h"
 #include <filesystem>
 #include <future>
 #include <thread>
-#include "scope_timer.h"
+#include <random>
 
 namespace Eon
 {
@@ -44,8 +45,9 @@ namespace Eon
 		}
 
 		FastNoiseLite noise;
-		noise.SetFractalOctaves(7);
+		noise.SetFractalOctaves(10);
 		noise.SetFractalType(FastNoiseLite::FractalType_FBm);
+		std::mt19937 rng(0);
 
 		for (int cx = 0; cx < LEVEL_WIDTH_CHUNKS; cx++)
 		{
@@ -60,7 +62,7 @@ namespace Eon
 						int nx = (cx * CHUNK_WIDTH) + x;
 						int nz = (cz * CHUNK_WIDTH) + z;
 
-						int height = (noise.GetNoise(static_cast<float>(nx * 0.1f), static_cast<float>(nz * 0.1f)) + 1) * 128;
+						int height = (noise.GetNoise(static_cast<float>(nx * 0.15f), static_cast<float>(nz * 0.15f)) + 1) * 48;
 
 						if (height >= CHUNK_HEIGHT)
 						{
@@ -93,8 +95,15 @@ namespace Eon
 							}
 							else
 							{
-								chunk->GetBlock(x, y, z)->type = BlockType::STONE;
+								chunk->GetBlock(x, y, z)->type = BlockType::DIRT;
 							}
+						}
+
+						std::uniform_int_distribution<int> gen(0, 100);
+						if (gen(rng) == 0)
+						{
+
+							PlaceTree((cx * CHUNK_WIDTH) + x, (cz * CHUNK_WIDTH) + z);
 						}
 					}
 				}
@@ -208,6 +217,16 @@ namespace Eon
 		return nullptr;
 	}
 
+	void Level::SetBlock(Block block, short x, short y, short z)
+	{
+		Block* blockPtr = GetBlock(x, y, z);
+
+		if (blockPtr != nullptr)
+		{
+			blockPtr->type = block.type;
+		}
+	}
+
 	Block* Level::GetBlock(glm::ivec3 position)
 	{
 		return GetBlock(static_cast<short>(position.x), static_cast<short>(position.y), static_cast<short>(position.z));
@@ -272,5 +291,31 @@ namespace Eon
 	void Level::LoadChunkDataFromFilesystem(Chunk& chunk)
 	{
 
+	}
+
+	void Level::PlaceTree(short x, short z)
+	{
+		Chunk* chunk = GetChunk(ChunkPosition{ .x = static_cast<unsigned char>(x >> CHUNK_BITSHIFT_AMOUNT),
+											  .z = static_cast<unsigned char>(z >> CHUNK_BITSHIFT_AMOUNT) });
+
+		if (chunk == nullptr)
+		{
+			return;
+		}
+
+		short y = *chunk->GetHeightestBlockY(x - (chunk->Position().x * CHUNK_WIDTH), z - (chunk->Position().z * CHUNK_WIDTH));
+
+		for (int yp = y; yp < y + 6; yp++)
+		{
+			GetBlock(x, yp, z)->type = BlockType::OAKLOG;
+		}
+
+		for (int px = x - 3; px < x + 3; px++)
+		{
+			for (int pz = z - 3; pz < z + 3; pz++)
+			{
+				SetBlock(Block(Eon::BlockType::LEAF), px, y + 5, pz);
+			}
+		}
 	}
 }  // namespace Eon

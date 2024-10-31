@@ -4,12 +4,16 @@ namespace Eon
 {
 	enum class BlockFaceTexture : unsigned int
 	{
-		Error,
-		Stone,
-		GrassTop,
-		GrassSide,
-		Dirt,
-		Water,
-		Sand
+		ERR,
+		STONE,
+		GRASSTOP,
+		GRASSIDE,
+		DIRT,
+		WATER,
+		SAND,
+		OAKLOGTOP,
+		OAKLOGSIDE,
+		LEAF,
+		GRAVEL
 	};
 }

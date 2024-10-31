@@ -11,7 +11,10 @@ namespace Eon
 		GRASS,
 		DIRT,
 		WATER,
-		SAND
+		SAND,
+		OAKLOG,
+		LEAF,
+		GRAVEL
 	};
 
 	struct Block
@@ -21,6 +24,8 @@ namespace Eon
 			type = BlockType::AIR;
 			//light = 15;
 		}
+
+		Block(BlockType t) : type(t) {}
 
 		BlockType type;
 		//unsigned char light;

@@ -22,7 +22,7 @@ const float MIN_DIFFUSE_LIGHT = 0.35;
 void main() 
 {
 	FragColor = texture(textureSampler, vec3(texCoord, blockType)) * v_color;
-	//FragColor = v_color;
+	
 	//diffuse lighting
 	vec3 norm = normalize(v_normal);
 	vec3 lightDir = normalize(-sunlight_dir);
@@ -36,6 +36,6 @@ void main()
 	
 	//fog
 	float fog = smoothstep(fog_near, fog_far, length(v_viewpos));
-	FragColor = (diffuse + ambient) * FragColor;
-    FragColor = mix(FragColor, fog_color, fog);
+	//FragColor = (diffuse + ambient) * FragColor;
+	FragColor = mix(FragColor, fog_color, fog);
 }

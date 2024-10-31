@@ -15,7 +15,7 @@ namespace Eon
 
 		EON_INFO("Starting...");
 
-		Window::Create(3440, 1440, GameSettings.maxFps, "Eon's Edge", false);
+		Window::Create(1280, 720, GameSettings.maxFps, "Eon's Edge", false);
 		gladLoadGL();
 
 		Init();
@@ -91,7 +91,7 @@ namespace Eon
 		level = std::make_unique<Level>();
 		player = std::make_unique<Player>(level.get());
 
-		level->SkyColor() = glm::vec4(0.39f, 0.52f, 0.745f, 1.0f);
+		level->SkyColor() = glm::vec4(153.0f / 255.0f, 204.0f / 255.0f, 1.0f, 1.0f);
 
 		level_renderer = std::make_unique<LevelRenderer>();
 		level_renderer->SetLevel(level.get());
@@ -162,7 +162,7 @@ namespace Eon
 
 		sprite->Render(player->GetCamera(), player->Position());
 
-		skybox->Render(player->GetCamera(), player->Position());
+		//skybox->Render(player->GetCamera(), player->Position());
 
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

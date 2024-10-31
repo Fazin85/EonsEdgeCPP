@@ -36,7 +36,6 @@ namespace Eon
 		chunk_shader->UniformInt1("textureSampler", 0);
 
 		int fogFar = GameSettings.fog ? GameSettings.render_distance * CHUNK_WIDTH - CHUNK_WIDTH : 100000;
-
 		chunk_shader->UniformFloat("fog_far", fogFar);
 
 		std::vector<std::string> imageNames;
@@ -47,6 +46,11 @@ namespace Eon
 		imageNames.emplace_back("DirtBlock.png");
 		imageNames.emplace_back("WaterBlock.png");
 		imageNames.emplace_back("SandBlock.png");
+		imageNames.emplace_back("OakLogTop.png");
+		imageNames.emplace_back("OakLogSide.png");
+		imageNames.emplace_back("LeafBlock.png");
+		imageNames.emplace_back("GravelBlock.png");
+
 		chunk_texture = std::make_unique<TextureArray>(imageNames, 16, 16);
 	}
 
@@ -142,7 +146,7 @@ namespace Eon
 		}
 
 		glCullFace(GL_BACK);
-
+		glClearColor(level->SkyColor().r, level->SkyColor().g, level->SkyColor().b, level->SkyColor().a);
 		chunk_texture->Bind();
 
 		chunk_shader->Bind();
@@ -504,6 +508,11 @@ namespace Eon
 
 	unsigned int LevelRenderer::GetLod(float distance)
 	{
+		if (!GameSettings.lod)
+		{
+			return 0;
+		}
+
 		int width = GameSettings.percent_lod ? CHUNK_WIDTH : CHUNK_WIDTH / 2;
 		unsigned int lod = 0;
 
@@ -528,34 +537,60 @@ namespace Eon
 		switch (blockType)
 		{
 		case Eon::BlockType::AIR:
-			return BlockFaceTexture::Error;
+			return BlockFaceTexture::ERR;
 		case Eon::BlockType::STONE:
-			return BlockFaceTexture::Stone;
+			return BlockFaceTexture::STONE;
 		case Eon::BlockType::GRASS:
 			switch (faceDirection)
 			{
 			case Eon::Directions::Front:
-				return BlockFaceTexture::GrassSide;
+				return BlockFaceTexture::GRASSIDE;
 			case Eon::Directions::Back:
-				return BlockFaceTexture::GrassSide;
+				return BlockFaceTexture::GRASSIDE;
 			case Eon::Directions::Left:
-				return BlockFaceTexture::GrassSide;
+				return BlockFaceTexture::GRASSIDE;
 			case Eon::Directions::Right:
-				return BlockFaceTexture::GrassSide;
+				return BlockFaceTexture::GRASSIDE;
 			case Eon::Directions::Top:
-				return BlockFaceTexture::GrassTop;
+				return BlockFaceTexture::GRASSTOP;
 			case Eon::Directions::Bottom:
-				return BlockFaceTexture::Dirt;
+				return BlockFaceTexture::DIRT;
 			}
 			break;
 		case Eon::BlockType::DIRT:
-			return BlockFaceTexture::Dirt;
+			return BlockFaceTexture::DIRT;
 		case Eon::BlockType::WATER:
-			return BlockFaceTexture::Water;
+			return BlockFaceTexture::WATER;
 		case Eon::BlockType::SAND:
-			return BlockFaceTexture::Sand;
+			return BlockFaceTexture::SAND;
+		case Eon::BlockType::OAKLOG:
+			switch (faceDirection)
+			{
+			case Eon::Directions::Front:
+				return BlockFaceTexture::OAKLOGSIDE;
+				break;
+			case Eon::Directions::Back:
+				return BlockFaceTexture::OAKLOGSIDE;
+
+			case Eon::Directions::Left:
+				return BlockFaceTexture::OAKLOGSIDE;
+
+			case Eon::Directions::Right:
+				return BlockFaceTexture::OAKLOGSIDE;
+
+			case Eon::Directions::Top:
+				return BlockFaceTexture::OAKLOGTOP;
+
+			case Eon::Directions::Bottom:
+				return BlockFaceTexture::OAKLOGTOP;
+			}
+			break;
+		case Eon::BlockType::LEAF:
+			return Eon::BlockFaceTexture::LEAF;
+		case Eon::BlockType::GRAVEL:
+			return Eon::BlockFaceTexture::GRAVEL;
 		}
 
-		return BlockFaceTexture::Error;
+		return Eon::BlockFaceTexture::ERR;
 	}
 }  // namespace Eon
