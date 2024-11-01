@@ -34,7 +34,7 @@ namespace Eon
 
 		return true;
 	}
-
+	//#define INDEX_FROM_POSITION(x, y, z) x + CHUNK_WIDTH *(y + CHUNK_HEIGHT * z)
 	const BlockType VoxelModel::GetBlockType(short x, short y, short z)
 	{
 		if (block_data == nullptr)
