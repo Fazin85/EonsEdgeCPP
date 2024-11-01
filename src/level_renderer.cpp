@@ -272,7 +272,9 @@ namespace Eon
 
 		for (unsigned int lod = 1; lod <= CHUNK_MAX_LOD; lod *= 2)
 		{
-			ChunkMeshConstructionData meshData{};
+			ChunkMeshConstructionData opaqueMeshData{};
+			ChunkMeshConstructionData transparentMeshData{};
+			bool tranparency = false;
 
 			for (unsigned char x = 0; x < CHUNK_WIDTH; x += lod)
 			{
@@ -280,9 +282,11 @@ namespace Eon
 				{
 					for (unsigned char z = 0; z < CHUNK_WIDTH; z += lod)
 					{
-						int numFaces = 0;
+						int numOpaqueFaces = 0;
+						int numTransparentFaces = 0;
 						glm::ivec3 position(x, y, z);
-						auto block = chunk->GetBlock(x, y, z);
+						Block* block = chunk->GetBlock(x, y, z);
+						bool blockTransparent = block->Transparent();
 						short height = *chunk->GetHeightestBlockY(x, z);
 
 						if (block == nullptr)
@@ -296,6 +300,11 @@ namespace Eon
 							continue;
 						}
 
+						if (blockTransparent)
+						{
+							tranparency = true;
+						}
+
 						BlockType type = block->type;
 
 						if (lod != 1 && y < height + (lod - 1))
@@ -306,10 +315,10 @@ namespace Eon
 						Directions dir = Directions::Left;
 						if (x > 0)
 						{
-							if (chunk->GetBlock(x - lod, y, z)->type == BlockType::AIR)
+							if (chunk->GetBlock(x - lod, y, z)->Transparent() || blockTransparent)
 							{
-								AddFace(meshData, position, type, dir, lod);
-								numFaces++;
+								AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir, lod);
+								blockTransparent ? numTransparentFaces++ : numOpaqueFaces++;
 							}
 						}
 						else
@@ -317,10 +326,10 @@ namespace Eon
 							auto sideBlock = level->GetBlock(chunkPosition + glm::ivec3(x - lod, y, z));
 							if (sideBlock != nullptr)
 							{
-								if (sideBlock->type == BlockType::AIR)
+								if (sideBlock->Transparent() || blockTransparent)
 								{
-									AddFace(meshData, position, type, dir, lod);
-									numFaces++;
+									AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir, lod);
+									blockTransparent ? numTransparentFaces++ : numOpaqueFaces++;
 								}
 							}
 						}
@@ -328,10 +337,10 @@ namespace Eon
 						dir = Directions::Right;
 						if (x < CHUNK_WIDTH - lod)
 						{
-							if (chunk->GetBlock(x + lod, y, z)->type == BlockType::AIR)
+							if (chunk->GetBlock(x + lod, y, z)->Transparent() || blockTransparent)
 							{
-								AddFace(meshData, position, type, dir, lod);
-								numFaces++;
+								AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir, lod);
+								blockTransparent ? numTransparentFaces++ : numOpaqueFaces++;
 							}
 						}
 						else
@@ -339,10 +348,10 @@ namespace Eon
 							auto sideBlock = level->GetBlock(chunkPosition + glm::ivec3(x + lod, y, z));
 							if (sideBlock != nullptr)
 							{
-								if (sideBlock->type == BlockType::AIR)
+								if (sideBlock->Transparent() || blockTransparent)
 								{
-									AddFace(meshData, position, type, dir, lod);
-									numFaces++;
+									AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir, lod);
+									blockTransparent ? numTransparentFaces++ : numOpaqueFaces++;
 								}
 							}
 						}
@@ -350,35 +359,35 @@ namespace Eon
 						dir = Directions::Top;
 						if (y < CHUNK_HEIGHT - lod)
 						{
-							if (chunk->GetBlock(x, y + lod, z)->type == BlockType::AIR)
+							if (chunk->GetBlock(x, y + lod, z)->Transparent() || blockTransparent)
 							{
-								AddFace(meshData, position, type, dir, lod);
-								numFaces++;
+								AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir, lod);
+								blockTransparent ? numTransparentFaces++ : numOpaqueFaces++;
 							}
 						}
 						else
 						{
-							AddFace(meshData, position, type, dir, lod);
-							numFaces++;
+							AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir, lod);
+							blockTransparent ? numTransparentFaces++ : numOpaqueFaces++;
 						}
 
 						dir = Directions::Bottom;
 						if (y > 0)
 						{
-							if (chunk->GetBlock(x, y - lod, z)->type == BlockType::AIR)
+							if (chunk->GetBlock(x, y - lod, z)->Transparent() || blockTransparent)
 							{
-								AddFace(meshData, position, type, dir, lod);
-								numFaces++;
+								AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir, lod);
+								blockTransparent ? numTransparentFaces++ : numOpaqueFaces++;
 							}
 						}
 
 						dir = Directions::Front;
 						if (z < CHUNK_WIDTH - lod)
 						{
-							if (chunk->GetBlock(x, y, z + lod)->type == BlockType::AIR)
+							if (chunk->GetBlock(x, y, z + lod)->Transparent() || blockTransparent)
 							{
-								AddFace(meshData, position, type, dir, lod);
-								numFaces++;
+								AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir, lod);
+								blockTransparent ? numTransparentFaces++ : numOpaqueFaces++;
 							}
 						}
 						else
@@ -386,10 +395,10 @@ namespace Eon
 							auto sideBlock = level->GetBlock(chunkPosition + glm::ivec3(x, y, z + lod));
 							if (sideBlock != nullptr)
 							{
-								if (sideBlock->type == BlockType::AIR)
+								if (sideBlock->Transparent() || blockTransparent)
 								{
-									AddFace(meshData, position, type, dir, lod);
-									numFaces++;
+									AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir, lod);
+									blockTransparent ? numTransparentFaces++ : numOpaqueFaces++;
 								}
 							}
 						}
@@ -397,10 +406,10 @@ namespace Eon
 						dir = Directions::Back;
 						if (z > 0)
 						{
-							if (chunk->GetBlock(x, y, z - lod)->type == BlockType::AIR)
+							if (chunk->GetBlock(x, y, z - lod)->Transparent() || blockTransparent)
 							{
-								AddFace(meshData, position, type, dir, lod);
-								numFaces++;
+								AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir, lod);
+								blockTransparent ? numTransparentFaces++ : numOpaqueFaces++;
 							}
 						}
 						else
@@ -408,20 +417,33 @@ namespace Eon
 							auto sideBlock = level->GetBlock(chunkPosition + glm::ivec3(x, y, z - lod));
 							if (sideBlock != nullptr)
 							{
-								if (sideBlock->type == BlockType::AIR)
+								if (sideBlock->Transparent() || blockTransparent)
 								{
-									AddFace(meshData, position, type, dir, lod);
-									numFaces++;
+									AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir, lod);
+									blockTransparent ? numTransparentFaces++ : numOpaqueFaces++;
 								}
 							}
 						}
 
-						AddIndices(meshData, numFaces);
+						if (opaqueMeshData.vertexPositions.size() > 0)
+						{
+							AddIndices(opaqueMeshData, numOpaqueFaces);
+						}
+
+						if (transparentMeshData.vertexPositions.size() > 0)
+						{
+							AddIndices(transparentMeshData, numTransparentFaces);
+						}
 					}
 				}
 			}
 
-			chunkRenderers.emplace_back(new ChunkRenderer(meshData));
+			ChunkRenderer* chunkRenderer = new ChunkRenderer(opaqueMeshData);
+			if (transparentMeshData.vertexPositions.size() > 0)
+			{
+				chunkRenderer->SetWaterMesh(new ChunkRenderer(transparentMeshData));
+			}
+			chunkRenderers.emplace_back(chunkRenderer);
 		}
 
 		if (chunk_renderers.contains(chunk->Position()))

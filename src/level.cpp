@@ -4,8 +4,8 @@
 #include "scope_timer.h"
 #include <filesystem>
 #include <future>
-#include <thread>
 #include <random>
+#include <thread>
 
 namespace Eon
 {
@@ -30,6 +30,8 @@ namespace Eon
 		{
 			EON_INFO("Directory already exists: level");
 		}
+
+		tree_model = std::make_unique<VoxelModel>("tree.vox");
 
 		//save_file.open("level.dat", std::ios::binary);
 
@@ -102,8 +104,8 @@ namespace Eon
 						std::uniform_int_distribution<int> gen(0, 100);
 						if (gen(rng) == 0)
 						{
-
-							PlaceTree((cx * CHUNK_WIDTH) + x, (cz * CHUNK_WIDTH) + z);
+							PlaceModel(*tree_model, nx, *chunk->GetHeightestBlockY(x, z), nz);
+							//PlaceTree(nx, nz);
 						}
 					}
 				}
@@ -223,7 +225,7 @@ namespace Eon
 
 		if (blockPtr != nullptr)
 		{
-			blockPtr->type = block.type;
+			*blockPtr = block;
 		}
 	}
 
@@ -271,6 +273,19 @@ namespace Eon
 		return (x * LEVEL_WIDTH_CHUNKS) + z;
 	}
 
+	short Level::GetHighestBlockY(short x, short z)
+	{
+		Chunk* chunk = GetChunk(ChunkPosition{ .x = static_cast<unsigned char>(x >> CHUNK_BITSHIFT_AMOUNT),
+											  .z = static_cast<unsigned char>(z >> CHUNK_BITSHIFT_AMOUNT) });
+
+		if (chunk == nullptr)
+		{
+			return 0;
+		}
+
+		return *chunk->GetHeightestBlockY(x - (chunk->Position().x * CHUNK_WIDTH), z - (chunk->Position().z * CHUNK_WIDTH));
+	}
+
 	Block* Level::GetBlockDecompressChunk(glm::ivec3 position)
 	{
 		auto chunk = GetChunk(ChunkPosition{ .x = static_cast<unsigned char>(position.x >> CHUNK_BITSHIFT_AMOUNT),
@@ -286,6 +301,25 @@ namespace Eon
 		}
 
 		return nullptr;
+	}
+
+	void Level::PlaceModel(VoxelModel& model, short x, short y, short z)
+	{
+		for (int mx = 0; mx < model.Size().x; mx++)
+		{
+			for (int my = 0; my < model.Size().y; my++)
+			{
+				for (int mz = 0; mz < model.Size().z; mz++)
+				{
+					BlockType type = model.GetBlockType(mx, my, mz);
+
+					if (type != BlockType::AIR)
+					{
+						SetBlock(Block(type), x + mx, y + my, z + mz);
+					}
+				}
+			}
+		}
 	}
 
 	void Level::LoadChunkDataFromFilesystem(Chunk& chunk)

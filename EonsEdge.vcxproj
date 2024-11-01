@@ -163,6 +163,7 @@
     <ClCompile Include="src\skybox.cpp" />
     <ClCompile Include="src\texture.cpp" />
     <ClCompile Include="src\texture_array.cpp" />
+    <ClCompile Include="src\voxel_model.cpp" />
     <ClCompile Include="src\window.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -173,6 +174,7 @@
     <ClInclude Include="src\chunk_mesh_data.h" />
     <ClInclude Include="src\compress.h" />
     <ClInclude Include="src\lod_chunk_renderer.h" />
+    <ClInclude Include="src\ogt_vox.h" />
     <ClInclude Include="src\plane_mesh.h" />
     <ClInclude Include="src\scope_timer.h" />
     <ClInclude Include="src\skybox.h" />
@@ -198,11 +200,13 @@
     <ClInclude Include="src\stb_image.h" />
     <ClInclude Include="src\texture.h" />
     <ClInclude Include="src\texture_array.h" />
+    <ClInclude Include="src\voxel_model.h" />
     <ClInclude Include="src\window.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitattributes" />
     <None Include=".gitignore" />
+    <None Include="content\models\tree.vox" />
     <None Include="content\shaders\Billboard.frag" />
     <None Include="content\shaders\Billboard.vert" />
     <None Include="content\shaders\Chunk.frag" />

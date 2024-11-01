@@ -1,7 +1,5 @@
 #pragma once
 
-
-
 namespace Eon
 {
 	enum class BlockType : unsigned char
@@ -29,5 +27,10 @@ namespace Eon
 
 		BlockType type;
 		//unsigned char light;
+
+		bool Transparent() const
+		{
+			return type == BlockType::AIR || type == BlockType::WATER || type == BlockType::LEAF;
+		}
 	};
 }  // namespace Eon

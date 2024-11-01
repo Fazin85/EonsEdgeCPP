@@ -90,7 +90,10 @@
     <ClCompile Include="src\chunk_mesh_data.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\eon_std.c">
+    <ClCompile Include="src\compress.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\voxel_model.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -188,7 +191,16 @@
     <ClInclude Include="src\chunk_mesh_data.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\eon_std.h">
+    <ClInclude Include="src\block_face_texture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\compress.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ogt_vox.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\voxel_model.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -205,6 +217,7 @@
     <None Include="content\shaders\Plane.vert" />
     <None Include="content\shaders\Skybox.frag" />
     <None Include="content\shaders\Skybox.vert" />
+    <None Include="content\models\tree.vox" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="C:\Users\GODDIDIDIIDID\Downloads\player.png">

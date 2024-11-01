@@ -23,6 +23,10 @@ void main()
 {
 	FragColor = texture(textureSampler, vec3(texCoord, blockType)) * v_color;
 	
+	if(FragColor.a == 0.0) {
+		discard;
+	}
+	
 	//diffuse lighting
 	vec3 norm = normalize(v_normal);
 	vec3 lightDir = normalize(-sunlight_dir);
