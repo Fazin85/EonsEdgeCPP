@@ -194,50 +194,6 @@ namespace Eon
 		}
 	}
 
-	void LevelRenderer::SaveMeshDataToFilesystem()
-	{
-		//if (chunk_renderers.size() != LEVEL_WIDTH_CHUNKS * LEVEL_WIDTH_CHUNKS)
-		//{
-		//	return;
-		//}
-		//return;
-
-		mesh_save_file.open("mesh_data.dat", std::ios::out | std::ios::binary);
-
-		for (const auto& [chunkPosition, chunkRenderer] : chunk_renderers)
-		{
-			std::vector<eon_chunk_mesh_data> chunkMeshData = chunkRenderer->GetAllMeshDataFromGpu();
-
-			unsigned char x = chunkPosition.x;
-			unsigned char z = chunkPosition.z;
-
-			mesh_save_file.write(reinterpret_cast<char*>(&x), sizeof(unsigned char));
-			mesh_save_file.write(reinterpret_cast<char*>(&z), sizeof(unsigned char));
-
-			for (auto& meshData : chunkMeshData)
-			{
-				auto compressedVertexPositionData = Compress::Fast((char*)meshData.vertex_position_data, sizeof(unsigned int) * meshData.vertex_data_size);
-				auto compressedDirLightData = Compress::Fast((char*)meshData.dir_light_data, sizeof(unsigned int) * meshData.vertex_data_size);
-				auto compressedIndices = Compress::Fast((char*)meshData.indices, sizeof(unsigned int) * meshData.index_size);
-
-				auto compressedVertexPositionDataSize = compressedVertexPositionData.size();
-				auto compressedDirLightDataSize = compressedDirLightData.size();
-				auto compressedIndicesSize = compressedIndices.size();
-
-				mesh_save_file.write(reinterpret_cast<char*>(&compressedVertexPositionDataSize), sizeof(size_t));
-				mesh_save_file.write(compressedVertexPositionData.data(), compressedVertexPositionDataSize);
-				mesh_save_file.write(reinterpret_cast<char*>(&compressedDirLightDataSize), sizeof(size_t));
-				mesh_save_file.write(compressedDirLightData.data(), compressedDirLightDataSize);
-				mesh_save_file.write(reinterpret_cast<char*>(&compressedIndicesSize), sizeof(size_t));
-				mesh_save_file.write(compressedIndices.data(), compressedIndicesSize);
-
-				eon_chunk_mesh_data_free(&meshData);
-			}
-		}
-
-		mesh_save_file.close();
-	}
-
 	int LevelRenderer::ChunkRendererCount()
 	{
 		return chunk_renderers.size();
@@ -270,181 +226,175 @@ namespace Eon
 		sf::Clock timer;
 		std::vector<ChunkRenderer*> chunkRenderers;
 
-		for (unsigned int lod = 1; lod <= CHUNK_MAX_LOD; lod *= 2)
+
+		ChunkMeshConstructionData opaqueMeshData{};
+		ChunkMeshConstructionData transparentMeshData{};
+		bool tranparency = false;
+
+		for (unsigned char x = 0; x < CHUNK_WIDTH; x++)
 		{
-			ChunkMeshConstructionData opaqueMeshData{};
-			ChunkMeshConstructionData transparentMeshData{};
-			bool tranparency = false;
-
-			for (unsigned char x = 0; x < CHUNK_WIDTH; x += lod)
+			for (short y = 0; y < CHUNK_HEIGHT; y++)
 			{
-				for (short y = 0; y < CHUNK_HEIGHT; y += lod)
+				for (unsigned char z = 0; z < CHUNK_WIDTH; z++)
 				{
-					for (unsigned char z = 0; z < CHUNK_WIDTH; z += lod)
+					int numOpaqueFaces = 0;
+					int numTransparentFaces = 0;
+					glm::ivec3 position(x, y, z);
+					Block* block = chunk->GetBlock(x, y, z);
+					bool blockTransparent = block->Transparent();
+					short height = *chunk->GetHeightestBlockY(x, z);
+
+					if (block == nullptr)
 					{
-						int numOpaqueFaces = 0;
-						int numTransparentFaces = 0;
-						glm::ivec3 position(x, y, z);
-						Block* block = chunk->GetBlock(x, y, z);
-						bool blockTransparent = block->Transparent();
-						short height = *chunk->GetHeightestBlockY(x, z);
+						EON_ERROR("Block was nullptr");
+						break;
+					}
 
-						if (block == nullptr)
-						{
-							EON_ERROR("Block was nullptr");
-							break;
-						}
+					if (block->type == BlockType::AIR)
+					{
+						continue;
+					}
 
-						if (block->type == BlockType::AIR)
-						{
-							continue;
-						}
+					if (blockTransparent)
+					{
+						tranparency = true;
+					}
 
-						if (blockTransparent)
-						{
-							tranparency = true;
-						}
+					BlockType type = block->type;
 
-						BlockType type = block->type;
-
-						if (lod != 1 && y < height + (lod - 1))
+					Directions dir = Directions::Left;
+					if (x > 0)
+					{
+						if (chunk->GetBlock(x - 1, y, z)->Transparent() || blockTransparent)
 						{
-							type = chunk->GetBlock(x, height, z)->type;
-						}
-
-						Directions dir = Directions::Left;
-						if (x > 0)
-						{
-							if (chunk->GetBlock(x - lod, y, z)->Transparent() || blockTransparent)
-							{
-								AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir, lod);
-								blockTransparent ? numTransparentFaces++ : numOpaqueFaces++;
-							}
-						}
-						else
-						{
-							auto sideBlock = level->GetBlock(chunkPosition + glm::ivec3(x - lod, y, z));
-							if (sideBlock != nullptr)
-							{
-								if (sideBlock->Transparent() || blockTransparent)
-								{
-									AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir, lod);
-									blockTransparent ? numTransparentFaces++ : numOpaqueFaces++;
-								}
-							}
-						}
-
-						dir = Directions::Right;
-						if (x < CHUNK_WIDTH - lod)
-						{
-							if (chunk->GetBlock(x + lod, y, z)->Transparent() || blockTransparent)
-							{
-								AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir, lod);
-								blockTransparent ? numTransparentFaces++ : numOpaqueFaces++;
-							}
-						}
-						else
-						{
-							auto sideBlock = level->GetBlock(chunkPosition + glm::ivec3(x + lod, y, z));
-							if (sideBlock != nullptr)
-							{
-								if (sideBlock->Transparent() || blockTransparent)
-								{
-									AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir, lod);
-									blockTransparent ? numTransparentFaces++ : numOpaqueFaces++;
-								}
-							}
-						}
-
-						dir = Directions::Top;
-						if (y < CHUNK_HEIGHT - lod)
-						{
-							if (chunk->GetBlock(x, y + lod, z)->Transparent() || blockTransparent)
-							{
-								AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir, lod);
-								blockTransparent ? numTransparentFaces++ : numOpaqueFaces++;
-							}
-						}
-						else
-						{
-							AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir, lod);
+							AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir, 1);
 							blockTransparent ? numTransparentFaces++ : numOpaqueFaces++;
 						}
-
-						dir = Directions::Bottom;
-						if (y > 0)
+					}
+					else
+					{
+						auto sideBlock = level->GetBlock(chunkPosition + glm::ivec3(x - 1, y, z));
+						if (sideBlock != nullptr)
 						{
-							if (chunk->GetBlock(x, y - lod, z)->Transparent() || blockTransparent)
+							if (sideBlock->Transparent() || blockTransparent)
 							{
-								AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir, lod);
+								AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir, 1);
 								blockTransparent ? numTransparentFaces++ : numOpaqueFaces++;
 							}
 						}
+					}
 
-						dir = Directions::Front;
-						if (z < CHUNK_WIDTH - lod)
+					dir = Directions::Right;
+					if (x < CHUNK_WIDTH - 1)
+					{
+						if (chunk->GetBlock(x + 1, y, z)->Transparent() || blockTransparent)
 						{
-							if (chunk->GetBlock(x, y, z + lod)->Transparent() || blockTransparent)
+							AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir, 1);
+							blockTransparent ? numTransparentFaces++ : numOpaqueFaces++;
+						}
+					}
+					else
+					{
+						auto sideBlock = level->GetBlock(chunkPosition + glm::ivec3(x + 1, y, z));
+						if (sideBlock != nullptr)
+						{
+							if (sideBlock->Transparent() || blockTransparent)
 							{
-								AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir, lod);
+								AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir, 1);
 								blockTransparent ? numTransparentFaces++ : numOpaqueFaces++;
 							}
 						}
-						else
-						{
-							auto sideBlock = level->GetBlock(chunkPosition + glm::ivec3(x, y, z + lod));
-							if (sideBlock != nullptr)
-							{
-								if (sideBlock->Transparent() || blockTransparent)
-								{
-									AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir, lod);
-									blockTransparent ? numTransparentFaces++ : numOpaqueFaces++;
-								}
-							}
-						}
+					}
 
-						dir = Directions::Back;
-						if (z > 0)
+					dir = Directions::Top;
+					if (y < CHUNK_HEIGHT - 1)
+					{
+						if (chunk->GetBlock(x, y + 1, z)->Transparent() || blockTransparent)
 						{
-							if (chunk->GetBlock(x, y, z - lod)->Transparent() || blockTransparent)
+							AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir, 1);
+							blockTransparent ? numTransparentFaces++ : numOpaqueFaces++;
+						}
+					}
+					else
+					{
+						AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir, 1);
+						blockTransparent ? numTransparentFaces++ : numOpaqueFaces++;
+					}
+
+					dir = Directions::Bottom;
+					if (y > 0)
+					{
+						if (chunk->GetBlock(x, y - 1, z)->Transparent() || blockTransparent)
+						{
+							AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir, 1);
+							blockTransparent ? numTransparentFaces++ : numOpaqueFaces++;
+						}
+					}
+
+					dir = Directions::Front;
+					if (z < CHUNK_WIDTH - 1)
+					{
+						if (chunk->GetBlock(x, y, z + 1)->Transparent() || blockTransparent)
+						{
+							AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir, 1);
+							blockTransparent ? numTransparentFaces++ : numOpaqueFaces++;
+						}
+					}
+					else
+					{
+						auto sideBlock = level->GetBlock(chunkPosition + glm::ivec3(x, y, z + 1));
+						if (sideBlock != nullptr)
+						{
+							if (sideBlock->Transparent() || blockTransparent)
 							{
-								AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir, lod);
+								AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir, 1);
 								blockTransparent ? numTransparentFaces++ : numOpaqueFaces++;
 							}
 						}
-						else
+					}
+
+					dir = Directions::Back;
+					if (z > 0)
+					{
+						if (chunk->GetBlock(x, y, z - 1)->Transparent() || blockTransparent)
 						{
-							auto sideBlock = level->GetBlock(chunkPosition + glm::ivec3(x, y, z - lod));
-							if (sideBlock != nullptr)
+							AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir, 1);
+							blockTransparent ? numTransparentFaces++ : numOpaqueFaces++;
+						}
+					}
+					else
+					{
+						auto sideBlock = level->GetBlock(chunkPosition + glm::ivec3(x, y, z - 1));
+						if (sideBlock != nullptr)
+						{
+							if (sideBlock->Transparent() || blockTransparent)
 							{
-								if (sideBlock->Transparent() || blockTransparent)
-								{
-									AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir, lod);
-									blockTransparent ? numTransparentFaces++ : numOpaqueFaces++;
-								}
+								AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir, 1);
+								blockTransparent ? numTransparentFaces++ : numOpaqueFaces++;
 							}
 						}
+					}
 
-						if (opaqueMeshData.vertexPositions.size() > 0)
-						{
-							AddIndices(opaqueMeshData, numOpaqueFaces);
-						}
+					if (opaqueMeshData.vertexPositions.size() > 0)
+					{
+						AddIndices(opaqueMeshData, numOpaqueFaces);
+					}
 
-						if (transparentMeshData.vertexPositions.size() > 0)
-						{
-							AddIndices(transparentMeshData, numTransparentFaces);
-						}
+					if (transparentMeshData.vertexPositions.size() > 0)
+					{
+						AddIndices(transparentMeshData, numTransparentFaces);
 					}
 				}
 			}
-
-			ChunkRenderer* chunkRenderer = new ChunkRenderer(opaqueMeshData);
-			if (transparentMeshData.vertexPositions.size() > 0)
-			{
-				chunkRenderer->SetWaterMesh(new ChunkRenderer(transparentMeshData));
-			}
-			chunkRenderers.emplace_back(chunkRenderer);
 		}
+
+		ChunkRenderer* chunkRenderer = new ChunkRenderer(opaqueMeshData);
+		if (transparentMeshData.vertexPositions.size() > 0)
+		{
+			chunkRenderer->SetWaterMesh(new ChunkRenderer(transparentMeshData));
+		}
+		chunkRenderers.emplace_back(chunkRenderer);
+
 
 		if (chunk_renderers.contains(chunk->Position()))
 		{

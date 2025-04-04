@@ -142,15 +142,4 @@ namespace Eon
 			water_mesh->Destroy();
 		}
 	}
-
-	eon_chunk_mesh_data ChunkRenderer::GetMeshDataFromGpu() const
-	{
-		eon_chunk_mesh_data chunkMeshData{};
-		chunkMeshData.vertex_data_size = vertex_data_size;
-		chunkMeshData.index_size = index_size;
-
-		eon_get_data_from_gl_buffer_handles(&chunkMeshData, vertex_position_vbo, dir_light_vbo, ibo);
-
-		return chunkMeshData;
-	}
 }  // namespace Eon

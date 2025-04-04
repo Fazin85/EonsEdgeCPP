@@ -23,7 +23,7 @@
     <Keyword>Win32Proj</Keyword>
     <ProjectGuid>{b8809aa1-6bdc-447d-a2cb-5eee1bfac88a}</ProjectGuid>
     <RootNamespace>EonsEdge</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.20348.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -140,7 +140,6 @@
   <ItemGroup>
     <ClCompile Include="src\billboard_sprite.cpp" />
     <ClCompile Include="src\bounding_box.cpp" />
-    <ClCompile Include="src\chunk_mesh_data.c" />
     <ClCompile Include="src\compress.cpp" />
     <ClCompile Include="src\frustum.cpp" />
     <ClCompile Include="src\game.cpp" />
@@ -171,7 +170,6 @@
     <ClInclude Include="src\billboard_sprite.h" />
     <ClInclude Include="src\block_face_texture.h" />
     <ClInclude Include="src\bounding_box.h" />
-    <ClInclude Include="src\chunk_mesh_data.h" />
     <ClInclude Include="src\compress.h" />
     <ClInclude Include="src\lod_chunk_renderer.h" />
     <ClInclude Include="src\ogt_vox.h" />

@@ -81,19 +81,16 @@
     <ClCompile Include="src\texture_array.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\lod_chunk_renderer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\scope_timer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\chunk_mesh_data.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\compress.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\voxel_model.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lod_chunk_renderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -182,13 +179,7 @@
     <ClInclude Include="src\texture_array.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\lod_chunk_renderer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\scope_timer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\chunk_mesh_data.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\block_face_texture.h">
@@ -201,6 +192,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\voxel_model.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lod_chunk_renderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

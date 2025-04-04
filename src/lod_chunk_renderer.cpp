@@ -7,11 +7,11 @@ namespace Eon
 	{
 		this->chunk = chunk;
 
-		if (chunkRenderers.size() != CHUNK_MAX_LOD / 2)
-		{
-			EON_ERROR("Tried to create LODChunkRenderer with: " + std::to_string(chunkRenderers.size()) + " lods");
-			return;
-		}
+		//if (chunkRenderers.size() != CHUNK_MAX_LOD / 2)
+		//{
+		//	EON_ERROR("Tried to create LODChunkRenderer with: " + std::to_string(chunkRenderers.size()) + " lods");
+		//	return;
+		//}
 
 		aabb.Update(glm::vec3(chunk->Position().x * CHUNK_WIDTH, 0, chunk->Position().z * CHUNK_WIDTH));
 
@@ -35,11 +35,11 @@ namespace Eon
 
 	void LODChunkRenderer::Render(unsigned int lod)
 	{
-		if (lod > CHUNK_MAX_LOD / 2 || lod < 0)
-		{
-			EON_ERROR("Tried to render chunk with lod: " + std::to_string(lod));
-			return;
-		}
+		//if (lod > CHUNK_MAX_LOD / 2 || lod < 0)
+		//{
+		//	EON_ERROR("Tried to render chunk with lod: " + std::to_string(lod));
+		//	return;
+		//}
 
 		lods[lod]->Render();
 	}
@@ -54,11 +54,11 @@ namespace Eon
 
 	ChunkRenderer* LODChunkRenderer::GetLodRenderer(unsigned int lod)
 	{
-		if (lod > CHUNK_MAX_LOD / 2 || lod < 0)
-		{
-			EON_ERROR("Tried to get lod renderer with lod: " + std::to_string(lod));
-			return nullptr;
-		}
+		//if (lod > CHUNK_MAX_LOD / 2 || lod < 0)
+		//{
+		//	EON_ERROR("Tried to get lod renderer with lod: " + std::to_string(lod));
+		//	return nullptr;
+		//}
 
 		return lods[lod];
 	}
@@ -71,17 +71,5 @@ namespace Eon
 	Chunk& LODChunkRenderer::GetChunk()
 	{
 		return *chunk;
-	}
-
-	std::vector<eon_chunk_mesh_data> LODChunkRenderer::GetAllMeshDataFromGpu()
-	{
-		std::vector<eon_chunk_mesh_data> chunkMeshData;
-
-		for (int lod = 0; lod < CHUNK_MAX_LOD / 2; lod++)
-		{
-			chunkMeshData.emplace_back(lods[lod]->GetMeshDataFromGpu());
-		}
-
-		return chunkMeshData;
 	}
 }

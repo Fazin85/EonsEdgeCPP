@@ -3,7 +3,6 @@
 #include "block_face_texture.h"
 #include "camera.h"
 #include "chunk.h"
-#include "chunk_mesh_data.h"
 #include "chunk_renderer.h"
 #include "directions.h"
 #include "level.h"
@@ -32,7 +31,6 @@ namespace Eon
 		void RemoveMesh(ChunkPosition chunkPosition);
 		void Update(glm::vec3 cameraPosition);
 		void Render(Camera& camera, glm::vec3 cameraPosition);
-		void SaveMeshDataToFilesystem();
 		int ChunkRendererCount();
 
 	private:
@@ -51,7 +49,6 @@ namespace Eon
 		std::unique_ptr<TextureArray> chunk_texture;
 		std::vector<std::thread> mesh_threads;
 		std::atomic_bool exit;
-		std::fstream mesh_save_file;
 		moodycamel::ConcurrentQueue<ChunkPosition> chunks_to_mesh;
 		moodycamel::ConcurrentQueue<ChunkPosition> meshes_to_setup;
 		Level* level;

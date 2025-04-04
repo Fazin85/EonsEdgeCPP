@@ -5,7 +5,6 @@
 #include <vector>
 
 #include "chunk_mesh_construction_data.h"
-#include "chunk_mesh_data.h"
 
 namespace Eon
 {
@@ -18,7 +17,6 @@ namespace Eon
 		void Render();
 		void Setup();
 		void Destroy();
-		eon_chunk_mesh_data GetMeshDataFromGpu() const;
 
 	private:
 		bool setup;

@@ -136,20 +136,6 @@ namespace Eon
 	{
 		level_renderer->Update(player->Position());
 
-		/*if (idx < LEVEL_WIDTH_CHUNKS * LEVEL_WIDTH_CHUNKS && !level_renderer->MeshingAllChunks())
-		{
-			auto start = std::chrono::high_resolution_clock::now();
-
-			level->GetChunkFromIndex(idx)->Compress();
-			level->GetChunkFromIndex(idx)->Decompress();
-			idx++;
-
-			auto end = std::chrono::high_resolution_clock::now();
-			auto duration = duration_cast<std::chrono::microseconds>(end - start);
-			EON_INFO("time:");
-			EON_INFO(duration.count());
-		}*/
-
 		player->Update(dt);
 	}
 
@@ -177,6 +163,5 @@ namespace Eon
 
 	void Game::OnExit()
 	{
-		level_renderer->SaveMeshDataToFilesystem();
 	}
 }
