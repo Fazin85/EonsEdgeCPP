@@ -2,12 +2,11 @@
 
 #include "block.h"
 #include "chunk_position.h"
+#include "chunk_info.h"
 
-#define CHUNK_WIDTH 32
-#define CHUNK_HEIGHT 256
-#define CHUNK_BLOCK_COUNT CHUNK_WIDTH * CHUNK_HEIGHT * CHUNK_WIDTH
-#define CHUNK_BITSHIFT_AMOUNT 5
-#define CHUNK_MAX_LOD 2
+#include <array>
+#include <memory>
+#include <mutex>
 
 namespace Eon
 {
@@ -15,22 +14,19 @@ namespace Eon
 	{
 	public:
 		Chunk(ChunkPosition chunkPosition);
-		~Chunk();
-		Block* GetBlock(unsigned char x, short y, unsigned char z);
+		void SetBlock(int x, int y, int z, Block& block);
+		Block GetBlock(int x, int y, int z);
 		ChunkPosition Position() const;
-		void Compress();
-		void Decompress();
-		void DeleteBlocks();
-		Block* GetBlocks();
-		short* GetHeightestBlockY(unsigned char x, unsigned char z);
-		std::vector<char> CompressToBuffer() const;
+		std::array<Block, CHUNK_WIDTH* CHUNK_HEIGHT* CHUNK_WIDTH>& GetBlocks();
+		short GetHeightestBlockY(int x, int z);
+		void SetDecorated(bool decorated);
+		bool IsDecorated() const;
 
 	private:
 		ChunkPosition position;
-		Block* blocks;
-		short highest_blocks[CHUNK_WIDTH * CHUNK_WIDTH];
-		char* compressed_blocks;
-		size_t compressed_blocks_size;
-		bool compressed;
+		std::unique_ptr<std::array<Block, CHUNK_WIDTH* CHUNK_HEIGHT* CHUNK_WIDTH>> blocks;
+		std::unique_ptr<std::array<short, CHUNK_WIDTH* CHUNK_WIDTH>> highest_blocks;
+		bool decorated;
+		std::mutex mutex;
 	};
 }  // namespace Eon

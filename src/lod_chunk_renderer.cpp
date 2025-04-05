@@ -3,53 +3,23 @@
 
 namespace Eon
 {
-	LODChunkRenderer::LODChunkRenderer(Chunk* chunk, std::vector<ChunkRenderer*>& chunkRenderers) : aabb(glm::vec3(CHUNK_WIDTH, CHUNK_HEIGHT, CHUNK_WIDTH)), lods{}
+	LODChunkRenderer::LODChunkRenderer(Chunk& chunk, std::unique_ptr<ChunkRenderer> chunkRenderer) : chunk(chunk), lods(std::move(chunkRenderer)), aabb(glm::vec3(CHUNK_WIDTH, CHUNK_HEIGHT, CHUNK_WIDTH))
 	{
-		this->chunk = chunk;
-
-		//if (chunkRenderers.size() != CHUNK_MAX_LOD / 2)
-		//{
-		//	EON_ERROR("Tried to create LODChunkRenderer with: " + std::to_string(chunkRenderers.size()) + " lods");
-		//	return;
-		//}
-
-		aabb.Update(glm::vec3(chunk->Position().x * CHUNK_WIDTH, 0, chunk->Position().z * CHUNK_WIDTH));
-
-		for (int lod = 0; lod < CHUNK_MAX_LOD / 2; lod++)
-		{
-			lods[lod] = chunkRenderers[lod];
-		}
+		aabb.Update(glm::vec3(chunk.Position().x, 0, chunk.Position().z));
 	}
 
 	LODChunkRenderer::~LODChunkRenderer()
 	{
-		for (int lod = 0; lod < CHUNK_MAX_LOD / 2; lod++)
-		{
-			if (lods[lod] != nullptr)
-			{
-				delete lods[lod];
-				lods[lod] = nullptr;
-			}
-		}
 	}
 
 	void LODChunkRenderer::Render(unsigned int lod)
 	{
-		//if (lod > CHUNK_MAX_LOD / 2 || lod < 0)
-		//{
-		//	EON_ERROR("Tried to render chunk with lod: " + std::to_string(lod));
-		//	return;
-		//}
-
-		lods[lod]->Render();
+		lods->Render();
 	}
 
 	void LODChunkRenderer::Setup()
 	{
-		for (int lod = 0; lod < CHUNK_MAX_LOD / 2; lod++)
-		{
-			lods[lod]->Setup();
-		}
+		lods->Setup();
 	}
 
 	ChunkRenderer* LODChunkRenderer::GetLodRenderer(unsigned int lod)
@@ -60,7 +30,7 @@ namespace Eon
 		//	return nullptr;
 		//}
 
-		return lods[lod];
+		return lods.get();
 	}
 
 	AABB& LODChunkRenderer::GetAABB()
@@ -70,6 +40,6 @@ namespace Eon
 
 	Chunk& LODChunkRenderer::GetChunk()
 	{
-		return *chunk;
+		return chunk;
 	}
 }

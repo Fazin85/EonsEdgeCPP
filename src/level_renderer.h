@@ -14,7 +14,7 @@
 #include <concurrentqueue/concurrentqueue.h>
 #include <map>
 #include <memory>
-#include <parallel_hashmap/phmap.h>
+#include <unordered_map>
 #include <thread>
 
 namespace Eon
@@ -26,12 +26,11 @@ namespace Eon
 		~LevelRenderer();
 		void SetLevel(Level* level);
 		void MeshChunk(ChunkPosition chunkPosition);
-		void MeshAllChunks();
-		bool MeshingAllChunks() const;
 		void RemoveMesh(ChunkPosition chunkPosition);
 		void Update(glm::vec3 cameraPosition);
 		void Render(Camera& camera, glm::vec3 cameraPosition);
 		int ChunkRendererCount();
+		bool IsChunkBeingMeshed(ChunkPosition position);
 
 	private:
 		void BuildChunkMesh(ChunkPosition inChunkPosition);
@@ -41,17 +40,17 @@ namespace Eon
 		void AddIndices(ChunkMeshConstructionData& meshData, int count);
 		unsigned int GetLod(float distance);
 		BlockFaceTexture GetTextureId(BlockType blockType, Directions faceDirection);
+		bool CanChunkBeMeshed(ChunkPosition position);
 
-		std::atomic_bool meshing_all_chunks;
-		std::atomic_int meshing_all_meshed_chunks_count;
-		int meshing_all_chunks_time_sum = 0;
 		std::unique_ptr<Shader> chunk_shader;
 		std::unique_ptr<TextureArray> chunk_texture;
 		std::vector<std::thread> mesh_threads;
+		std::vector<ChunkPosition> frozen_chunks;
+		std::vector<ChunkPosition> chunks_to_mesh_vector;
 		std::atomic_bool exit;
 		moodycamel::ConcurrentQueue<ChunkPosition> chunks_to_mesh;
-		moodycamel::ConcurrentQueue<ChunkPosition> meshes_to_setup;
+		moodycamel::ConcurrentQueue<std::unique_ptr<LODChunkRenderer>> meshes_to_setup;
 		Level* level;
-		phmap::parallel_node_hash_map<ChunkPosition, std::unique_ptr<LODChunkRenderer>> chunk_renderers;
+		std::unordered_map<ChunkPosition, std::unique_ptr<LODChunkRenderer>> chunk_renderers;
 	};
 }  // namespace Eon

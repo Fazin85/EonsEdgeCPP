@@ -36,9 +36,9 @@ namespace Eon
 		Destroy();
 	}
 
-	void ChunkRenderer::SetWaterMesh(ChunkRenderer* waterMesh)
+	void ChunkRenderer::SetWaterMesh(std::unique_ptr<ChunkRenderer> waterMesh)
 	{
-		water_mesh = waterMesh;
+		water_mesh = std::move(waterMesh);
 	}
 
 	void ChunkRenderer::Render()

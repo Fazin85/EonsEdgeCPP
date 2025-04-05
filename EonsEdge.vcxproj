@@ -138,6 +138,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\basic_terrain_generator.cpp" />
     <ClCompile Include="src\billboard_sprite.cpp" />
     <ClCompile Include="src\bounding_box.cpp" />
     <ClCompile Include="src\compress.cpp" />
@@ -167,9 +168,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\aabb.h" />
+    <ClInclude Include="src\abstract_level_generator.h" />
+    <ClInclude Include="src\basic_terrain_generator.h" />
     <ClInclude Include="src\billboard_sprite.h" />
     <ClInclude Include="src\block_face_texture.h" />
     <ClInclude Include="src\bounding_box.h" />
+    <ClInclude Include="src\chunk_info.h" />
     <ClInclude Include="src\compress.h" />
     <ClInclude Include="src\lod_chunk_renderer.h" />
     <ClInclude Include="src\ogt_vox.h" />

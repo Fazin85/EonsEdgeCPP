@@ -9,229 +9,53 @@
 
 namespace Eon
 {
-	Level::Level() : chunks_files{}, sky_color{}
+	Level::Level(AbstractLevelGenerator& abstractLevelGenerator) : abstract_level_generator(abstractLevelGenerator), chunks{}, sky_color{}, chunk_mutex{}
 	{
-		//bool write = !std::filesystem::exists("level.dat");
-		bool write = true;
-		std::filesystem::path directoryPath = "level";
-
-		if (!std::filesystem::exists(directoryPath))
-		{
-			if (std::filesystem::create_directory(directoryPath))
-			{
-				EON_INFO("Directory created successfully: level");
-			}
-			else
-			{
-				EON_ERROR("Error creating directory: level");
-			}
-		}
-		else
-		{
-			EON_INFO("Directory already exists: level");
-		}
-
 		tree_model = std::make_unique<VoxelModel>("tree.vox");
-
-		//save_file.open("level.dat", std::ios::binary);
-
-		//allocate all chunks in the level
-
-		for (int x = 0; x < LEVEL_WIDTH_CHUNKS; x++)
-		{
-			for (int z = 0; z < LEVEL_WIDTH_CHUNKS; z++)
-			{
-				unsigned int index = IndexFromPosition(x, z);
-				chunks[index] = std::make_unique<Chunk>(ChunkPosition(x, z));
-			}
-		}
-
-		FastNoiseLite noise;
-		noise.SetFractalOctaves(10);
-		noise.SetFractalType(FastNoiseLite::FractalType_FBm);
-		std::mt19937 rng(0);
-
-		for (int cx = 0; cx < LEVEL_WIDTH_CHUNKS; cx++)
-		{
-			for (int cz = 0; cz < LEVEL_WIDTH_CHUNKS; cz++)
-			{
-				Chunk* chunk = GetChunkUnsafe(ChunkPosition(cx, cz));
-
-				for (int x = 0; x < CHUNK_WIDTH; x++)
-				{
-					for (int z = 0; z < CHUNK_WIDTH; z++)
-					{
-						int nx = (cx * CHUNK_WIDTH) + x;
-						int nz = (cz * CHUNK_WIDTH) + z;
-
-						int height = (noise.GetNoise(static_cast<float>(nx * 0.15f), static_cast<float>(nz * 0.15f)) + 1) * 48;
-
-						if (height >= CHUNK_HEIGHT)
-						{
-							continue;
-						}
-
-						if (cx == LEVEL_WIDTH_CHUNKS - 1)
-						{
-							height -= x * 2;
-						}
-						if (cz == LEVEL_WIDTH_CHUNKS - 1)
-						{
-							height -= z * 2;
-						}
-						if (cx == 0)
-						{
-							height -= (CHUNK_WIDTH - x) * 2;
-						}
-						if (cz == 0)
-						{
-							height -= (CHUNK_WIDTH - z) * 2;
-						}
-
-						for (int y = 0; y < height; y++)
-						{
-							if (y == height - 1)
-							{
-								chunk->GetBlock(x, y, z)->type = BlockType::GRASS;
-								*chunk->GetHeightestBlockY(x, z) = y;
-							}
-							else
-							{
-								chunk->GetBlock(x, y, z)->type = BlockType::DIRT;
-							}
-						}
-
-						std::uniform_int_distribution<int> gen(0, 100);
-						if (gen(rng) == 0)
-						{
-							PlaceModel(*tree_model, nx, *chunk->GetHeightestBlockY(x, z), nz);
-							//PlaceTree(nx, nz);
-						}
-					}
-				}
-
-				//chunk->Compress();
-			}
-		}
-
-		//set the max file handles
-		if (_setmaxstdio(2048) == -1)
-		{
-			EON_CRITICAL("_setmaxstdio failed");
-			std::abort();
-		}
-
-		if (write)
-		{
-			ScopeTimer timer("Write");
-			std::vector<std::future<void>> fileFutures;
-
-			for (int x = 0; x < LEVEL_WIDTH_CHUNKS; x++)
-			{
-				for (int z = 0; z < LEVEL_WIDTH_CHUNKS; z++)
-				{
-					ChunkPosition position(x, z);
-
-					fileFutures.push_back(std::async(std::launch::async, [this, position]
-						{
-							auto index = IndexFromPosition(position.x, position.z);
-							chunks_files[index] = std::make_unique<std::fstream>("level/" + std::to_string(position.x) + "." + std::to_string(position.z) + ".dat", std::ios::out | std::ios::binary);
-							std::fstream& chunkFile = *chunks_files[index];
-							Chunk* chunk = GetChunk(position);
-
-							if (chunk != nullptr)
-							{
-								auto data = chunk->CompressToBuffer();
-								size_t size = data.size();
-
-								chunkFile.write(reinterpret_cast<char*>(&size), sizeof(size_t));
-								chunkFile.write(data.data(), data.size());
-							}
-						}));
-				}
-			}
-
-			for (auto& future : fileFutures)
-			{
-				future.wait();
-			}
-		}
-
-		//save_file.close();
 	}
 
 	Level::~Level()
 	{
-		for (auto& file : chunks_files)
-		{
-			if (file == nullptr)
-			{
-				EON_ERROR("Chunk file was nullptr");
+
+	}
+
+	std::optional<std::reference_wrapper<Chunk>> Level::GetChunk(ChunkPosition position)
+	{
+		return GetChunk(position, true);
+	}
+
+	std::optional<std::reference_wrapper<Chunk>> Level::GetChunk(ChunkPosition position, bool lock)
+	{
+		if (lock) {
+			chunk_mutex.lock();
+		}
+
+		std::optional<std::reference_wrapper<Chunk>> result;
+
+		chunks.if_contains(position, [&](const auto& value) {
+			if (value.second) {
+				result = std::ref(*value.second);
 			}
-			else
-			{
-				file->close();
-			}
-		}
-	}
+			});
 
-	Chunk* Level::GetChunk(ChunkPosition position)
-	{
-		unsigned int index = IndexFromPosition(position.x, position.z);
-
-		if (index >= chunks.size() || index < 0 || chunks[index] == nullptr)
-		{
-			return nullptr;
+		if (lock) {
+			chunk_mutex.unlock();
 		}
 
-		return chunks[index].get();
+		return result;
 	}
 
-	Chunk* Level::GetChunkUnsafe(ChunkPosition position)
+	void Level::SetBlock(Block block, int x, int y, int z)
 	{
-		unsigned int index = IndexFromPosition(position.x, position.z);
-		return chunks[index].get();
-	}
+		std::lock_guard<std::mutex> lock(chunk_mutex);
 
-	Chunk* Level::GetChunkFromIndex(size_t index)
-	{
-		if (index >= chunks.size() || index < 0 || chunks[index] == nullptr)
-		{
-			return nullptr;
+		auto chunkPosition = ChunkPosition(x, z).Validate();
+
+		auto chunk = GetChunk(chunkPosition, false);
+
+		if (chunk.has_value()) {
+			chunk->get().SetBlock(x - chunkPosition.x, y, z - chunkPosition.z, block);
 		}
-
-		return chunks[index].get();
-	}
-
-	Block* Level::GetBlock(short x, short y, short z)
-	{
-		auto chunk = GetChunk(ChunkPosition{ .x = static_cast<unsigned char>(x >> CHUNK_BITSHIFT_AMOUNT),
-											  .z = static_cast<unsigned char>(z >> CHUNK_BITSHIFT_AMOUNT) });
-
-		if (chunk != nullptr)
-		{
-			unsigned char bpx = x - (chunk->Position().x * CHUNK_WIDTH);
-			unsigned char bpz = z - (chunk->Position().z * CHUNK_WIDTH);
-
-			return chunk->GetBlock(bpx, y, bpz);
-		}
-
-		return nullptr;
-	}
-
-	void Level::SetBlock(Block block, short x, short y, short z)
-	{
-		Block* blockPtr = GetBlock(x, y, z);
-
-		if (blockPtr != nullptr)
-		{
-			*blockPtr = block;
-		}
-	}
-
-	Block* Level::GetBlock(glm::ivec3 position)
-	{
-		return GetBlock(static_cast<short>(position.x), static_cast<short>(position.y), static_cast<short>(position.z));
 	}
 
 	glm::vec4& Level::SkyColor()
@@ -252,14 +76,11 @@ namespace Eon
 			{
 				for (int z = min.z; z <= max.z; z++)
 				{
-					Block* block = GetBlockDecompressChunk(glm::ivec3(x, y, z));
+					Block block = GetBlock({ x, y, z });
 
-					if (block != nullptr)
+					if (block.type != BlockType::AIR)
 					{
-						if (block->type != BlockType::AIR)
-						{
-							bbs.emplace_back(glm::vec3(x, y, z), glm::vec3(x + 1, y + 1, z + 1));
-						}
+						bbs.emplace_back(glm::vec3(x, y, z), glm::vec3(x + 1, y + 1, z + 1));
 					}
 				}
 			}
@@ -268,39 +89,80 @@ namespace Eon
 		return bbs;
 	}
 
-	unsigned int Level::IndexFromPosition(short x, short z)
+	short Level::GetHighestBlockY(int x, int z)
 	{
-		return (x * LEVEL_WIDTH_CHUNKS) + z;
-	}
+		std::lock_guard<std::mutex> lock(chunk_mutex);
 
-	short Level::GetHighestBlockY(short x, short z)
-	{
-		Chunk* chunk = GetChunk(ChunkPosition{ .x = static_cast<unsigned char>(x >> CHUNK_BITSHIFT_AMOUNT),
-											  .z = static_cast<unsigned char>(z >> CHUNK_BITSHIFT_AMOUNT) });
+		auto chunk = GetChunk(ChunkPosition(x, z).Validate(), false);
 
-		if (chunk == nullptr)
+		if (!chunk.has_value())
 		{
 			return 0;
 		}
 
-		return *chunk->GetHeightestBlockY(x - (chunk->Position().x * CHUNK_WIDTH), z - (chunk->Position().z * CHUNK_WIDTH));
+		return chunk->get().GetHeightestBlockY(x - chunk->get().Position().x, z - chunk->get().Position().z);
 	}
 
-	Block* Level::GetBlockDecompressChunk(glm::ivec3 position)
+	bool Level::ChunkExistsAt(ChunkPosition position)
 	{
-		auto chunk = GetChunk(ChunkPosition{ .x = static_cast<unsigned char>(position.x >> CHUNK_BITSHIFT_AMOUNT),
-											  .z = static_cast<unsigned char>(position.z >> CHUNK_BITSHIFT_AMOUNT) });
-		if (chunk != nullptr)
-		{
-			chunk->Decompress();
+		return chunks.contains(position);
+	}
 
-			unsigned char bpx = position.x - (chunk->Position().x * CHUNK_WIDTH);
-			unsigned char bpz = position.z - (chunk->Position().z * CHUNK_WIDTH);
+	void Level::Update(ChunkPosition playerChunkPosition, int simulationDistance)
+	{
+		playerChunkPosition.Validate();
+		int simulationDistanceBlocks = simulationDistance * CHUNK_WIDTH;
 
-			return chunk->GetBlock(bpx, position.y, bpz);
+		for (int cx = playerChunkPosition.x - simulationDistanceBlocks; cx <= playerChunkPosition.x + simulationDistanceBlocks; cx += CHUNK_WIDTH) {
+			for (int cz = playerChunkPosition.z - simulationDistanceBlocks; cz <= playerChunkPosition.z + simulationDistanceBlocks; cz += CHUNK_WIDTH) {
+				ChunkPosition currentChunkPosition(cx, cz);
+				currentChunkPosition.Validate();
+
+				if (!ChunkExistsAt(currentChunkPosition)) {
+					GenerateAt(currentChunkPosition);
+				}
+			}
+		}
+	}
+
+	void Level::GenerateAt(ChunkPosition position)
+	{
+		std::lock_guard<std::mutex> lock(chunk_mutex);
+
+		for (int cx = position.x - CHUNK_WIDTH; cx <= position.x + CHUNK_WIDTH; cx += CHUNK_WIDTH) {
+			for (int cz = position.z - CHUNK_WIDTH; cz <= position.z + CHUNK_WIDTH; cz += CHUNK_WIDTH) {
+				auto chunk = GetChunk(position, false);
+
+				if (!chunk.has_value()) {
+					chunks[ChunkPosition(cx, cz)] = abstract_level_generator.GenerateTerrainShape(cx, cz);
+				}
+			}
 		}
 
-		return nullptr;
+		auto chunk = GetChunk(position, false);
+
+		if (!chunk.has_value()) {
+			std::stringstream ss{};
+			ss << "Failed to generate chunk at position " << position.x << "," << position.z << "\n";
+			EON_ERROR(ss.str());
+		}
+		else if (!chunk->get().IsDecorated()) {
+			abstract_level_generator.DecorateChunk(*chunk);
+			chunk->get().SetDecorated(true);
+		}
+	}
+
+	Block Level::GetBlock(glm::ivec3 position)
+	{
+		std::lock_guard<std::mutex> lock(chunk_mutex);
+
+		auto chunk = GetChunk(ChunkPosition{ position.x, position.z }.Validate(), false);
+		if (chunk.has_value())
+		{
+			return chunk->get().GetBlock(position.x - chunk->get().Position().x, position.y, position.z - chunk->get().Position().z);
+		}
+
+		return { BlockType::AIR };
 	}
 
 	void Level::PlaceModel(VoxelModel& model, short x, short y, short z)
@@ -322,26 +184,20 @@ namespace Eon
 		}
 	}
 
-	void Level::LoadChunkDataFromFilesystem(Chunk& chunk)
-	{
-
-	}
-
 	void Level::PlaceTree(short x, short z)
 	{
-		Chunk* chunk = GetChunk(ChunkPosition{ .x = static_cast<unsigned char>(x >> CHUNK_BITSHIFT_AMOUNT),
-											  .z = static_cast<unsigned char>(z >> CHUNK_BITSHIFT_AMOUNT) });
+		auto chunk = GetChunk(ChunkPosition(x, z).Validate());
 
-		if (chunk == nullptr)
+		if (!chunk.has_value())
 		{
 			return;
 		}
 
-		short y = *chunk->GetHeightestBlockY(x - (chunk->Position().x * CHUNK_WIDTH), z - (chunk->Position().z * CHUNK_WIDTH));
+		short y = chunk->get().GetHeightestBlockY(x - (chunk->get().Position().x), z - (chunk->get().Position().z));
 
 		for (int yp = y; yp < y + 6; yp++)
 		{
-			GetBlock(x, yp, z)->type = BlockType::OAKLOG;
+			SetBlock({ BlockType::OAKLOG }, x, yp, z);
 		}
 
 		for (int px = x - 3; px < x + 3; px++)

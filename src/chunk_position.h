@@ -1,18 +1,32 @@
 #pragma once
 
+#include "chunk_info.h"
 
 #include <functional>
 
 namespace Eon
 {
+	class Chunk;
+
 	struct ChunkPosition
 	{
-		unsigned char x;
-		unsigned char z;
+		int x;
+		int z;
 
 		bool operator==(ChunkPosition const& rhs) const
 		{
 			return x == rhs.x && z == rhs.z;
+		}
+
+		ChunkPosition Validate() {
+			x = (x >> CHUNK_BITSHIFT_AMOUNT) * CHUNK_WIDTH;
+			z = (z >> CHUNK_BITSHIFT_AMOUNT) * CHUNK_WIDTH;
+
+			return { x, z };
+		}
+
+		ChunkPosition Offset(int x, int z) {
+			return ChunkPosition(this->x + x, this->z + z);
 		}
 	};
 }

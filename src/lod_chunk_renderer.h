@@ -12,7 +12,7 @@ namespace Eon
 	class LODChunkRenderer
 	{
 	public:
-		LODChunkRenderer(Chunk* chunk, std::vector<ChunkRenderer*>& chunkRenderers);
+		LODChunkRenderer(Chunk& chunk, std::unique_ptr<ChunkRenderer> chunkRenderer);
 		~LODChunkRenderer();
 		void Render(unsigned int lod);
 		void Setup();
@@ -21,8 +21,8 @@ namespace Eon
 		Chunk& GetChunk();
 
 	private:
-		std::array<ChunkRenderer*, CHUNK_MAX_LOD / 2> lods;
+		std::unique_ptr<ChunkRenderer> lods;
 		AABB aabb;
-		Chunk* chunk;
+		Chunk& chunk;
 	};
 }

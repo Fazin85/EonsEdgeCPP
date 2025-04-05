@@ -3,6 +3,7 @@
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 #include <vector>
+#include <memory>
 
 #include "chunk_mesh_construction_data.h"
 
@@ -13,7 +14,7 @@ namespace Eon
 	public:
 		ChunkRenderer(ChunkMeshConstructionData& meshConstructionData);
 		~ChunkRenderer();
-		void SetWaterMesh(ChunkRenderer* waterMesh);
+		void SetWaterMesh(std::unique_ptr<ChunkRenderer> waterMesh);
 		void Render();
 		void Setup();
 		void Destroy();
@@ -25,7 +26,7 @@ namespace Eon
 		unsigned int* indices;
 		size_t vertex_data_size;
 		size_t index_size;
-		ChunkRenderer* water_mesh;
+		std::unique_ptr<ChunkRenderer> water_mesh;
 		unsigned int vao;
 		unsigned int ibo;
 		unsigned int vertex_position_vbo;

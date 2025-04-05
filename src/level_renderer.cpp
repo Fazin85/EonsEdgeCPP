@@ -17,8 +17,6 @@ namespace Eon
 	{
 		level = nullptr;
 		exit = false;
-		meshing_all_chunks = false;
-		meshing_all_meshed_chunks_count = 0;
 
 		for (int i = 0; i < GameSettings.mesh_gen_threads_count; i++)
 		{
@@ -72,25 +70,7 @@ namespace Eon
 	void LevelRenderer::MeshChunk(ChunkPosition chunkPosition)
 	{
 		chunks_to_mesh.enqueue(chunkPosition);
-	}
-
-	void LevelRenderer::MeshAllChunks()
-	{
-		meshing_all_chunks = true;
-		meshing_all_meshed_chunks_count = 0;
-
-		for (int x = 0; x < LEVEL_WIDTH_CHUNKS; x++)
-		{
-			for (int z = 0; z < LEVEL_WIDTH_CHUNKS; z++)
-			{
-				MeshChunk(ChunkPosition(x, z));
-			}
-		}
-	}
-
-	bool LevelRenderer::MeshingAllChunks() const
-	{
-		return meshing_all_chunks;
+		chunks_to_mesh_vector.push_back(chunkPosition);
 	}
 
 	void LevelRenderer::RemoveMesh(ChunkPosition chunkPosition)
@@ -106,33 +86,33 @@ namespace Eon
 
 	void LevelRenderer::Update(glm::vec3 cameraPosition)
 	{
+		std::unique_ptr<LODChunkRenderer> chunk;
 		ChunkPosition position;
 
-		if (meshes_to_setup.try_dequeue(position))
+		if (meshes_to_setup.try_dequeue(chunk))
 		{
-			if (!chunk_renderers.contains(position))
-			{
-				EON_ERROR("OH NO");
+			position = chunk->GetChunk().Position();
+
+			if (chunk_renderers.contains(position)) {
+				chunk_renderers.erase(position);
 			}
-			else
-			{
-				chunk_renderers[position]->Setup();
-			}
+
+			chunk_renderers[position] = std::move(chunk);
+			chunk_renderers[position]->Setup();
+			chunks_to_mesh_vector.erase(std::remove(chunks_to_mesh_vector.begin(), chunks_to_mesh_vector.end(), position), chunks_to_mesh_vector.end());
 		}
 
-		ChunkPosition playerChunkPosition = ChunkPosition((int)cameraPosition.x >> CHUNK_BITSHIFT_AMOUNT, (int)cameraPosition.z >> CHUNK_BITSHIFT_AMOUNT);
+		glm::vec3 playerChunkPosition = glm::vec3((static_cast<int>(cameraPosition.x) >> CHUNK_BITSHIFT_AMOUNT) * CHUNK_WIDTH, 0, (static_cast<int>(cameraPosition.z) >> CHUNK_BITSHIFT_AMOUNT) * CHUNK_WIDTH);
 
-		for (int cx = 0; cx < LEVEL_WIDTH_CHUNKS; cx++)
-		{
-			for (int cz = 0; cz < LEVEL_WIDTH_CHUNKS; cz++)
-			{
-				ChunkPosition position(cx, cz);
+		for (int cx = playerChunkPosition.x - (CHUNK_WIDTH * GameSettings.render_distance); cx <= playerChunkPosition.x + (CHUNK_WIDTH * GameSettings.render_distance); cx += CHUNK_WIDTH) {
+			for (int cz = playerChunkPosition.z - (CHUNK_WIDTH * GameSettings.render_distance); cz <= playerChunkPosition.z + (CHUNK_WIDTH * GameSettings.render_distance); cz += CHUNK_WIDTH) {
+				ChunkPosition currentChunkPosition(cx, cz);
 
-				if (chunk_renderers.contains(ChunkPosition(cx + 1, cz)) && chunk_renderers.contains(ChunkPosition(cx - 1, cz))
-					&& chunk_renderers.contains(ChunkPosition(cx, cz + 1)) && chunk_renderers.contains(ChunkPosition(cx, cz - 1))
-					&& position != playerChunkPosition)
-				{
-					level->GetChunk(ChunkPosition(cx, cz))->Compress();
+				if (CanChunkBeMeshed(currentChunkPosition)) {
+					std::stringstream ss;
+					ss << currentChunkPosition.x << ',' << currentChunkPosition.z << "\n";
+					EON_INFO(ss.str());
+					MeshChunk(currentChunkPosition);
 				}
 			}
 		}
@@ -165,7 +145,7 @@ namespace Eon
 
 		for (const auto& [chunkPosition, chunkRenderer] : chunk_renderers)
 		{
-			float distance = Distance(playerChunkPosition, glm::vec3(chunkPosition.x * CHUNK_WIDTH, 0, chunkPosition.z * CHUNK_WIDTH));
+			float distance = Distance(playerChunkPosition, glm::vec3(chunkPosition.x, 0, chunkPosition.z));
 			if (distance > GameSettings.render_distance * CHUNK_WIDTH ||
 				!camera.GetFrustum().BoxInFrustum(chunkRenderer->GetAABB()))
 			{
@@ -188,7 +168,7 @@ namespace Eon
 			unsigned int lod = GetLod(pair.second);
 			ChunkPosition chunkPosition = pair.first->GetChunk().Position();
 
-			chunk_shader->UniformFVec3("chunkPos", glm::vec3(chunkPosition.x * CHUNK_WIDTH, -((int)lod * CHUNK_MAX_LOD), chunkPosition.z * CHUNK_WIDTH));
+			chunk_shader->UniformFVec3("chunkPos", glm::vec3(chunkPosition.x, 0.0f, chunkPosition.z));
 
 			pair.first->Render(lod);
 		}
@@ -199,16 +179,13 @@ namespace Eon
 		return chunk_renderers.size();
 	}
 
+	bool LevelRenderer::IsChunkBeingMeshed(ChunkPosition position)
+	{
+		return std::find(chunks_to_mesh_vector.begin(), chunks_to_mesh_vector.end(), position) != chunks_to_mesh_vector.end();
+	}
+
 	void LevelRenderer::MeshThread()
 	{
-		//is this a good idea?
-		/*HANDLE thread = GetCurrentThread();
-		if (SetThreadPriority(thread, THREAD_PRIORITY_HIGHEST) == 0)
-		{
-			EON_ERROR("Failed to set thread priority");
-		}*/
-		//it was not a good idea.
-
 		while (!exit)
 		{
 			ChunkPosition chunkPosition;
@@ -221,36 +198,36 @@ namespace Eon
 
 	void LevelRenderer::BuildChunkMesh(ChunkPosition inChunkPosition)
 	{
-		Chunk* chunk = level->GetChunk(inChunkPosition);
-		glm::ivec3 chunkPosition(chunk->Position().x * CHUNK_WIDTH, 0, chunk->Position().z * CHUNK_WIDTH);
-		sf::Clock timer;
-		std::vector<ChunkRenderer*> chunkRenderers;
+		auto chunk = level->GetChunk(inChunkPosition);
 
+		if (!chunk.has_value()) {
+			std::stringstream ss{};
+			ss << "Failed to get chunk at " << inChunkPosition.x << "," << inChunkPosition.z << "\n";
+			EON_WARN(ss.str());
+			return;
+		}
+
+		glm::ivec3 chunkPosition(chunk->get().Position().x, 0, chunk->get().Position().z);
+		sf::Clock timer;
 
 		ChunkMeshConstructionData opaqueMeshData{};
 		ChunkMeshConstructionData transparentMeshData{};
 		bool tranparency = false;
 
-		for (unsigned char x = 0; x < CHUNK_WIDTH; x++)
+		for (int x = 0; x < CHUNK_WIDTH; x++)
 		{
-			for (short y = 0; y < CHUNK_HEIGHT; y++)
+			for (int y = 0; y < CHUNK_HEIGHT; y++)
 			{
-				for (unsigned char z = 0; z < CHUNK_WIDTH; z++)
+				for (int z = 0; z < CHUNK_WIDTH; z++)
 				{
 					int numOpaqueFaces = 0;
 					int numTransparentFaces = 0;
 					glm::ivec3 position(x, y, z);
-					Block* block = chunk->GetBlock(x, y, z);
-					bool blockTransparent = block->Transparent();
-					short height = *chunk->GetHeightestBlockY(x, z);
+					Block block = chunk->get().GetBlock(x, y, z);
+					bool blockTransparent = block.Transparent();
+					short height = chunk->get().GetHeightestBlockY(x, z);
 
-					if (block == nullptr)
-					{
-						EON_ERROR("Block was nullptr");
-						break;
-					}
-
-					if (block->type == BlockType::AIR)
+					if (block.type == BlockType::AIR)
 					{
 						continue;
 					}
@@ -260,12 +237,12 @@ namespace Eon
 						tranparency = true;
 					}
 
-					BlockType type = block->type;
+					BlockType type = block.type;
 
 					Directions dir = Directions::Left;
 					if (x > 0)
 					{
-						if (chunk->GetBlock(x - 1, y, z)->Transparent() || blockTransparent)
+						if (chunk->get().GetBlock(x - 1, y, z).Transparent() || blockTransparent)
 						{
 							AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir, 1);
 							blockTransparent ? numTransparentFaces++ : numOpaqueFaces++;
@@ -274,20 +251,17 @@ namespace Eon
 					else
 					{
 						auto sideBlock = level->GetBlock(chunkPosition + glm::ivec3(x - 1, y, z));
-						if (sideBlock != nullptr)
+						if (sideBlock.Transparent() || blockTransparent)
 						{
-							if (sideBlock->Transparent() || blockTransparent)
-							{
-								AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir, 1);
-								blockTransparent ? numTransparentFaces++ : numOpaqueFaces++;
-							}
+							AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir, 1);
+							blockTransparent ? numTransparentFaces++ : numOpaqueFaces++;
 						}
 					}
 
 					dir = Directions::Right;
 					if (x < CHUNK_WIDTH - 1)
 					{
-						if (chunk->GetBlock(x + 1, y, z)->Transparent() || blockTransparent)
+						if (chunk->get().GetBlock(x + 1, y, z).Transparent() || blockTransparent)
 						{
 							AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir, 1);
 							blockTransparent ? numTransparentFaces++ : numOpaqueFaces++;
@@ -296,20 +270,17 @@ namespace Eon
 					else
 					{
 						auto sideBlock = level->GetBlock(chunkPosition + glm::ivec3(x + 1, y, z));
-						if (sideBlock != nullptr)
+						if (sideBlock.Transparent() || blockTransparent)
 						{
-							if (sideBlock->Transparent() || blockTransparent)
-							{
-								AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir, 1);
-								blockTransparent ? numTransparentFaces++ : numOpaqueFaces++;
-							}
+							AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir, 1);
+							blockTransparent ? numTransparentFaces++ : numOpaqueFaces++;
 						}
 					}
 
 					dir = Directions::Top;
 					if (y < CHUNK_HEIGHT - 1)
 					{
-						if (chunk->GetBlock(x, y + 1, z)->Transparent() || blockTransparent)
+						if (chunk->get().GetBlock(x, y + 1, z).Transparent() || blockTransparent)
 						{
 							AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir, 1);
 							blockTransparent ? numTransparentFaces++ : numOpaqueFaces++;
@@ -324,7 +295,7 @@ namespace Eon
 					dir = Directions::Bottom;
 					if (y > 0)
 					{
-						if (chunk->GetBlock(x, y - 1, z)->Transparent() || blockTransparent)
+						if (chunk->get().GetBlock(x, y - 1, z).Transparent() || blockTransparent)
 						{
 							AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir, 1);
 							blockTransparent ? numTransparentFaces++ : numOpaqueFaces++;
@@ -334,7 +305,7 @@ namespace Eon
 					dir = Directions::Front;
 					if (z < CHUNK_WIDTH - 1)
 					{
-						if (chunk->GetBlock(x, y, z + 1)->Transparent() || blockTransparent)
+						if (chunk->get().GetBlock(x, y, z + 1).Transparent() || blockTransparent)
 						{
 							AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir, 1);
 							blockTransparent ? numTransparentFaces++ : numOpaqueFaces++;
@@ -343,20 +314,17 @@ namespace Eon
 					else
 					{
 						auto sideBlock = level->GetBlock(chunkPosition + glm::ivec3(x, y, z + 1));
-						if (sideBlock != nullptr)
+						if (sideBlock.Transparent() || blockTransparent)
 						{
-							if (sideBlock->Transparent() || blockTransparent)
-							{
-								AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir, 1);
-								blockTransparent ? numTransparentFaces++ : numOpaqueFaces++;
-							}
+							AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir, 1);
+							blockTransparent ? numTransparentFaces++ : numOpaqueFaces++;
 						}
 					}
 
 					dir = Directions::Back;
 					if (z > 0)
 					{
-						if (chunk->GetBlock(x, y, z - 1)->Transparent() || blockTransparent)
+						if (chunk->get().GetBlock(x, y, z - 1).Transparent() || blockTransparent)
 						{
 							AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir, 1);
 							blockTransparent ? numTransparentFaces++ : numOpaqueFaces++;
@@ -365,13 +333,11 @@ namespace Eon
 					else
 					{
 						auto sideBlock = level->GetBlock(chunkPosition + glm::ivec3(x, y, z - 1));
-						if (sideBlock != nullptr)
+
+						if (sideBlock.Transparent() || blockTransparent)
 						{
-							if (sideBlock->Transparent() || blockTransparent)
-							{
-								AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir, 1);
-								blockTransparent ? numTransparentFaces++ : numOpaqueFaces++;
-							}
+							AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir, 1);
+							blockTransparent ? numTransparentFaces++ : numOpaqueFaces++;
 						}
 					}
 
@@ -388,40 +354,13 @@ namespace Eon
 			}
 		}
 
-		ChunkRenderer* chunkRenderer = new ChunkRenderer(opaqueMeshData);
+		std::unique_ptr<ChunkRenderer> chunkRenderer = std::make_unique<ChunkRenderer>(opaqueMeshData);
 		if (transparentMeshData.vertexPositions.size() > 0)
 		{
-			chunkRenderer->SetWaterMesh(new ChunkRenderer(transparentMeshData));
-		}
-		chunkRenderers.emplace_back(chunkRenderer);
-
-
-		if (chunk_renderers.contains(chunk->Position()))
-		{
-			chunk_renderers.erase(chunk->Position());
+			chunkRenderer->SetWaterMesh(std::make_unique<ChunkRenderer>(transparentMeshData));
 		}
 
-		chunk_renderers[chunk->Position()] = std::make_unique<LODChunkRenderer>(chunk, chunkRenderers);
-
-		meshes_to_setup.enqueue(chunk->Position());
-
-		auto time = timer.getElapsedTime();
-		meshing_all_chunks_time_sum += time.asMilliseconds();
-
-		if (meshing_all_chunks)
-		{
-			meshing_all_meshed_chunks_count++;
-
-			if (meshing_all_meshed_chunks_count == LEVEL_WIDTH_CHUNKS * LEVEL_WIDTH_CHUNKS)
-			{
-				meshing_all_chunks = false;
-				meshing_all_meshed_chunks_count = 0;
-
-				EON_INFO("Overall chunk meshing time: " + std::to_string(meshing_all_chunks_time_sum));
-				EON_INFO("AVG chunk meshing time: " + std::to_string((float)meshing_all_chunks_time_sum / ((float)LEVEL_WIDTH_CHUNKS * (float)LEVEL_WIDTH_CHUNKS)));
-				meshing_all_chunks_time_sum = 0;
-			}
-		}
+		meshes_to_setup.enqueue(std::move(std::make_unique<LODChunkRenderer>(chunk->get(), std::move(chunkRenderer))));
 	}
 
 	void LevelRenderer::AddFace(ChunkMeshConstructionData& meshData, const glm::ivec3& blockPosition, BlockType blockType, Directions direction, unsigned int lod)
@@ -564,5 +503,22 @@ namespace Eon
 		}
 
 		return Eon::BlockFaceTexture::ERR;
+	}
+
+	bool LevelRenderer::CanChunkBeMeshed(ChunkPosition position)
+	{
+		bool flag = !chunk_renderers.contains(position) && !IsChunkBeingMeshed(position);
+
+		bool chunkExists0 = level->ChunkExistsAt(position);
+		bool chunkExists1 = level->ChunkExistsAt(position.Offset(CHUNK_WIDTH, 0));
+		bool chunkExists2 = level->ChunkExistsAt(position.Offset(0, CHUNK_WIDTH));
+		bool chunkExists3 = level->ChunkExistsAt(position.Offset(-CHUNK_WIDTH, 0));
+		bool chunkExists4 = level->ChunkExistsAt(position.Offset(0, -CHUNK_WIDTH));
+		bool chunkExists5 = level->ChunkExistsAt(position.Offset(CHUNK_WIDTH, CHUNK_WIDTH));
+		bool chunkExists6 = level->ChunkExistsAt(position.Offset(-CHUNK_WIDTH, CHUNK_WIDTH));
+		bool chunkExists7 = level->ChunkExistsAt(position.Offset(CHUNK_WIDTH, -CHUNK_WIDTH));
+		bool chunkExists8 = level->ChunkExistsAt(position.Offset(-CHUNK_WIDTH, -CHUNK_WIDTH));
+
+		return flag && chunkExists0 && chunkExists1 && chunkExists2 && chunkExists3 && chunkExists4 && chunkExists5 && chunkExists6 && chunkExists7 && chunkExists8;
 	}
 }  // namespace Eon

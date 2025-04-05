@@ -4,6 +4,7 @@
 #include "window.h"
 #include <chrono>
 #include <SFML/Window.hpp>
+#include "basic_terrain_generator.h"
 
 namespace Eon
 {
@@ -62,6 +63,11 @@ namespace Eon
 			{
 				EON_INFO(fps.Get());
 				fpsCounter = 0;
+
+				std::stringstream ss{};
+
+				ss << "player pos " << player->Position().x << "," << player->Position().z << "\n";
+				EON_INFO(ss.str());
 			}
 		}
 
@@ -88,7 +94,9 @@ namespace Eon
 
 		Window::Get().setMouseCursorVisible(false);
 
-		level = std::make_unique<Level>();
+		BasicTerrainGenerator* btg = new BasicTerrainGenerator();
+
+		level = std::make_unique<Level>(*btg);
 		player = std::make_unique<Player>(level.get());
 
 		level->SkyColor() = glm::vec4(153.0f / 255.0f, 204.0f / 255.0f, 1.0f, 1.0f);
@@ -127,14 +135,14 @@ namespace Eon
 
 		bedrock_plane = std::make_unique<PlaneMesh>(glm::vec3(1, 1, -64), glm::vec2(10240, 10240), stone);
 		bedrock_plane->Rotate(0, -90);
-
-		level_renderer->MeshAllChunks();
 	}
 
 	int idx = 0;
 	void Game::Update(float dt)
 	{
 		level_renderer->Update(player->Position());
+
+		level->Update(ChunkPosition(player->Position().x, player->Position().z), 6);
 
 		player->Update(dt);
 	}
