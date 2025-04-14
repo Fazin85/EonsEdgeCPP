@@ -9,14 +9,16 @@
 
 namespace Eon
 {
-	Level::Level(AbstractLevelGenerator& abstractLevelGenerator) : abstract_level_generator(abstractLevelGenerator), chunks{}, sky_color{}, chunk_mutex{}
+	Level::Level(AbstractLevelGenerator& abstractLevelGenerator) : exit(false), abstract_level_generator(abstractLevelGenerator), chunks{}, sky_color{}, chunk_mutex{}, chunk_gen_thread(&Level::ChunkGenThread, this)
 	{
 		tree_model = std::make_unique<VoxelModel>("tree.vox");
 	}
 
 	Level::~Level()
 	{
+		exit = true;
 
+		chunk_gen_thread.join();
 	}
 
 	std::optional<std::reference_wrapper<Chunk>> Level::GetChunk(ChunkPosition position)
@@ -32,11 +34,10 @@ namespace Eon
 
 		std::optional<std::reference_wrapper<Chunk>> result;
 
-		chunks.if_contains(position, [&](const auto& value) {
-			if (value.second) {
-				result = std::ref(*value.second);
-			}
-			});
+		const auto iter = chunks.find(position);
+		if (iter != chunks.end()) {
+			result = *iter->second;
+		}
 
 		if (lock) {
 			chunk_mutex.unlock();
@@ -105,6 +106,8 @@ namespace Eon
 
 	bool Level::ChunkExistsAt(ChunkPosition position)
 	{
+		std::lock_guard<std::mutex> lock(chunk_mutex);
+
 		return chunks.contains(position);
 	}
 
@@ -113,14 +116,40 @@ namespace Eon
 		playerChunkPosition.Validate();
 		int simulationDistanceBlocks = simulationDistance * CHUNK_WIDTH;
 
+		static std::vector<ChunkPosition> toGen;
+		toGen.clear();
+
 		for (int cx = playerChunkPosition.x - simulationDistanceBlocks; cx <= playerChunkPosition.x + simulationDistanceBlocks; cx += CHUNK_WIDTH) {
 			for (int cz = playerChunkPosition.z - simulationDistanceBlocks; cz <= playerChunkPosition.z + simulationDistanceBlocks; cz += CHUNK_WIDTH) {
 				ChunkPosition currentChunkPosition(cx, cz);
 				currentChunkPosition.Validate();
 
+				sf::Clock clock;
+
 				if (!ChunkExistsAt(currentChunkPosition)) {
-					GenerateAt(currentChunkPosition);
+					if (std::find(chunks_being_generated.begin(), chunks_being_generated.end(), currentChunkPosition) == chunks_being_generated.end()) {
+						chunks_being_generated.push_back(currentChunkPosition);
+						toGen.push_back(currentChunkPosition);
+					}
 				}
+			}
+		}
+
+		chunks_to_generate.enqueue_bulk(toGen.data(), toGen.size());
+
+		constexpr size_t maxItems = 32;
+
+		static std::array<std::unique_ptr<Chunk>, maxItems> items;
+		size_t actualCount = generated_chunks.try_dequeue_bulk(items.data(), maxItems);
+
+		if (actualCount > 0) {
+			std::lock_guard<std::mutex> lock(chunk_mutex);
+
+			for (int i = 0; i < actualCount; i++) {
+				std::unique_ptr<Chunk> chunk = std::move(items[i]);
+
+				chunks_being_generated.erase(std::find(chunks_being_generated.begin(), chunks_being_generated.end(), chunk->Position()));
+				chunks[chunk->Position()] = std::move(chunk);
 			}
 		}
 	}
@@ -206,6 +235,19 @@ namespace Eon
 			{
 				SetBlock(Block(Eon::BlockType::LEAF), px, y + 5, pz);
 			}
+		}
+	}
+
+	void Level::ChunkGenThread()
+	{
+		while (!exit) {
+			ChunkPosition chunkPosition;
+			if (chunks_to_generate.try_dequeue(chunkPosition)) {
+				auto chunk = abstract_level_generator.GenerateTerrainShape(chunkPosition.x, chunkPosition.z);
+				generated_chunks.enqueue(std::move(chunk));
+			}
+
+			std::this_thread::sleep_for(std::chrono::milliseconds(4));
 		}
 	}
 }  // namespace Eon

@@ -9,14 +9,12 @@
 
 namespace Eon
 {
-	class LODChunkRenderer
+	class AABBChunkRenderer
 	{
 	public:
-		LODChunkRenderer(Chunk& chunk, std::unique_ptr<ChunkRenderer> chunkRenderer);
-		~LODChunkRenderer();
+		AABBChunkRenderer(Chunk& chunk, std::unique_ptr<ChunkRenderer> chunkRenderer);
 		void Render(unsigned int lod);
 		void Setup();
-		ChunkRenderer* GetLodRenderer(unsigned int lod);
 		AABB& GetAABB();
 		Chunk& GetChunk();
 

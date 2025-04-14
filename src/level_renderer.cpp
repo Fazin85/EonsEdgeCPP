@@ -86,7 +86,7 @@ namespace Eon
 
 	void LevelRenderer::Update(glm::vec3 cameraPosition)
 	{
-		std::unique_ptr<LODChunkRenderer> chunk;
+		std::unique_ptr<AABBChunkRenderer> chunk;
 		ChunkPosition position;
 
 		if (meshes_to_setup.try_dequeue(chunk))
@@ -99,6 +99,7 @@ namespace Eon
 
 			chunk_renderers[position] = std::move(chunk);
 			chunk_renderers[position]->Setup();
+
 			chunks_to_mesh_vector.erase(std::remove(chunks_to_mesh_vector.begin(), chunks_to_mesh_vector.end(), position), chunks_to_mesh_vector.end());
 		}
 
@@ -109,9 +110,6 @@ namespace Eon
 				ChunkPosition currentChunkPosition(cx, cz);
 
 				if (CanChunkBeMeshed(currentChunkPosition)) {
-					std::stringstream ss;
-					ss << currentChunkPosition.x << ',' << currentChunkPosition.z << "\n";
-					EON_INFO(ss.str());
 					MeshChunk(currentChunkPosition);
 				}
 			}
@@ -140,7 +138,7 @@ namespace Eon
 
 		glm::vec3 playerChunkPosition = glm::vec3((static_cast<int>(cameraPosition.x) >> CHUNK_BITSHIFT_AMOUNT) * CHUNK_WIDTH, 0, (static_cast<int>(cameraPosition.z) >> CHUNK_BITSHIFT_AMOUNT) * CHUNK_WIDTH);
 
-		static std::vector<std::pair<LODChunkRenderer*, float>> renderers;
+		static std::vector<std::pair<AABBChunkRenderer*, float>> renderers;
 		renderers.clear();
 
 		for (const auto& [chunkPosition, chunkRenderer] : chunk_renderers)
@@ -155,7 +153,7 @@ namespace Eon
 			renderers.emplace_back(chunkRenderer.get(), distance);
 		}
 
-		std::sort(renderers.begin(), renderers.end(), [cameraPosition](std::pair<LODChunkRenderer*, float> first, std::pair<LODChunkRenderer*, float> second) -> bool
+		std::sort(renderers.begin(), renderers.end(), [cameraPosition](std::pair<AABBChunkRenderer*, float> first, std::pair<AABBChunkRenderer*, float> second) -> bool
 			{
 				ChunkPosition firstPosition = first.first->GetChunk().Position();
 				ChunkPosition secondPosition = second.first->GetChunk().Position();
@@ -244,7 +242,7 @@ namespace Eon
 					{
 						if (chunk->get().GetBlock(x - 1, y, z).Transparent() || blockTransparent)
 						{
-							AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir, 1);
+							AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir);
 							blockTransparent ? numTransparentFaces++ : numOpaqueFaces++;
 						}
 					}
@@ -253,7 +251,7 @@ namespace Eon
 						auto sideBlock = level->GetBlock(chunkPosition + glm::ivec3(x - 1, y, z));
 						if (sideBlock.Transparent() || blockTransparent)
 						{
-							AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir, 1);
+							AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir);
 							blockTransparent ? numTransparentFaces++ : numOpaqueFaces++;
 						}
 					}
@@ -263,7 +261,7 @@ namespace Eon
 					{
 						if (chunk->get().GetBlock(x + 1, y, z).Transparent() || blockTransparent)
 						{
-							AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir, 1);
+							AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir);
 							blockTransparent ? numTransparentFaces++ : numOpaqueFaces++;
 						}
 					}
@@ -272,7 +270,7 @@ namespace Eon
 						auto sideBlock = level->GetBlock(chunkPosition + glm::ivec3(x + 1, y, z));
 						if (sideBlock.Transparent() || blockTransparent)
 						{
-							AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir, 1);
+							AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir);
 							blockTransparent ? numTransparentFaces++ : numOpaqueFaces++;
 						}
 					}
@@ -282,13 +280,13 @@ namespace Eon
 					{
 						if (chunk->get().GetBlock(x, y + 1, z).Transparent() || blockTransparent)
 						{
-							AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir, 1);
+							AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir);
 							blockTransparent ? numTransparentFaces++ : numOpaqueFaces++;
 						}
 					}
 					else
 					{
-						AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir, 1);
+						AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir);
 						blockTransparent ? numTransparentFaces++ : numOpaqueFaces++;
 					}
 
@@ -297,7 +295,7 @@ namespace Eon
 					{
 						if (chunk->get().GetBlock(x, y - 1, z).Transparent() || blockTransparent)
 						{
-							AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir, 1);
+							AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir);
 							blockTransparent ? numTransparentFaces++ : numOpaqueFaces++;
 						}
 					}
@@ -307,7 +305,7 @@ namespace Eon
 					{
 						if (chunk->get().GetBlock(x, y, z + 1).Transparent() || blockTransparent)
 						{
-							AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir, 1);
+							AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir);
 							blockTransparent ? numTransparentFaces++ : numOpaqueFaces++;
 						}
 					}
@@ -316,7 +314,7 @@ namespace Eon
 						auto sideBlock = level->GetBlock(chunkPosition + glm::ivec3(x, y, z + 1));
 						if (sideBlock.Transparent() || blockTransparent)
 						{
-							AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir, 1);
+							AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir);
 							blockTransparent ? numTransparentFaces++ : numOpaqueFaces++;
 						}
 					}
@@ -326,7 +324,7 @@ namespace Eon
 					{
 						if (chunk->get().GetBlock(x, y, z - 1).Transparent() || blockTransparent)
 						{
-							AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir, 1);
+							AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir);
 							blockTransparent ? numTransparentFaces++ : numOpaqueFaces++;
 						}
 					}
@@ -336,7 +334,7 @@ namespace Eon
 
 						if (sideBlock.Transparent() || blockTransparent)
 						{
-							AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir, 1);
+							AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir);
 							blockTransparent ? numTransparentFaces++ : numOpaqueFaces++;
 						}
 					}
@@ -360,19 +358,19 @@ namespace Eon
 			chunkRenderer->SetWaterMesh(std::make_unique<ChunkRenderer>(transparentMeshData));
 		}
 
-		meshes_to_setup.enqueue(std::move(std::make_unique<LODChunkRenderer>(chunk->get(), std::move(chunkRenderer))));
+		meshes_to_setup.enqueue(std::move(std::make_unique<AABBChunkRenderer>(chunk->get(), std::move(chunkRenderer))));
 	}
 
-	void LevelRenderer::AddFace(ChunkMeshConstructionData& meshData, const glm::ivec3& blockPosition, BlockType blockType, Directions direction, unsigned int lod)
+	void LevelRenderer::AddFace(ChunkMeshConstructionData& meshData, const glm::ivec3& blockPosition, BlockType blockType, Directions direction)
 	{
 		auto faceData = GetFaceDataFromDirection(direction);
 
 		int index = 0;
 		for (int i = 0; i < 4; i++)
 		{
-			int x = (faceData[index++] * lod) + blockPosition.x;
-			int y = (faceData[index++] * lod) + blockPosition.y;
-			int z = (faceData[index++] * lod) + blockPosition.z;
+			int x = faceData[index++] + blockPosition.x;
+			int y = faceData[index++] + blockPosition.y;
+			int z = faceData[index++] + blockPosition.z;
 
 			meshData.vertexPositions.emplace_back(x, y, z);
 			meshData.directions.push_back(static_cast<unsigned char>(direction));

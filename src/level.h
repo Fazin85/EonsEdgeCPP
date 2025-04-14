@@ -12,8 +12,9 @@
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 #include <memory>
-#include <parallel_hashmap/phmap.h>
+#include <unordered_map>
 #include <optional>
+#include <concurrentqueue/concurrentqueue.h>
 
 #define LEVEL_WIDTH_CHUNKS 32
 
@@ -38,10 +39,17 @@ namespace Eon
 		void GenerateAt(ChunkPosition position);
 		void PlaceModel(VoxelModel& model, short x, short y, short z);
 		void PlaceTree(short x, short z);
-		phmap::parallel_node_hash_map<ChunkPosition, std::unique_ptr<Chunk>> chunks;
+		void ChunkGenThread();
+
+		std::unordered_map<ChunkPosition, std::unique_ptr<Chunk>> chunks;
+		std::vector<ChunkPosition> chunks_being_generated;
+		moodycamel::ConcurrentQueue<ChunkPosition> chunks_to_generate;
+		moodycamel::ConcurrentQueue<std::unique_ptr<Chunk>> generated_chunks;
+		std::thread chunk_gen_thread;
 		glm::vec4 sky_color;
 		AbstractLevelGenerator& abstract_level_generator;
 		std::unique_ptr<VoxelModel> tree_model;
 		std::mutex chunk_mutex;
+		std::atomic_bool exit;
 	};
 } // namespace Eon

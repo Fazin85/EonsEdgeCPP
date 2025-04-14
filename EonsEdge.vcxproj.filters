@@ -90,10 +90,19 @@
     <ClCompile Include="src\voxel_model.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\lod_chunk_renderer.cpp">
+    <ClCompile Include="src\aabb_chunk_renderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\basic_terrain_generator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\noise_generator_improved.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\noise_generator_octaves.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\overworld_terrain_generator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -197,7 +206,7 @@
     <ClInclude Include="src\voxel_model.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\lod_chunk_renderer.h">
+    <ClInclude Include="src\aabb_chunk_renderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\abstract_level_generator.h">
@@ -207,6 +216,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\chunk_info.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\noise_generator_improved.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\noise_generator_octaves.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\overworld_terrain_generator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
