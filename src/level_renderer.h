@@ -9,6 +9,7 @@
 #include "aabb_chunk_renderer.h"
 #include "shader.h"
 #include "texture_array.h"
+#include "chunk_unloaded_event_listener.h"
 #include <array>
 #include <atomic>
 #include <concurrentqueue/concurrentqueue.h>
@@ -19,7 +20,9 @@
 
 namespace Eon
 {
-	class LevelRenderer
+	class Level;
+
+	class LevelRenderer : public ChunkUnloadedEventListener
 	{
 	public:
 		LevelRenderer();
@@ -32,6 +35,8 @@ namespace Eon
 		int ChunkRendererCount();
 		bool IsChunkBeingMeshed(ChunkPosition position);
 
+		void OnChunkUnloaded(Chunk& chunk) override;
+
 	private:
 		void BuildChunkMesh(ChunkPosition inChunkPosition);
 		void MeshThread();
@@ -41,6 +46,7 @@ namespace Eon
 		unsigned int GetLod(float distance);
 		BlockFaceTexture GetTextureId(BlockType blockType, Directions faceDirection);
 		bool CanChunkBeMeshed(ChunkPosition position);
+		void MarkCanUnloadForMeshing(ChunkPosition position, bool canUnload);
 
 		std::unique_ptr<Shader> chunk_shader;
 		std::unique_ptr<TextureArray> chunk_texture;

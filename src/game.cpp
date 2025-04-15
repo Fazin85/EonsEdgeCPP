@@ -16,7 +16,7 @@ namespace Eon
 
 		EON_INFO("Starting...");
 
-		Window::Create(1280, 720, GameSettings.maxFps, "Eon's Edge", false);
+		Window::Create(1280, 720, GameSettings.max_fps, "Eon's Edge", false);
 		gladLoadGL();
 
 		Init();
@@ -59,7 +59,7 @@ namespace Eon
 
 			Window::Get().display();
 
-			if (fpsCounter % GameSettings.maxFps == 0)
+			if (fpsCounter % GameSettings.max_fps == 0)
 			{
 				EON_INFO(fps.Get());
 				fpsCounter = 0;
@@ -104,6 +104,8 @@ namespace Eon
 		level_renderer = std::make_unique<LevelRenderer>();
 		level_renderer->SetLevel(level.get());
 
+		level->AddChunkUnloadedEventListener(*level_renderer);
+
 		Image image("Test.png");
 		sprite = std::make_unique<BillboardSprite>(image);
 
@@ -142,7 +144,7 @@ namespace Eon
 	{
 		level_renderer->Update(player->Position());
 
-		level->Update(ChunkPosition(player->Position().x, player->Position().z), 6);
+		level->Update(ChunkPosition(player->Position().x, player->Position().z), GameSettings.render_distance + 2);
 
 		player->Update(dt);
 	}

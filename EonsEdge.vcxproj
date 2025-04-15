@@ -176,6 +176,7 @@
     <ClInclude Include="src\billboard_sprite.h" />
     <ClInclude Include="src\block_face_texture.h" />
     <ClInclude Include="src\bounding_box.h" />
+    <ClInclude Include="src\chunk_unloaded_event_listener.h" />
     <ClInclude Include="src\chunk_info.h" />
     <ClInclude Include="src\compress.h" />
     <ClInclude Include="src\aabb_chunk_renderer.h" />

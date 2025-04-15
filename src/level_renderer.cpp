@@ -6,11 +6,6 @@
 #include <lz4.h>
 #include <zlib.h>
 
-static float Distance(const glm::vec3& pos1, const glm::vec3& pos2)
-{
-	return sqrtf((pos1.x - pos2.x) * (pos1.x - pos2.x) + (pos1.y - pos2.y) * (pos1.y - pos2.y) + (pos1.z - pos2.z) * (pos1.z - pos2.z));
-}
-
 namespace Eon
 {
 	LevelRenderer::LevelRenderer()
@@ -75,12 +70,9 @@ namespace Eon
 
 	void LevelRenderer::RemoveMesh(ChunkPosition chunkPosition)
 	{
-		for (int i = 0; i < chunk_renderers.size(); i++)
+		if (chunk_renderers.contains(chunkPosition))
 		{
-			if (chunk_renderers.contains(chunkPosition))
-			{
-				chunk_renderers.erase(chunkPosition);
-			}
+			chunk_renderers.erase(chunkPosition);
 		}
 	}
 
@@ -101,6 +93,7 @@ namespace Eon
 			chunk_renderers[position]->Setup();
 
 			chunks_to_mesh_vector.erase(std::remove(chunks_to_mesh_vector.begin(), chunks_to_mesh_vector.end(), position), chunks_to_mesh_vector.end());
+			MarkCanUnloadForMeshing(position, true);
 		}
 
 		glm::vec3 playerChunkPosition = glm::vec3((static_cast<int>(cameraPosition.x) >> CHUNK_BITSHIFT_AMOUNT) * CHUNK_WIDTH, 0, (static_cast<int>(cameraPosition.z) >> CHUNK_BITSHIFT_AMOUNT) * CHUNK_WIDTH);
@@ -110,6 +103,7 @@ namespace Eon
 				ChunkPosition currentChunkPosition(cx, cz);
 
 				if (CanChunkBeMeshed(currentChunkPosition)) {
+					MarkCanUnloadForMeshing(currentChunkPosition, false);
 					MeshChunk(currentChunkPosition);
 				}
 			}
@@ -143,7 +137,8 @@ namespace Eon
 
 		for (const auto& [chunkPosition, chunkRenderer] : chunk_renderers)
 		{
-			float distance = Distance(playerChunkPosition, glm::vec3(chunkPosition.x, 0, chunkPosition.z));
+			float distance = glm::distance(playerChunkPosition, glm::vec3(chunkPosition.x, 0, chunkPosition.z));
+
 			if (distance > GameSettings.render_distance * CHUNK_WIDTH ||
 				!camera.GetFrustum().BoxInFrustum(chunkRenderer->GetAABB()))
 			{
@@ -158,7 +153,7 @@ namespace Eon
 				ChunkPosition firstPosition = first.first->GetChunk().Position();
 				ChunkPosition secondPosition = second.first->GetChunk().Position();
 
-				return Distance(cameraPosition, glm::vec3(firstPosition.x, 0, firstPosition.z)) > Distance(cameraPosition, glm::vec3(secondPosition.x, 0, secondPosition.z));
+				return glm::distance(cameraPosition, glm::vec3(firstPosition.x, 0, firstPosition.z)) > glm::distance(cameraPosition, glm::vec3(secondPosition.x, 0, secondPosition.z));
 			});
 
 		for (const auto& pair : renderers)
@@ -180,6 +175,11 @@ namespace Eon
 	bool LevelRenderer::IsChunkBeingMeshed(ChunkPosition position)
 	{
 		return std::find(chunks_to_mesh_vector.begin(), chunks_to_mesh_vector.end(), position) != chunks_to_mesh_vector.end();
+	}
+
+	void LevelRenderer::OnChunkUnloaded(Chunk& chunk)
+	{
+		RemoveMesh(chunk.Position());
 	}
 
 	void LevelRenderer::MeshThread()
@@ -518,5 +518,33 @@ namespace Eon
 		bool chunkExists8 = level->ChunkExistsAt(position.Offset(-CHUNK_WIDTH, -CHUNK_WIDTH));
 
 		return flag && chunkExists0 && chunkExists1 && chunkExists2 && chunkExists3 && chunkExists4 && chunkExists5 && chunkExists6 && chunkExists7 && chunkExists8;
+	}
+
+	void LevelRenderer::MarkCanUnloadForMeshing(ChunkPosition position, bool canUnload)
+	{
+		std::vector<ChunkPosition> positions = {
+			position,
+			position.Offset(CHUNK_WIDTH, 0),
+			position.Offset(0, CHUNK_WIDTH),
+			position.Offset(-CHUNK_WIDTH, 0),
+			position.Offset(0, -CHUNK_WIDTH),
+			position.Offset(CHUNK_WIDTH, CHUNK_WIDTH),
+			position.Offset(-CHUNK_WIDTH, CHUNK_WIDTH),
+			position.Offset(CHUNK_WIDTH, -CHUNK_WIDTH),
+			position.Offset(-CHUNK_WIDTH, -CHUNK_WIDTH)
+		};
+
+		for (ChunkPosition& chunkPosition : positions) {
+			auto chunk = level->GetChunk(chunkPosition);
+
+			if (chunk.has_value()) {
+				chunk->get().SetCanUnload(canUnload);
+			}
+			else {
+				std::stringstream ss;
+				ss << "Failed to get chunk at: " << chunkPosition.x << "," << chunkPosition.z << "\n";
+				EON_CRITICAL(ss.str());
+			}
+		}
 	}
 }  // namespace Eon

@@ -10,7 +10,8 @@ namespace Eon
 		decorated(false),
 		blocks(std::make_unique < std::array<Block, CHUNK_WIDTH* CHUNK_HEIGHT* CHUNK_WIDTH>>()),
 		highest_blocks(std::make_unique < std::array<short, CHUNK_WIDTH* CHUNK_WIDTH>>()),
-		mutex()
+		mutex(),
+		can_unload(true)
 	{
 	}
 
@@ -60,5 +61,15 @@ namespace Eon
 	bool Chunk::IsDecorated() const
 	{
 		return decorated;
+	}
+
+	bool Chunk::CanUnload() const
+	{
+		return can_unload;
+	}
+
+	void Chunk::SetCanUnload(bool canUnload)
+	{
+		can_unload = canUnload;
 	}
 } // namespace Eon

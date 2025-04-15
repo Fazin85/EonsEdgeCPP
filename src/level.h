@@ -6,6 +6,8 @@
 #include "chunk_position.h"
 #include "voxel_model.h"
 #include "abstract_level_generator.h"
+#include "level_renderer.h"
+#include "chunk_unloaded_event_listener.h"
 
 #include <array>
 #include <fstream>
@@ -20,6 +22,8 @@
 
 namespace Eon
 {
+	class LevelRenderer;
+
 	class Level
 	{
 	public:
@@ -34,12 +38,14 @@ namespace Eon
 		short GetHighestBlockY(int x, int z);
 		bool ChunkExistsAt(ChunkPosition position);
 		void Update(ChunkPosition playerChunkPosition, int simulationDistance);
+		void AddChunkUnloadedEventListener(ChunkUnloadedEventListener& eventListener);
 
 	private:
-		void GenerateAt(ChunkPosition position);
 		void PlaceModel(VoxelModel& model, short x, short y, short z);
 		void PlaceTree(short x, short z);
 		void ChunkGenThread();
+		void LoadNewChunks(ChunkPosition& playerChunkPosition, int simulationDistanceBlocks);
+		void UnloadFarChunks(ChunkPosition& playerChunkPosition, int unloadDistance);
 
 		std::unordered_map<ChunkPosition, std::unique_ptr<Chunk>> chunks;
 		std::vector<ChunkPosition> chunks_being_generated;
@@ -51,5 +57,6 @@ namespace Eon
 		std::unique_ptr<VoxelModel> tree_model;
 		std::mutex chunk_mutex;
 		std::atomic_bool exit;
+		std::vector<ChunkUnloadedEventListener*> chunk_unloaded_event_listeners;
 	};
 } // namespace Eon

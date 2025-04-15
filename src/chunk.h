@@ -21,12 +21,15 @@ namespace Eon
 		short GetHeightestBlockY(int x, int z);
 		void SetDecorated(bool decorated);
 		bool IsDecorated() const;
+		bool CanUnload() const;
+		void SetCanUnload(bool canUnload);
 
 	private:
 		ChunkPosition position;
 		std::unique_ptr<std::array<Block, CHUNK_WIDTH* CHUNK_HEIGHT* CHUNK_WIDTH>> blocks;
 		std::unique_ptr<std::array<short, CHUNK_WIDTH* CHUNK_WIDTH>> highest_blocks;
 		bool decorated;
+		bool can_unload;
 		std::mutex mutex;
 	};
 }  // namespace Eon

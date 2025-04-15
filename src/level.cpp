@@ -6,10 +6,17 @@
 #include <future>
 #include <random>
 #include <thread>
+#include <glm/glm.hpp>
 
 namespace Eon
 {
-	Level::Level(AbstractLevelGenerator& abstractLevelGenerator) : exit(false), abstract_level_generator(abstractLevelGenerator), chunks{}, sky_color{}, chunk_mutex{}, chunk_gen_thread(&Level::ChunkGenThread, this)
+	Level::Level(AbstractLevelGenerator& abstractLevelGenerator) :
+		exit(false),
+		abstract_level_generator(abstractLevelGenerator),
+		chunks{},
+		sky_color{},
+		chunk_mutex{},
+		chunk_gen_thread(&Level::ChunkGenThread, this)
 	{
 		tree_model = std::make_unique<VoxelModel>("tree.vox");
 	}
@@ -116,69 +123,15 @@ namespace Eon
 		playerChunkPosition.Validate();
 		int simulationDistanceBlocks = simulationDistance * CHUNK_WIDTH;
 
-		static std::vector<ChunkPosition> toGen;
-		toGen.clear();
+		LoadNewChunks(playerChunkPosition, simulationDistanceBlocks);
 
-		for (int cx = playerChunkPosition.x - simulationDistanceBlocks; cx <= playerChunkPosition.x + simulationDistanceBlocks; cx += CHUNK_WIDTH) {
-			for (int cz = playerChunkPosition.z - simulationDistanceBlocks; cz <= playerChunkPosition.z + simulationDistanceBlocks; cz += CHUNK_WIDTH) {
-				ChunkPosition currentChunkPosition(cx, cz);
-				currentChunkPosition.Validate();
-
-				sf::Clock clock;
-
-				if (!ChunkExistsAt(currentChunkPosition)) {
-					if (std::find(chunks_being_generated.begin(), chunks_being_generated.end(), currentChunkPosition) == chunks_being_generated.end()) {
-						chunks_being_generated.push_back(currentChunkPosition);
-						toGen.push_back(currentChunkPosition);
-					}
-				}
-			}
-		}
-
-		chunks_to_generate.enqueue_bulk(toGen.data(), toGen.size());
-
-		constexpr size_t maxItems = 32;
-
-		static std::array<std::unique_ptr<Chunk>, maxItems> items;
-		size_t actualCount = generated_chunks.try_dequeue_bulk(items.data(), maxItems);
-
-		if (actualCount > 0) {
-			std::lock_guard<std::mutex> lock(chunk_mutex);
-
-			for (int i = 0; i < actualCount; i++) {
-				std::unique_ptr<Chunk> chunk = std::move(items[i]);
-
-				chunks_being_generated.erase(std::find(chunks_being_generated.begin(), chunks_being_generated.end(), chunk->Position()));
-				chunks[chunk->Position()] = std::move(chunk);
-			}
-		}
+		int unloadDistance = simulationDistanceBlocks + (CHUNK_WIDTH * 2);
+		UnloadFarChunks(playerChunkPosition, unloadDistance);
 	}
 
-	void Level::GenerateAt(ChunkPosition position)
+	void Level::AddChunkUnloadedEventListener(ChunkUnloadedEventListener& eventListener)
 	{
-		std::lock_guard<std::mutex> lock(chunk_mutex);
-
-		for (int cx = position.x - CHUNK_WIDTH; cx <= position.x + CHUNK_WIDTH; cx += CHUNK_WIDTH) {
-			for (int cz = position.z - CHUNK_WIDTH; cz <= position.z + CHUNK_WIDTH; cz += CHUNK_WIDTH) {
-				auto chunk = GetChunk(position, false);
-
-				if (!chunk.has_value()) {
-					chunks[ChunkPosition(cx, cz)] = abstract_level_generator.GenerateTerrainShape(cx, cz);
-				}
-			}
-		}
-
-		auto chunk = GetChunk(position, false);
-
-		if (!chunk.has_value()) {
-			std::stringstream ss{};
-			ss << "Failed to generate chunk at position " << position.x << "," << position.z << "\n";
-			EON_ERROR(ss.str());
-		}
-		else if (!chunk->get().IsDecorated()) {
-			abstract_level_generator.DecorateChunk(*chunk);
-			chunk->get().SetDecorated(true);
-		}
+		chunk_unloaded_event_listeners.push_back(&eventListener);
 	}
 
 	Block Level::GetBlock(glm::ivec3 position)
@@ -248,6 +201,80 @@ namespace Eon
 			}
 
 			std::this_thread::sleep_for(std::chrono::milliseconds(4));
+		}
+	}
+
+	void Level::LoadNewChunks(ChunkPosition& playerChunkPosition, int simulationDistanceBlocks)
+	{
+		static std::vector<ChunkPosition> toGen;
+		toGen.clear();
+
+		for (int cx = playerChunkPosition.x - simulationDistanceBlocks; cx <= playerChunkPosition.x + simulationDistanceBlocks; cx += CHUNK_WIDTH) {
+			for (int cz = playerChunkPosition.z - simulationDistanceBlocks; cz <= playerChunkPosition.z + simulationDistanceBlocks; cz += CHUNK_WIDTH) {
+				ChunkPosition currentChunkPosition(cx, cz);
+				currentChunkPosition.Validate();
+
+				sf::Clock clock;
+
+				if (!ChunkExistsAt(currentChunkPosition)) {
+					if (std::find(chunks_being_generated.begin(), chunks_being_generated.end(), currentChunkPosition) == chunks_being_generated.end()) {
+						chunks_being_generated.push_back(currentChunkPosition);
+						toGen.push_back(currentChunkPosition);
+					}
+				}
+			}
+		}
+
+		//load close chunks first
+		std::sort(toGen.begin(), toGen.end(), [&playerChunkPosition](const ChunkPosition& a, const ChunkPosition& b) {
+			glm::vec2 pcp(playerChunkPosition.x, playerChunkPosition.z);
+			return glm::distance(pcp, glm::vec2(a.x, a.z)) < glm::distance(pcp, glm::vec2(b.x, b.z));
+			});
+
+		chunks_to_generate.enqueue_bulk(toGen.data(), toGen.size());
+
+		constexpr size_t maxItems = 32;
+
+		static std::array<std::unique_ptr<Chunk>, maxItems> items;
+		size_t actualCount = generated_chunks.try_dequeue_bulk(items.data(), maxItems);
+
+		if (actualCount > 0) {
+			std::lock_guard<std::mutex> lock(chunk_mutex);
+
+			for (int i = 0; i < actualCount; i++) {
+				std::unique_ptr<Chunk> chunk = std::move(items[i]);
+
+				chunks_being_generated.erase(std::find(chunks_being_generated.begin(), chunks_being_generated.end(), chunk->Position()));
+				chunks[chunk->Position()] = std::move(chunk);
+			}
+		}
+	}
+
+	void Level::UnloadFarChunks(ChunkPosition& playerChunkPosition, int unloadDistance)
+	{
+		static std::vector<ChunkPosition> chunksToUnload;
+		chunksToUnload.clear();
+
+		std::lock_guard<std::mutex> lock(chunk_mutex);
+
+		for (auto& chunk : chunks) {
+			if (chunk.second->CanUnload()) {
+				float distance = glm::distance(glm::vec2(playerChunkPosition.x, playerChunkPosition.z), glm::vec2(chunk.first.x, chunk.first.z));
+
+				if (distance >= unloadDistance) {
+					chunksToUnload.push_back(chunk.first);
+				}
+			}
+		}
+
+		for (ChunkPosition& position : chunksToUnload) {
+			auto iter = chunks.find(position);
+
+			for (auto eventListener : chunk_unloaded_event_listeners) {
+				eventListener->OnChunkUnloaded(*iter->second);
+			}
+
+			chunks.erase(iter);
 		}
 	}
 }  // namespace Eon
