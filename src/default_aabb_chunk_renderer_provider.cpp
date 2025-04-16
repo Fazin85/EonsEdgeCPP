@@ -17,8 +17,6 @@ namespace Eon {
 			throw std::runtime_error(ss.str());
 		}
 
-		ScopeTimer timer("ProvideRenderer");
-
 		glm::ivec3 chunkPosition(inChunkPosition.x, 0, inChunkPosition.z);
 		ChunkMeshConstructionData opaqueMeshData{};
 		ChunkMeshConstructionData transparentMeshData{};
