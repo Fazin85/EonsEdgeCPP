@@ -10,7 +10,7 @@ namespace Eon {
 	public:
 		virtual ~AbstractLevelGenerator() {};
 
-		virtual std::unique_ptr<Chunk> GenerateTerrainShape(int x, int z) = 0;
+		virtual void GenerateTerrainShape(ChunkPrimer& chunkPrimer, int x, int z) = 0;
 		virtual void DecorateChunk(Chunk& chunk) = 0;
 	};
 }

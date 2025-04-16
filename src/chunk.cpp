@@ -5,14 +5,26 @@
 
 namespace Eon
 {
-	Chunk::Chunk(ChunkPosition chunkPosition) :
+	Chunk::Chunk(ChunkPrimer& chunkPrimer, ChunkPosition chunkPosition) :
 		position(chunkPosition),
 		decorated(false),
-		blocks(std::make_unique < std::array<Block, CHUNK_WIDTH* CHUNK_HEIGHT* CHUNK_WIDTH>>()),
+		sections(),
 		highest_blocks(std::make_unique < std::array<short, CHUNK_WIDTH* CHUNK_WIDTH>>()),
 		mutex(),
 		can_unload(true)
 	{
+		for (int x = 0; x < CHUNK_WIDTH; x++) {
+			for (int y = 0; y < CHUNK_HEIGHT; y++) {
+				for (int z = 0; z < CHUNK_WIDTH; z++) {
+					int sy = y >> 4;
+					sections[sy].SetBlock(x, std::abs(y - (sy * 16)), z, chunkPrimer.GetBlock(x, y, z));
+				}
+			}
+		}
+
+		for (ChunkSection& section : sections) {
+			section.CalculateUniformity();
+		}
 	}
 
 	void Chunk::SetBlock(int x, int y, int z, Block& block) {
@@ -24,7 +36,9 @@ namespace Eon
 			return;
 		}
 
-		blocks->data()[INDEX_FROM_POSITION(x, y, z)] = block;
+		int sy = y >> 4;
+		sections[sy].SetBlock(x, std::abs(y - (sy * 16)), z, block);
+		sections[sy].CalculateUniformity();
 	}
 
 	Block Chunk::GetBlock(int x, int y, int z)
@@ -37,16 +51,11 @@ namespace Eon
 			return { BlockType::AIR };
 		}
 
-		return blocks->data()[INDEX_FROM_POSITION(x, y, z)];
+		int sy = y >> 4;
+		return sections[sy].GetBlock(x, std::abs(y - (sy * 16)), z);
 	}
 
 	ChunkPosition Chunk::Position() const { return position; }
-
-	std::array<Block, CHUNK_WIDTH* CHUNK_HEIGHT* CHUNK_WIDTH>& Chunk::GetBlocks() {
-		std::lock_guard<std::mutex> lock(mutex);
-
-		return *blocks;
-	}
 
 	short Chunk::GetHeightestBlockY(int x, int z)
 	{

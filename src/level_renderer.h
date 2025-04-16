@@ -39,7 +39,6 @@ namespace Eon
 
 	private:
 		void MeshThread();
-		unsigned int GetLod(float distance);
 		bool CanChunkBeMeshed(ChunkPosition position);
 		void MarkCanUnloadForMeshing(ChunkPosition position, bool canUnload);
 

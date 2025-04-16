@@ -110,6 +110,22 @@ namespace Eon
 		}
 	}
 
+#include <cmath> // For std::isnan
+
+	int FloatCompare(float a, float b) {
+		// Handle NaN cases
+		if (std::isnan(a) && std::isnan(b)) return 0; // Both are NaN
+		if (std::isnan(a)) return 1; // 'a' is NaN, considered greater
+		if (std::isnan(b)) return -1; // 'b' is NaN, considered greater
+
+		// Normal comparison
+		if (a < b) return -1;
+		if (a > b) return 1;
+
+		// Consider them equal if neither is NaN and they're numerically the same
+		return 0;
+	}
+
 	void LevelRenderer::Render(Camera& camera, glm::vec3 cameraPosition)
 	{
 		if (level == nullptr)
@@ -117,10 +133,12 @@ namespace Eon
 			return;
 		}
 
+		glClearColor(level->SkyColor().r, level->SkyColor().g, level->SkyColor().b, level->SkyColor().a);
+
 		glCullFace(GL_BACK);
 		glEnable(GL_BLEND);
-		glDepthFunc(GL_ONE_MINUS_SRC_ALPHA);
-		glClearColor(level->SkyColor().r, level->SkyColor().g, level->SkyColor().b, level->SkyColor().a);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 		chunk_texture->Bind();
 
 		chunk_shader->Bind();
@@ -162,7 +180,7 @@ namespace Eon
 				ChunkPosition firstPosition = first.first->GetChunk().Position();
 				ChunkPosition secondPosition = second.first->GetChunk().Position();
 
-				return glm::distance(cameraPosition, glm::vec3(firstPosition.x, 0, firstPosition.z)) < glm::distance(cameraPosition, glm::vec3(secondPosition.x, 0, secondPosition.z));
+				return glm::distance(cameraPosition, glm::vec3(firstPosition.x, 0, firstPosition.z)) > glm::distance(cameraPosition, glm::vec3(secondPosition.x, 0, secondPosition.z));
 			});
 
 		for (const auto& pair : renderers)
@@ -200,32 +218,6 @@ namespace Eon
 				meshes_to_setup.enqueue(std::move(aabb_chunk_renderer_provider.ProvideRenderer(chunkPosition)));
 			}
 		}
-	}
-
-	unsigned int LevelRenderer::GetLod(float distance)
-	{
-		if (!GameSettings.lod)
-		{
-			return 0;
-		}
-
-		int width = GameSettings.percent_lod ? CHUNK_WIDTH : CHUNK_WIDTH / 2;
-		unsigned int lod = 0;
-
-		if (distance > (width * GameSettings.render_distance) / 4.0f)
-		{
-			lod++;
-		}
-		if (distance > (width * GameSettings.render_distance) / 2.0f)
-		{
-			lod++;
-		}
-		if (distance > (width * GameSettings.render_distance) / 1.5f)
-		{
-			lod++;
-		}
-
-		return lod;
 	}
 
 	bool LevelRenderer::CanChunkBeMeshed(ChunkPosition position)

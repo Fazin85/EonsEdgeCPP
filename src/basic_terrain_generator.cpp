@@ -2,13 +2,9 @@
 #include <algorithm>
 
 namespace Eon {
-	std::unique_ptr<Chunk> BasicTerrainGenerator::GenerateTerrainShape(int x, int z)
+	void BasicTerrainGenerator::GenerateTerrainShape(ChunkPrimer& chunkPrimer, int x, int z)
 	{
-		auto chunk = std::make_unique<Chunk>(ChunkPosition(x, z));
-
-		BaseNoise(*chunk);
-
-		return std::move(chunk);
+		BaseNoise(chunkPrimer, x, z);
 	}
 
 	void BasicTerrainGenerator::DecorateChunk(Chunk& chunk)
@@ -27,7 +23,7 @@ namespace Eon {
 			(xm_ym_zp * (1 - x) * (1 - y) * z) + (xp_ym_zp * x * (1 - y) * z) + (xm_yp_zp * (1 - x) * y * z) + (xp_yp_zp * x * y * z);
 	}
 
-	void BasicTerrainGenerator::BaseNoise(Chunk& chunk)
+	void BasicTerrainGenerator::BaseNoise(ChunkPrimer& chunk, int chunkX, int chunkZ)
 	{
 		const int waterLevel = 84;
 		const int noiseDivisorHorizontal = 4;
@@ -42,15 +38,15 @@ namespace Eon {
 		for (int x = 0; x < noiseMapWidth; x++) {
 			for (int y = 0; y < noiseMapHeight; y++) {
 				for (int z = 0; z < noiseMapWidth; z++) {
-					noiseValues[x][y][z] = noise_gen.GetSimplexFractal(chunk.Position().x + (x * noiseDivisorHorizontal), y * noiseDivisorVertical, chunk.Position().z + (z * noiseDivisorHorizontal));
+					noiseValues[x][y][z] = noise_gen.GetSimplexFractal(chunkX + (x * noiseDivisorHorizontal), y * noiseDivisorVertical, chunkZ + (z * noiseDivisorHorizontal));
 				}
 			}
 		}
 
 		for (int x = 0; x < CHUNK_WIDTH; x++) {
 			for (int z = 0; z < CHUNK_WIDTH; z++) {
-				int worldX = chunk.Position().x + x;
-				int worldZ = chunk.Position().z + z;
+				int worldX = chunkX + x;
+				int worldZ = chunkZ + z;
 
 				float squishFactor = 0.1f;
 				squishFactor -= noise_gen.GetSimplexFractal(worldX * 0.1f, worldZ * 0.1f) / 10 * 3;

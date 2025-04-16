@@ -141,6 +141,8 @@
     <ClCompile Include="src\basic_terrain_generator.cpp" />
     <ClCompile Include="src\billboard_sprite.cpp" />
     <ClCompile Include="src\bounding_box.cpp" />
+    <ClCompile Include="src\chunk_primer.cpp" />
+    <ClCompile Include="src\chunk_section.cpp" />
     <ClCompile Include="src\compress.cpp" />
     <ClCompile Include="src\default_aabb_chunk_renderer_provider.cpp" />
     <ClCompile Include="src\fast_noise.cpp" />
@@ -160,7 +162,6 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\noise_generator_improved.cpp" />
     <ClCompile Include="src\noise_generator_octaves.cpp" />
-    <ClCompile Include="src\overworld_terrain_generator.cpp" />
     <ClCompile Include="src\plane_mesh.cpp" />
     <ClCompile Include="src\player.cpp" />
     <ClCompile Include="src\scope_timer.cpp" />
@@ -179,6 +180,8 @@
     <ClInclude Include="src\billboard_sprite.h" />
     <ClInclude Include="src\block_face_texture.h" />
     <ClInclude Include="src\bounding_box.h" />
+    <ClInclude Include="src\chunk_primer.h" />
+    <ClInclude Include="src\chunk_section.h" />
     <ClInclude Include="src\chunk_unloaded_event_listener.h" />
     <ClInclude Include="src\chunk_info.h" />
     <ClInclude Include="src\compress.h" />
@@ -188,7 +191,6 @@
     <ClInclude Include="src\noise_generator_improved.h" />
     <ClInclude Include="src\noise_generator_octaves.h" />
     <ClInclude Include="src\ogt_vox.h" />
-    <ClInclude Include="src\overworld_terrain_generator.h" />
     <ClInclude Include="src\plane_mesh.h" />
     <ClInclude Include="src\scope_timer.h" />
     <ClInclude Include="src\skybox.h" />

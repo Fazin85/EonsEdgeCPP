@@ -3,6 +3,8 @@
 #include "block.h"
 #include "chunk_position.h"
 #include "chunk_info.h"
+#include "chunk_primer.h"
+#include "chunk_section.h"
 
 #include <array>
 #include <memory>
@@ -13,11 +15,10 @@ namespace Eon
 	class Chunk
 	{
 	public:
-		Chunk(ChunkPosition chunkPosition);
+		Chunk(ChunkPrimer& chunkPrimer, ChunkPosition chunkPosition);
 		void SetBlock(int x, int y, int z, Block& block);
 		Block GetBlock(int x, int y, int z);
 		ChunkPosition Position() const;
-		std::array<Block, CHUNK_WIDTH* CHUNK_HEIGHT* CHUNK_WIDTH>& GetBlocks();
 		short GetHeightestBlockY(int x, int z);
 		void SetDecorated(bool decorated);
 		bool IsDecorated() const;
@@ -26,7 +27,7 @@ namespace Eon
 
 	private:
 		ChunkPosition position;
-		std::unique_ptr<std::array<Block, CHUNK_WIDTH* CHUNK_HEIGHT* CHUNK_WIDTH>> blocks;
+		std::array<ChunkSection, CHUNK_HEIGHT / 16> sections;
 		std::unique_ptr<std::array<short, CHUNK_WIDTH* CHUNK_WIDTH>> highest_blocks;
 		bool decorated;
 		bool can_unload;

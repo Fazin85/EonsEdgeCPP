@@ -192,11 +192,13 @@ namespace Eon
 
 	void Level::ChunkGenThread()
 	{
+		ChunkPosition chunkPosition;
+		auto chunkPrimer = std::make_unique<ChunkPrimer>();
+
 		while (!exit) {
-			ChunkPosition chunkPosition;
 			if (chunks_to_generate.try_dequeue(chunkPosition)) {
-				auto chunk = abstract_level_generator.GenerateTerrainShape(chunkPosition.x, chunkPosition.z);
-				generated_chunks.enqueue(std::move(chunk));
+				abstract_level_generator.GenerateTerrainShape(*chunkPrimer, chunkPosition.x, chunkPosition.z);
+				generated_chunks.enqueue(std::make_unique<Chunk>(*chunkPrimer, chunkPosition));
 			}
 
 			std::this_thread::sleep_for(std::chrono::milliseconds(4));

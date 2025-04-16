@@ -8,18 +8,15 @@
 
 namespace Eon
 {
-	ChunkRenderer::ChunkRenderer(ChunkMeshConstructionData& meshData) : vertex_position_data(nullptr), dir_light_data(nullptr), setup(false), water_mesh(std::nullopt)
+	ChunkRenderer::ChunkRenderer(ChunkMeshConstructionData& meshData) : vertex_position_data(), dir_light_data(), indices(), setup(false), water_mesh(std::nullopt)
 	{
-		vertex_data_size = meshData.vertexPositions.size();
+		indices = meshData.indices;
+		index_count = indices.size();
 
-		index_size = meshData.indices.size();
-		indices = new unsigned int[index_size];
-		std::memcpy(indices, meshData.indices.data(), sizeof(unsigned int) * index_size);
+		vertex_position_data.resize(meshData.vertexPositions.size());
+		dir_light_data.resize(meshData.vertexPositions.size());
 
-		vertex_position_data = new unsigned int[vertex_data_size];
-		dir_light_data = new unsigned int[vertex_data_size];
-
-		for (int i = 0; i < vertex_data_size; i++)
+		for (int i = 0; i < meshData.vertexPositions.size(); i++)
 		{
 			dir_light_data[i] = ((meshData.light[i] << 24) | (meshData.directions[i] << 16) |
 				(static_cast<unsigned char>(meshData.uvs[i].x) << 8) | (static_cast<unsigned char>(meshData.uvs[i].y)));
@@ -41,7 +38,7 @@ namespace Eon
 		water_mesh = std::move(waterMesh);
 	}
 
-	void ChunkRenderer::Render()
+	void ChunkRenderer::Render() const
 	{
 		if (!setup)
 		{
@@ -51,11 +48,7 @@ namespace Eon
 		glBindVertexArray(vao);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 
-		glDrawElements(GL_TRIANGLES, index_size, GL_UNSIGNED_INT, 0);
-
-		if (water_mesh.has_value()) {
-			water_mesh->get()->Render();
-		}
+		glDrawElements(GL_TRIANGLES, index_count, GL_UNSIGNED_INT, 0);
 	}
 
 	void ChunkRenderer::Setup()
@@ -73,34 +66,31 @@ namespace Eon
 		glGenBuffers(1, &vertex_position_vbo);
 
 		glBindBuffer(GL_ARRAY_BUFFER, vertex_position_vbo);
-		glBufferData(GL_ARRAY_BUFFER, vertex_data_size * sizeof(unsigned int), vertex_position_data,
+		glBufferData(GL_ARRAY_BUFFER, vertex_position_data.size() * sizeof(unsigned int), vertex_position_data.data(),
 			GL_STATIC_DRAW);
+
+		std::vector<unsigned int>().swap(vertex_position_data);
 
 		glVertexAttribIPointer(0, 1, GL_UNSIGNED_INT, 0, 0);
 		glEnableVertexAttribArray(0);
 
-		delete vertex_position_data;
-		vertex_position_data = nullptr;
-
 		glGenBuffers(1, &dir_light_vbo);
 
 		glBindBuffer(GL_ARRAY_BUFFER, dir_light_vbo);
-		glBufferData(GL_ARRAY_BUFFER, vertex_data_size * sizeof(unsigned int), dir_light_data,
+		glBufferData(GL_ARRAY_BUFFER, dir_light_data.size() * sizeof(unsigned int), dir_light_data.data(),
 			GL_STATIC_DRAW);
+
+		std::vector<unsigned int>().swap(dir_light_data);
 
 		glVertexAttribIPointer(1, 1, GL_UNSIGNED_INT, 0, 0);
 		glEnableVertexAttribArray(1);
 
-		delete dir_light_data;
-		dir_light_data = nullptr;
-
 		glGenBuffers(1, &ibo);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, index_size * sizeof(unsigned int), indices,
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(),
 			GL_STATIC_DRAW);
 
-		delete indices;
-		indices = nullptr;
+		std::vector<unsigned int>().swap(indices);
 
 		if (water_mesh.has_value()) {
 			water_mesh->get()->Setup();
@@ -118,21 +108,6 @@ namespace Eon
 
 			glDeleteBuffers(1, &vertex_position_vbo);
 			glDeleteBuffers(1, &dir_light_vbo);
-		}
-
-		if (dir_light_data != nullptr)
-		{
-			delete dir_light_data;
-		}
-
-		if (vertex_position_data != nullptr)
-		{
-			delete vertex_position_data;
-		}
-
-		if (indices != nullptr)
-		{
-			delete indices;
 		}
 
 		if (water_mesh.has_value()) {
