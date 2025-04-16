@@ -28,7 +28,7 @@ namespace Eon
 		chunk_shader->UniformFloat("fog_near", ((GameSettings.render_distance * CHUNK_WIDTH) / 2) + CHUNK_WIDTH);
 		chunk_shader->UniformInt1("textureSampler", 0);
 
-		int fogFar = GameSettings.fog ? GameSettings.render_distance * CHUNK_WIDTH - CHUNK_WIDTH : 100000;
+		int fogFar = GameSettings.fog ? GameSettings.render_distance * CHUNK_WIDTH : 100000;
 		chunk_shader->UniformFloat("fog_far", fogFar);
 
 		std::vector<std::string> imageNames;

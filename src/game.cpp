@@ -123,9 +123,6 @@ namespace Eon
 		};
 
 		skybox = std::make_unique<Skybox>(facesCubemap);
-
-		Image water("WaterBlock.png");
-		Image stone("StoneBlock.png");
 	}
 
 	void Game::Update(float dt)
