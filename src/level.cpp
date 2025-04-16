@@ -96,20 +96,6 @@ namespace Eon
 		return bbs;
 	}
 
-	short Level::GetHighestBlockY(int x, int z)
-	{
-		std::lock_guard<std::mutex> lock(chunk_mutex);
-
-		auto chunk = GetChunk(ChunkPosition(x, z).Validate(), false);
-
-		if (!chunk.has_value())
-		{
-			return 0;
-		}
-
-		return chunk->get().GetHeightestBlockY(x - chunk->get().Position().x, z - chunk->get().Position().z);
-	}
-
 	bool Level::ChunkExistsAt(ChunkPosition position)
 	{
 		std::lock_guard<std::mutex> lock(chunk_mutex);
@@ -131,6 +117,23 @@ namespace Eon
 	void Level::AddChunkUnloadedEventListener(ChunkUnloadedEventListener& eventListener)
 	{
 		chunk_unloaded_event_listeners.push_back(&eventListener);
+	}
+
+	std::vector<std::reference_wrapper<Chunk>> Level::GetChunks(std::vector<ChunkPosition>& chunkPositions)
+	{
+		std::vector<std::reference_wrapper<Chunk>> chunks;
+
+		std::lock_guard<std::mutex> lock(chunk_mutex);
+
+		for (ChunkPosition& chunkPosition : chunkPositions) {
+			auto chunk = GetChunk(chunkPosition, false);
+
+			if (chunk.has_value()) {
+				chunks.push_back(*chunk);
+			}
+		}
+
+		return chunks;
 	}
 
 	Block Level::GetBlock(glm::ivec3 position)
@@ -174,9 +177,9 @@ namespace Eon
 			return;
 		}
 
-		short y = chunk->get().GetHeightestBlockY(x - (chunk->get().Position().x), z - (chunk->get().Position().z));
-
-		for (int yp = y; yp < y + 6; yp++)
+		//short y = chunk->get().GetHeightestBlockY(x - (chunk->get().Position().x), z - (chunk->get().Position().z));
+		//DON'T USE
+		for (int yp = 10; yp < 10 + 6; yp++)
 		{
 			SetBlock({ BlockType::OAKLOG }, x, yp, z);
 		}
@@ -185,7 +188,7 @@ namespace Eon
 		{
 			for (int pz = z - 3; pz < z + 3; pz++)
 			{
-				SetBlock(Block(Eon::BlockType::LEAF), px, y + 5, pz);
+				SetBlock(Block(Eon::BlockType::LEAF), px, 10 + 5, pz);
 			}
 		}
 	}

@@ -1,5 +1,6 @@
 #include "default_aabb_chunk_renderer_provider.h"
 #include "log.h"
+#include "scope_timer.h"
 
 namespace Eon {
 	DefaultAABBChunkRendererProvider::DefaultAABBChunkRendererProvider(Level& level) : level(level)
@@ -16,22 +17,25 @@ namespace Eon {
 			throw std::runtime_error(ss.str());
 		}
 
-		glm::ivec3 chunkPosition(chunk->get().Position().x, 0, chunk->get().Position().z);
+		ScopeTimer timer("ProvideRenderer");
+
+		glm::ivec3 chunkPosition(inChunkPosition.x, 0, inChunkPosition.z);
 		ChunkMeshConstructionData opaqueMeshData{};
 		ChunkMeshConstructionData transparentMeshData{};
 		bool tranparency = false;
 
+		int lowest = CalculateLowestPoint(inChunkPosition, chunk->get().GetChunkHeights().lowest);
+
 		for (int x = 0; x < CHUNK_WIDTH; x++)
 		{
-			for (int y = 0; y < CHUNK_HEIGHT; y++)
+			for (int z = 0; z < CHUNK_WIDTH; z++)
 			{
-				for (int z = 0; z < CHUNK_WIDTH; z++)
-				{
+				for (int y = lowest; y <= chunk->get().GetColumnHeights(x, z).highest; y++) {
+
 					int numOpaqueFaces = 0;
 					int numTransparentFaces = 0;
 					glm::ivec3 position(x, y, z);
 					Block block = chunk->get().GetBlock(x, y, z);
-					short height = chunk->get().GetHeightestBlockY(x, z);
 					bool currentTransparent = false;
 
 					if (block.type == BlockType::AIR)
@@ -175,6 +179,34 @@ namespace Eon {
 		}
 
 		return std::make_unique<AABBChunkRenderer>(chunk->get(), std::move(chunkRenderer));
+	}
+
+	int DefaultAABBChunkRendererProvider::CalculateLowestPoint(ChunkPosition& position, int middleLowest)
+	{
+		std::vector<ChunkPosition> positionsToCheck = {
+			position.Offset(CHUNK_WIDTH, 0),
+			position.Offset(0, CHUNK_WIDTH),
+			position.Offset(-CHUNK_WIDTH, 0),
+			position.Offset(0, -CHUNK_WIDTH) };
+
+		auto chunks = level.GetChunks(positionsToCheck);
+
+		if (chunks.size() != positionsToCheck.size()) {
+			EON_WARN("Failed to get all chunks for lowest point check");
+			return 0;
+		}
+
+		int lowest = middleLowest;
+
+		for (auto& chunk : chunks) {
+			int chunkLowest = chunk.get().GetChunkHeights().lowest;
+
+			if (chunkLowest < lowest) {
+				lowest = chunkLowest;
+			}
+		}
+
+		return lowest;
 	}
 
 	void DefaultAABBChunkRendererProvider::AddFace(ChunkMeshConstructionData& meshData, const glm::ivec3& blockPosition, BlockType blockType, Directions direction)

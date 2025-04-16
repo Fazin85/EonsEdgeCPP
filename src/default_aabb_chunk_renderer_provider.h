@@ -12,6 +12,8 @@ namespace Eon {
 
 		std::unique_ptr<AABBChunkRenderer> ProvideRenderer(ChunkPosition inChunkPosition) override;
 	private:
+		int CalculateLowestPoint(ChunkPosition& position, int middleLowest);
+
 		void AddFace(ChunkMeshConstructionData& meshData, const glm::ivec3& blockPosition, BlockType blockType, Directions direction);
 		std::array<unsigned char, 12> GetFaceDataFromDirection(Directions dir);
 		void AddIndices(ChunkMeshConstructionData& meshData, int count);

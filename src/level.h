@@ -33,10 +33,10 @@ namespace Eon
 		Block GetBlock(glm::ivec3 position);
 		glm::vec4& SkyColor();
 		std::vector<BoundingBox> GetBlockAABBs(const BoundingBox& bb);
-		short GetHighestBlockY(int x, int z);
 		bool ChunkExistsAt(ChunkPosition position);
 		void Update(ChunkPosition playerChunkPosition, int simulationDistance);
 		void AddChunkUnloadedEventListener(ChunkUnloadedEventListener& eventListener);
+		std::vector<std::reference_wrapper<Chunk>> GetChunks(std::vector<ChunkPosition>& chunkPositions);
 
 	private:
 		void PlaceModel(VoxelModel& model, short x, short y, short z);

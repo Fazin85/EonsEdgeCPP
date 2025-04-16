@@ -16,21 +16,32 @@ namespace Eon
 	class Chunk
 	{
 	public:
+		struct ColumnHeights {
+			int highest;
+			int lowest;
+		};
+
 		Chunk(ChunkPrimer& chunkPrimer, ChunkPosition chunkPosition);
 		void SetBlock(int x, int y, int z, Block& block);
 		Block GetBlock(int x, int y, int z);
 		ChunkPosition Position() const;
-		short GetHeightestBlockY(int x, int z);
+		ColumnHeights GetColumnHeights(int x, int z);
+		ColumnHeights GetChunkHeights() const;
 		void SetDecorated(bool decorated);
 		bool IsDecorated() const;
 		bool CanUnload() const;
+		bool IsSectionEmpty(int sectionIndex);
 		void SetCanUnload(bool canUnload);
 		AABB& GetAABB();
 
 	private:
+		Block GetBlockInternal(int x, int y, int z, bool lock);
+		void CalculateColumnHeights(int x, int z, bool lock);
+
 		ChunkPosition position;
 		std::array<ChunkSection, CHUNK_HEIGHT / 16> sections;
-		std::unique_ptr<std::array<short, CHUNK_WIDTH* CHUNK_WIDTH>> highest_blocks;
+		std::array<std::array<ColumnHeights, CHUNK_WIDTH>, CHUNK_WIDTH> column_heights;
+		ColumnHeights chunk_heights;
 		bool decorated;
 		bool can_unload;
 		std::mutex mutex;

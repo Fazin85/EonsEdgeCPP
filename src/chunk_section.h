@@ -12,6 +12,7 @@ namespace Eon {
 		void SetBlock(int x, int y, int z, Block block);
 
 		void CalculateUniformity();
+		bool IsUniform(Block& outBlock) const;
 
 	private:
 		bool is_uniform = true;

@@ -43,4 +43,16 @@ namespace Eon {
 			std::vector<Block>().swap(blocks);
 		}
 	}
+
+	bool ChunkSection::IsUniform(Block& outBlock) const
+	{
+		if (is_uniform) {
+			outBlock = block;
+		}
+		else {
+			outBlock = { BlockType::AIR };
+		}
+
+		return is_uniform;
+	}
 }

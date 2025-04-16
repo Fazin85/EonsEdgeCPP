@@ -9,10 +9,11 @@ namespace Eon
 		position(chunkPosition),
 		decorated(false),
 		sections(),
-		highest_blocks(std::make_unique < std::array<short, CHUNK_WIDTH* CHUNK_WIDTH>>()),
+		column_heights(),
 		mutex(),
 		can_unload(true),
-		aabb(glm::vec3(CHUNK_WIDTH, CHUNK_HEIGHT, CHUNK_WIDTH))
+		aabb(glm::vec3(CHUNK_WIDTH, CHUNK_HEIGHT, CHUNK_WIDTH)),
+		chunk_heights(0, CHUNK_HEIGHT - 1)
 	{
 		aabb.Update(glm::vec3(position.x, 0, position.z));
 
@@ -28,6 +29,14 @@ namespace Eon
 		for (ChunkSection& section : sections) {
 			section.CalculateUniformity();
 		}
+
+		std::lock_guard<std::mutex> lock(mutex);
+
+		for (int x = 0; x < CHUNK_WIDTH; x++) {
+			for (int z = 0; z < CHUNK_WIDTH; z++) {
+				CalculateColumnHeights(x, z, false);
+			}
+		}
 	}
 
 	void Chunk::SetBlock(int x, int y, int z, Block& block) {
@@ -42,6 +51,8 @@ namespace Eon
 		int sy = y >> 4;
 		sections[sy].SetBlock(x, std::abs(y - (sy * 16)), z, block);
 		sections[sy].CalculateUniformity();
+
+		CalculateColumnHeights(x, z, false);
 	}
 
 	Block Chunk::GetBlock(int x, int y, int z)
@@ -60,9 +71,18 @@ namespace Eon
 
 	ChunkPosition Chunk::Position() const { return position; }
 
-	short Chunk::GetHeightestBlockY(int x, int z)
+	Chunk::ColumnHeights Chunk::GetColumnHeights(int x, int z)
 	{
-		return highest_blocks->data()[(x * CHUNK_WIDTH) + z];
+		if (x >= CHUNK_WIDTH || x < 0 || z >= CHUNK_WIDTH || z < 0) {
+			return Chunk::ColumnHeights{ CHUNK_HEIGHT - 1, 0 };
+		}
+
+		return column_heights[x][z];
+	}
+
+	Chunk::ColumnHeights Chunk::GetChunkHeights() const
+	{
+		return chunk_heights;
 	}
 
 	void Chunk::SetDecorated(bool decorated)
@@ -80,6 +100,16 @@ namespace Eon
 		return can_unload;
 	}
 
+	bool Chunk::IsSectionEmpty(int sectionIndex)
+	{
+		if (sectionIndex >= sections.size() || sectionIndex < 0) {
+			return false;
+		}
+
+		Block outBlock;
+		return sections[sectionIndex].IsUniform(outBlock);
+	}
+
 	void Chunk::SetCanUnload(bool canUnload)
 	{
 		can_unload = canUnload;
@@ -88,5 +118,52 @@ namespace Eon
 	AABB& Chunk::GetAABB()
 	{
 		return aabb;
+	}
+
+	Block Chunk::GetBlockInternal(int x, int y, int z, bool lock)
+	{
+		if (lock) {
+			mutex.lock();
+		}
+
+		int sy = y >> 4;
+		Block block = sections[sy].GetBlock(x, std::abs(y - (sy * 16)), z);
+
+		if (lock) {
+			mutex.unlock();
+		}
+
+		return block;
+	}
+
+	void Chunk::CalculateColumnHeights(int x, int z, bool lock)
+	{
+		if (lock) {
+			mutex.lock();
+		}
+
+		for (int y = CHUNK_HEIGHT - 1; y >= 0; y--) {
+			if (GetBlockInternal(x, y, z, false).type != BlockType::AIR) {
+				column_heights[x][z].highest = y;
+				break;
+			}
+		}
+
+		for (int y = 0; y < CHUNK_HEIGHT - 1; y++) {
+			Block currentBlock = GetBlockInternal(x, y, z, false);
+			Block aboveBlock = GetBlockInternal(x, y + 1, z, false);
+
+			if ((!currentBlock.Transparent() && !currentBlock.TransparentThick()) && (aboveBlock.Transparent() || aboveBlock.TransparentThick())) {
+				column_heights[x][z].lowest = y;
+				if (y < chunk_heights.lowest) {
+					chunk_heights.lowest = y;
+				}
+				break;
+			}
+		}
+
+		if (lock) {
+			mutex.unlock();
+		}
 	}
 } // namespace Eon
