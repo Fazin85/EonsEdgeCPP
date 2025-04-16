@@ -25,7 +25,7 @@ namespace Eon
 		chunk_shader->UniformFVec3("light_color", glm::vec3(1, 1, 1));
 		chunk_shader->UniformFloat("ambient_light", 0.15f);
 		chunk_shader->UniformMatrix4("model", glm::mat4(1.0f));
-		chunk_shader->UniformFloat("fog_near", ((GameSettings.render_distance * CHUNK_WIDTH) / 2) + CHUNK_WIDTH);
+		chunk_shader->UniformFloat("fog_near", (GameSettings.render_distance * CHUNK_WIDTH / 2) + CHUNK_WIDTH);
 		chunk_shader->UniformInt1("textureSampler", 0);
 
 		int fogFar = GameSettings.fog ? GameSettings.render_distance * CHUNK_WIDTH : 100000;
