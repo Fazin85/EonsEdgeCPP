@@ -30,7 +30,7 @@ namespace Eon
 		void SetLevel(Level* level);
 		void MeshChunk(ChunkPosition chunkPosition);
 		void RemoveMesh(ChunkPosition chunkPosition);
-		void Update(glm::vec3 cameraPosition);
+		void Update(Frustum& frustum, glm::vec3 cameraPosition);
 		void Render(Camera& camera, glm::vec3 cameraPosition);
 		int ChunkRendererCount();
 		bool IsChunkBeingMeshed(ChunkPosition position);
@@ -39,7 +39,7 @@ namespace Eon
 
 	private:
 		void MeshThread();
-		bool CanChunkBeMeshed(ChunkPosition position);
+		bool CanChunkBeMeshed(ChunkPosition position, Frustum& frustum);
 		void MarkCanUnloadForMeshing(ChunkPosition position, bool canUnload);
 
 		std::unique_ptr<Shader> chunk_shader;

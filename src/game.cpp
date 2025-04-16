@@ -128,10 +128,10 @@ namespace Eon
 		Image stone("StoneBlock.png");
 	}
 
-	int idx = 0;
 	void Game::Update(float dt)
 	{
-		level_renderer->Update(player->Position());
+		player->GetCamera().CalculateViewMatrix(player->Position());
+		level_renderer->Update(player->GetCamera().GetFrustum(), player->Position());
 
 		level->Update(ChunkPosition(player->Position().x, player->Position().z), GameSettings.render_distance + 2);
 

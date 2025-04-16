@@ -215,13 +215,10 @@ namespace Eon
 				ChunkPosition currentChunkPosition(cx, cz);
 				currentChunkPosition.Validate();
 
-				sf::Clock clock;
-
-				if (!ChunkExistsAt(currentChunkPosition)) {
-					if (std::find(chunks_being_generated.begin(), chunks_being_generated.end(), currentChunkPosition) == chunks_being_generated.end()) {
-						chunks_being_generated.push_back(currentChunkPosition);
-						toGen.push_back(currentChunkPosition);
-					}
+				if (!ChunkExistsAt(currentChunkPosition) &&
+					std::find(chunks_being_generated.begin(), chunks_being_generated.end(), currentChunkPosition) == chunks_being_generated.end()) {
+					chunks_being_generated.push_back(currentChunkPosition);
+					toGen.push_back(currentChunkPosition);
 				}
 			}
 		}

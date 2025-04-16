@@ -76,7 +76,7 @@ namespace Eon
 		}
 	}
 
-	void LevelRenderer::Update(glm::vec3 cameraPosition)
+	void LevelRenderer::Update(Frustum& frustum, glm::vec3 cameraPosition)
 	{
 		std::unique_ptr<AABBChunkRenderer> chunk;
 		ChunkPosition position;
@@ -102,28 +102,12 @@ namespace Eon
 			for (int cz = playerChunkPosition.z - (CHUNK_WIDTH * GameSettings.render_distance); cz <= playerChunkPosition.z + (CHUNK_WIDTH * GameSettings.render_distance); cz += CHUNK_WIDTH) {
 				ChunkPosition currentChunkPosition(cx, cz);
 
-				if (CanChunkBeMeshed(currentChunkPosition)) {
+				if (CanChunkBeMeshed(currentChunkPosition, frustum)) {
 					MarkCanUnloadForMeshing(currentChunkPosition, false);
 					MeshChunk(currentChunkPosition);
 				}
 			}
 		}
-	}
-
-#include <cmath> // For std::isnan
-
-	int FloatCompare(float a, float b) {
-		// Handle NaN cases
-		if (std::isnan(a) && std::isnan(b)) return 0; // Both are NaN
-		if (std::isnan(a)) return 1; // 'a' is NaN, considered greater
-		if (std::isnan(b)) return -1; // 'b' is NaN, considered greater
-
-		// Normal comparison
-		if (a < b) return -1;
-		if (a > b) return 1;
-
-		// Consider them equal if neither is NaN and they're numerically the same
-		return 0;
 	}
 
 	void LevelRenderer::Render(Camera& camera, glm::vec3 cameraPosition)
@@ -160,7 +144,7 @@ namespace Eon
 			float distance = glm::distance(playerChunkPosition, glm::vec3(chunkPosition.x, 0, chunkPosition.z));
 
 			if (distance > GameSettings.render_distance * CHUNK_WIDTH ||
-				!camera.GetFrustum().BoxInFrustum(chunkRenderer->GetAABB()))
+				!camera.GetFrustum().BoxInFrustum(chunkRenderer->GetChunk().GetAABB()))
 			{
 				continue;
 			}
@@ -220,11 +204,16 @@ namespace Eon
 		}
 	}
 
-	bool LevelRenderer::CanChunkBeMeshed(ChunkPosition position)
+	bool LevelRenderer::CanChunkBeMeshed(ChunkPosition position, Frustum& frustum)
 	{
-		bool flag = !chunk_renderers.contains(position) && !IsChunkBeingMeshed(position);
+		auto chunk = level->GetChunk(position);
 
-		bool chunkExists0 = level->ChunkExistsAt(position);
+		if (!chunk.has_value()) {
+			return false;
+		}
+
+		bool flag = !chunk_renderers.contains(position) && !IsChunkBeingMeshed(position) && frustum.BoxInFrustum(chunk->get().GetAABB());
+
 		bool chunkExists1 = level->ChunkExistsAt(position.Offset(CHUNK_WIDTH, 0));
 		bool chunkExists2 = level->ChunkExistsAt(position.Offset(0, CHUNK_WIDTH));
 		bool chunkExists3 = level->ChunkExistsAt(position.Offset(-CHUNK_WIDTH, 0));
@@ -234,7 +223,7 @@ namespace Eon
 		bool chunkExists7 = level->ChunkExistsAt(position.Offset(CHUNK_WIDTH, -CHUNK_WIDTH));
 		bool chunkExists8 = level->ChunkExistsAt(position.Offset(-CHUNK_WIDTH, -CHUNK_WIDTH));
 
-		return flag && chunkExists0 && chunkExists1 && chunkExists2 && chunkExists3 && chunkExists4 && chunkExists5 && chunkExists6 && chunkExists7 && chunkExists8;
+		return flag && chunkExists1 && chunkExists2 && chunkExists3 && chunkExists4 && chunkExists5 && chunkExists6 && chunkExists7 && chunkExists8;
 	}
 
 	void LevelRenderer::MarkCanUnloadForMeshing(ChunkPosition position, bool canUnload)

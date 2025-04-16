@@ -11,8 +11,11 @@ namespace Eon
 		sections(),
 		highest_blocks(std::make_unique < std::array<short, CHUNK_WIDTH* CHUNK_WIDTH>>()),
 		mutex(),
-		can_unload(true)
+		can_unload(true),
+		aabb(glm::vec3(CHUNK_WIDTH, CHUNK_HEIGHT, CHUNK_WIDTH))
 	{
+		aabb.Update(glm::vec3(position.x, 0, position.z));
+
 		for (int x = 0; x < CHUNK_WIDTH; x++) {
 			for (int y = 0; y < CHUNK_HEIGHT; y++) {
 				for (int z = 0; z < CHUNK_WIDTH; z++) {
@@ -80,5 +83,10 @@ namespace Eon
 	void Chunk::SetCanUnload(bool canUnload)
 	{
 		can_unload = canUnload;
+	}
+
+	AABB& Chunk::GetAABB()
+	{
+		return aabb;
 	}
 } // namespace Eon

@@ -3,9 +3,8 @@
 
 namespace Eon
 {
-	AABBChunkRenderer::AABBChunkRenderer(Chunk& chunk, std::unique_ptr<ChunkRenderer> chunkRenderer) : chunk(chunk), lods(std::move(chunkRenderer)), aabb(glm::vec3(CHUNK_WIDTH, CHUNK_HEIGHT, CHUNK_WIDTH))
+	AABBChunkRenderer::AABBChunkRenderer(Chunk& chunk, std::unique_ptr<ChunkRenderer> chunkRenderer) : chunk(chunk), lods(std::move(chunkRenderer))
 	{
-		aabb.Update(glm::vec3(chunk.Position().x, 0, chunk.Position().z));
 	}
 
 	void AABBChunkRenderer::Render(unsigned int lod)
@@ -16,11 +15,6 @@ namespace Eon
 	void AABBChunkRenderer::Setup()
 	{
 		lods->Setup();
-	}
-
-	AABB& AABBChunkRenderer::GetAABB()
-	{
-		return aabb;
 	}
 
 	Chunk& AABBChunkRenderer::GetChunk()

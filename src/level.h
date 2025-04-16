@@ -7,6 +7,7 @@
 #include "voxel_model.h"
 #include "abstract_level_generator.h"
 #include "chunk_unloaded_event_listener.h"
+#include "frustum.h"
 
 #include <array>
 #include <fstream>

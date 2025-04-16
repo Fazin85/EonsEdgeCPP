@@ -5,6 +5,7 @@
 #include "chunk_info.h"
 #include "chunk_primer.h"
 #include "chunk_section.h"
+#include "aabb.h"
 
 #include <array>
 #include <memory>
@@ -24,6 +25,7 @@ namespace Eon
 		bool IsDecorated() const;
 		bool CanUnload() const;
 		void SetCanUnload(bool canUnload);
+		AABB& GetAABB();
 
 	private:
 		ChunkPosition position;
@@ -32,5 +34,6 @@ namespace Eon
 		bool decorated;
 		bool can_unload;
 		std::mutex mutex;
+		AABB aabb;
 	};
 }  // namespace Eon
