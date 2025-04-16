@@ -27,4 +27,9 @@ namespace Eon
 	{
 		return chunk;
 	}
+
+	ChunkRenderer& AABBChunkRenderer::GetBaseChunkRenderer()
+	{
+		return *lods;
+	}
 }

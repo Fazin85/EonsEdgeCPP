@@ -6,7 +6,6 @@
 #include "chunk_position.h"
 #include "voxel_model.h"
 #include "abstract_level_generator.h"
-#include "level_renderer.h"
 #include "chunk_unloaded_event_listener.h"
 
 #include <array>
@@ -22,8 +21,6 @@
 
 namespace Eon
 {
-	class LevelRenderer;
-
 	class Level
 	{
 	public:

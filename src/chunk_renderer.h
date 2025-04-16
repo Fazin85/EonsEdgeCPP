@@ -4,6 +4,7 @@
 #include <glm/vec3.hpp>
 #include <vector>
 #include <memory>
+#include <optional>
 
 #include "chunk_mesh_construction_data.h"
 
@@ -18,6 +19,7 @@ namespace Eon
 		void Render();
 		void Setup();
 		void Destroy();
+		std::optional<std::reference_wrapper<ChunkRenderer>> GetWaterMesh();
 
 	private:
 		bool setup;
@@ -26,7 +28,7 @@ namespace Eon
 		unsigned int* indices;
 		size_t vertex_data_size;
 		size_t index_size;
-		std::unique_ptr<ChunkRenderer> water_mesh;
+		std::optional<std::unique_ptr<ChunkRenderer>> water_mesh;
 		unsigned int vao;
 		unsigned int ibo;
 		unsigned int vertex_position_vbo;

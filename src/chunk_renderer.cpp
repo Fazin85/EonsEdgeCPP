@@ -8,7 +8,7 @@
 
 namespace Eon
 {
-	ChunkRenderer::ChunkRenderer(ChunkMeshConstructionData& meshData) : vertex_position_data(nullptr), dir_light_data(nullptr), setup(false), water_mesh(nullptr)
+	ChunkRenderer::ChunkRenderer(ChunkMeshConstructionData& meshData) : vertex_position_data(nullptr), dir_light_data(nullptr), setup(false), water_mesh(std::nullopt)
 	{
 		vertex_data_size = meshData.vertexPositions.size();
 
@@ -53,9 +53,8 @@ namespace Eon
 
 		glDrawElements(GL_TRIANGLES, index_size, GL_UNSIGNED_INT, 0);
 
-		if (water_mesh != nullptr)
-		{
-			water_mesh->Render();
+		if (water_mesh.has_value()) {
+			water_mesh->get()->Render();
 		}
 	}
 
@@ -103,9 +102,8 @@ namespace Eon
 		delete indices;
 		indices = nullptr;
 
-		if (water_mesh != nullptr)
-		{
-			water_mesh->Setup();
+		if (water_mesh.has_value()) {
+			water_mesh->get()->Setup();
 		}
 
 		setup = true;
@@ -137,9 +135,17 @@ namespace Eon
 			delete indices;
 		}
 
-		if (water_mesh != nullptr)
-		{
-			water_mesh->Destroy();
+		if (water_mesh.has_value()) {
+			water_mesh->get()->Destroy();
 		}
+	}
+
+	std::optional<std::reference_wrapper<ChunkRenderer>> ChunkRenderer::GetWaterMesh()
+	{
+		if (water_mesh.has_value()) {
+			return *water_mesh.value();
+		}
+
+		return std::nullopt;
 	}
 }  // namespace Eon

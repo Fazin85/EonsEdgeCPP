@@ -17,6 +17,7 @@ namespace Eon
 		void Setup();
 		AABB& GetAABB();
 		Chunk& GetChunk();
+		ChunkRenderer& GetBaseChunkRenderer();
 
 	private:
 		std::unique_ptr<ChunkRenderer> lods;

@@ -5,6 +5,7 @@
 #include <chrono>
 #include <SFML/Window.hpp>
 #include "basic_terrain_generator.h"
+#include "DefaultAABBChunkRendererProvider.h"
 
 namespace Eon
 {
@@ -16,7 +17,7 @@ namespace Eon
 
 		EON_INFO("Starting...");
 
-		Window::Create(1280, 720, GameSettings.max_fps, "Eon's Edge", false);
+		Window::Create(3440, 1440, GameSettings.max_fps, "Eon's Edge", false);
 		gladLoadGL();
 
 		Init();
@@ -101,7 +102,9 @@ namespace Eon
 
 		level->SkyColor() = glm::vec4(153.0f / 255.0f, 204.0f / 255.0f, 1.0f, 1.0f);
 
-		level_renderer = std::make_unique<LevelRenderer>();
+		auto chunkRendererProvider = new DefaultAABBChunkRendererProvider(*level);
+
+		level_renderer = std::make_unique<LevelRenderer>(*chunkRendererProvider);
 		level_renderer->SetLevel(level.get());
 
 		level->AddChunkUnloadedEventListener(*level_renderer);
@@ -123,20 +126,6 @@ namespace Eon
 
 		Image water("WaterBlock.png");
 		Image stone("StoneBlock.png");
-
-		water_planes.reserve(100);
-
-		for (int x = 0; x < 10; x++)
-		{
-			for (int z = 0; z < 10; z++)
-			{
-				auto& p = water_planes.emplace_back(std::make_unique<PlaneMesh>(glm::vec3(9216 - 2048 * x, 9216 - 2048 * z, -25.0f), glm::vec2(1024, 1024), water));
-				p->Rotate(0, -90);
-			}
-		}
-
-		bedrock_plane = std::make_unique<PlaneMesh>(glm::vec3(1, 1, -64), glm::vec2(10240, 10240), stone);
-		bedrock_plane->Rotate(0, -90);
 	}
 
 	int idx = 0;
@@ -158,17 +147,7 @@ namespace Eon
 
 		sprite->Render(player->GetCamera(), player->Position());
 
-		//skybox->Render(player->GetCamera(), player->Position());
-
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-		bedrock_plane->Render(player->GetCamera(), player->Position());
-
-		for (auto& waterPlane : water_planes)
-		{
-			waterPlane->Render(player->GetCamera(), player->Position());
-		}
+		skybox->Render(player->GetCamera(), player->Position());
 	}
 
 	void Game::OnExit()

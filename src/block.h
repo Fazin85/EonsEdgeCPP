@@ -30,7 +30,11 @@ namespace Eon
 
 		bool Transparent() const
 		{
-			return type == BlockType::AIR || type == BlockType::WATER || type == BlockType::LEAF;
+			return type == BlockType::AIR || type == BlockType::LEAF;
+		}
+
+		bool TransparentThick() const {
+			return type == BlockType::WATER;
 		}
 	};
 }  // namespace Eon

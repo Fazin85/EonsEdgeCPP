@@ -6,7 +6,7 @@
 #include "chunk_renderer.h"
 #include "directions.h"
 #include "level.h"
-#include "aabb_chunk_renderer.h"
+#include "aabb_chunk_renderer_provider.h"
 #include "shader.h"
 #include "texture_array.h"
 #include "chunk_unloaded_event_listener.h"
@@ -25,7 +25,7 @@ namespace Eon
 	class LevelRenderer : public ChunkUnloadedEventListener
 	{
 	public:
-		LevelRenderer();
+		LevelRenderer(AABBChunkRendererProvider& chunkRendererProvider);
 		~LevelRenderer();
 		void SetLevel(Level* level);
 		void MeshChunk(ChunkPosition chunkPosition);
@@ -38,22 +38,17 @@ namespace Eon
 		void OnChunkUnloaded(Chunk& chunk) override;
 
 	private:
-		void BuildChunkMesh(ChunkPosition inChunkPosition);
 		void MeshThread();
-		void AddFace(ChunkMeshConstructionData& meshData, const glm::ivec3& blockPosition, BlockType blockType, Directions direction);
-		std::array<unsigned char, 12> GetFaceDataFromDirection(Directions dir);
-		void AddIndices(ChunkMeshConstructionData& meshData, int count);
 		unsigned int GetLod(float distance);
-		BlockFaceTexture GetTextureId(BlockType blockType, Directions faceDirection);
 		bool CanChunkBeMeshed(ChunkPosition position);
 		void MarkCanUnloadForMeshing(ChunkPosition position, bool canUnload);
 
 		std::unique_ptr<Shader> chunk_shader;
 		std::unique_ptr<TextureArray> chunk_texture;
 		std::vector<std::thread> mesh_threads;
-		std::vector<ChunkPosition> frozen_chunks;
 		std::vector<ChunkPosition> chunks_to_mesh_vector;
 		std::atomic_bool exit;
+		AABBChunkRendererProvider& aabb_chunk_renderer_provider;
 		moodycamel::ConcurrentQueue<ChunkPosition> chunks_to_mesh;
 		moodycamel::ConcurrentQueue<std::unique_ptr<AABBChunkRenderer>> meshes_to_setup;
 		Level* level;

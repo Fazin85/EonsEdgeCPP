@@ -8,7 +8,7 @@
 
 namespace Eon
 {
-	LevelRenderer::LevelRenderer()
+	LevelRenderer::LevelRenderer(AABBChunkRendererProvider& chunkRendererProvider) : aabb_chunk_renderer_provider(chunkRendererProvider)
 	{
 		level = nullptr;
 		exit = false;
@@ -118,6 +118,8 @@ namespace Eon
 		}
 
 		glCullFace(GL_BACK);
+		glEnable(GL_BLEND);
+		glDepthFunc(GL_ONE_MINUS_SRC_ALPHA);
 		glClearColor(level->SkyColor().r, level->SkyColor().g, level->SkyColor().b, level->SkyColor().a);
 		chunk_texture->Bind();
 
@@ -145,7 +147,14 @@ namespace Eon
 				continue;
 			}
 
-			renderers.emplace_back(chunkRenderer.get(), distance);
+			auto waterMesh = chunkRenderer->GetBaseChunkRenderer().GetWaterMesh();
+			if (waterMesh.has_value()) {
+				renderers.emplace_back(chunkRenderer.get(), distance);
+			}
+
+			chunk_shader->UniformFVec3("chunkPos", glm::vec3(chunkPosition.x, 0.0f, chunkPosition.z));
+
+			chunkRenderer->Render(0);
 		}
 
 		std::sort(renderers.begin(), renderers.end(), [cameraPosition](std::pair<AABBChunkRenderer*, float> first, std::pair<AABBChunkRenderer*, float> second) -> bool
@@ -153,17 +162,16 @@ namespace Eon
 				ChunkPosition firstPosition = first.first->GetChunk().Position();
 				ChunkPosition secondPosition = second.first->GetChunk().Position();
 
-				return glm::distance(cameraPosition, glm::vec3(firstPosition.x, 0, firstPosition.z)) > glm::distance(cameraPosition, glm::vec3(secondPosition.x, 0, secondPosition.z));
+				return glm::distance(cameraPosition, glm::vec3(firstPosition.x, 0, firstPosition.z)) < glm::distance(cameraPosition, glm::vec3(secondPosition.x, 0, secondPosition.z));
 			});
 
 		for (const auto& pair : renderers)
 		{
-			unsigned int lod = GetLod(pair.second);
 			ChunkPosition chunkPosition = pair.first->GetChunk().Position();
 
 			chunk_shader->UniformFVec3("chunkPos", glm::vec3(chunkPosition.x, 0.0f, chunkPosition.z));
 
-			pair.first->Render(lod);
+			pair.first->GetBaseChunkRenderer().GetWaterMesh()->get().Render();
 		}
 	}
 
@@ -189,229 +197,8 @@ namespace Eon
 			ChunkPosition chunkPosition;
 			if (chunks_to_mesh.try_dequeue(chunkPosition))
 			{
-				BuildChunkMesh(chunkPosition);
+				meshes_to_setup.enqueue(std::move(aabb_chunk_renderer_provider.ProvideRenderer(chunkPosition)));
 			}
-		}
-	}
-
-	void LevelRenderer::BuildChunkMesh(ChunkPosition inChunkPosition)
-	{
-		auto chunk = level->GetChunk(inChunkPosition);
-
-		if (!chunk.has_value()) {
-			std::stringstream ss{};
-			ss << "Failed to get chunk at " << inChunkPosition.x << "," << inChunkPosition.z << "\n";
-			EON_WARN(ss.str());
-			return;
-		}
-
-		glm::ivec3 chunkPosition(chunk->get().Position().x, 0, chunk->get().Position().z);
-		sf::Clock timer;
-
-		ChunkMeshConstructionData opaqueMeshData{};
-		ChunkMeshConstructionData transparentMeshData{};
-		bool tranparency = false;
-
-		for (int x = 0; x < CHUNK_WIDTH; x++)
-		{
-			for (int y = 0; y < CHUNK_HEIGHT; y++)
-			{
-				for (int z = 0; z < CHUNK_WIDTH; z++)
-				{
-					int numOpaqueFaces = 0;
-					int numTransparentFaces = 0;
-					glm::ivec3 position(x, y, z);
-					Block block = chunk->get().GetBlock(x, y, z);
-					bool blockTransparent = block.Transparent();
-					short height = chunk->get().GetHeightestBlockY(x, z);
-
-					if (block.type == BlockType::AIR)
-					{
-						continue;
-					}
-
-					if (blockTransparent)
-					{
-						tranparency = true;
-					}
-
-					BlockType type = block.type;
-
-					Directions dir = Directions::Left;
-					if (x > 0)
-					{
-						if (chunk->get().GetBlock(x - 1, y, z).Transparent() || blockTransparent)
-						{
-							AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir);
-							blockTransparent ? numTransparentFaces++ : numOpaqueFaces++;
-						}
-					}
-					else
-					{
-						auto sideBlock = level->GetBlock(chunkPosition + glm::ivec3(x - 1, y, z));
-						if (sideBlock.Transparent() || blockTransparent)
-						{
-							AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir);
-							blockTransparent ? numTransparentFaces++ : numOpaqueFaces++;
-						}
-					}
-
-					dir = Directions::Right;
-					if (x < CHUNK_WIDTH - 1)
-					{
-						if (chunk->get().GetBlock(x + 1, y, z).Transparent() || blockTransparent)
-						{
-							AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir);
-							blockTransparent ? numTransparentFaces++ : numOpaqueFaces++;
-						}
-					}
-					else
-					{
-						auto sideBlock = level->GetBlock(chunkPosition + glm::ivec3(x + 1, y, z));
-						if (sideBlock.Transparent() || blockTransparent)
-						{
-							AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir);
-							blockTransparent ? numTransparentFaces++ : numOpaqueFaces++;
-						}
-					}
-
-					dir = Directions::Top;
-					if (y < CHUNK_HEIGHT - 1)
-					{
-						if (chunk->get().GetBlock(x, y + 1, z).Transparent() || blockTransparent)
-						{
-							AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir);
-							blockTransparent ? numTransparentFaces++ : numOpaqueFaces++;
-						}
-					}
-					else
-					{
-						AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir);
-						blockTransparent ? numTransparentFaces++ : numOpaqueFaces++;
-					}
-
-					dir = Directions::Bottom;
-					if (y > 0)
-					{
-						if (chunk->get().GetBlock(x, y - 1, z).Transparent() || blockTransparent)
-						{
-							AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir);
-							blockTransparent ? numTransparentFaces++ : numOpaqueFaces++;
-						}
-					}
-
-					dir = Directions::Front;
-					if (z < CHUNK_WIDTH - 1)
-					{
-						if (chunk->get().GetBlock(x, y, z + 1).Transparent() || blockTransparent)
-						{
-							AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir);
-							blockTransparent ? numTransparentFaces++ : numOpaqueFaces++;
-						}
-					}
-					else
-					{
-						auto sideBlock = level->GetBlock(chunkPosition + glm::ivec3(x, y, z + 1));
-						if (sideBlock.Transparent() || blockTransparent)
-						{
-							AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir);
-							blockTransparent ? numTransparentFaces++ : numOpaqueFaces++;
-						}
-					}
-
-					dir = Directions::Back;
-					if (z > 0)
-					{
-						if (chunk->get().GetBlock(x, y, z - 1).Transparent() || blockTransparent)
-						{
-							AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir);
-							blockTransparent ? numTransparentFaces++ : numOpaqueFaces++;
-						}
-					}
-					else
-					{
-						auto sideBlock = level->GetBlock(chunkPosition + glm::ivec3(x, y, z - 1));
-
-						if (sideBlock.Transparent() || blockTransparent)
-						{
-							AddFace(blockTransparent ? transparentMeshData : opaqueMeshData, position, type, dir);
-							blockTransparent ? numTransparentFaces++ : numOpaqueFaces++;
-						}
-					}
-
-					if (opaqueMeshData.vertexPositions.size() > 0)
-					{
-						AddIndices(opaqueMeshData, numOpaqueFaces);
-					}
-
-					if (transparentMeshData.vertexPositions.size() > 0)
-					{
-						AddIndices(transparentMeshData, numTransparentFaces);
-					}
-				}
-			}
-		}
-
-		std::unique_ptr<ChunkRenderer> chunkRenderer = std::make_unique<ChunkRenderer>(opaqueMeshData);
-		if (transparentMeshData.vertexPositions.size() > 0)
-		{
-			chunkRenderer->SetWaterMesh(std::make_unique<ChunkRenderer>(transparentMeshData));
-		}
-
-		meshes_to_setup.enqueue(std::move(std::make_unique<AABBChunkRenderer>(chunk->get(), std::move(chunkRenderer))));
-	}
-
-	void LevelRenderer::AddFace(ChunkMeshConstructionData& meshData, const glm::ivec3& blockPosition, BlockType blockType, Directions direction)
-	{
-		auto faceData = GetFaceDataFromDirection(direction);
-
-		int index = 0;
-		for (int i = 0; i < 4; i++)
-		{
-			int x = faceData[index++] + blockPosition.x;
-			int y = faceData[index++] + blockPosition.y;
-			int z = faceData[index++] + blockPosition.z;
-
-			meshData.vertexPositions.emplace_back(x, y, z);
-			meshData.directions.push_back(static_cast<unsigned char>(direction));
-			meshData.light.push_back(15);
-			meshData.uvs.push_back({ i, GetTextureId(blockType, direction) });
-		}
-	}
-
-	std::array<unsigned char, 12> LevelRenderer::GetFaceDataFromDirection(Directions dir)
-	{
-		switch (dir)
-		{
-		case Directions::Front:
-			return std::array<unsigned char, 12>({ 0, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1 });
-		case Directions::Back:
-			return std::array<unsigned char, 12>({ 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0 });
-		case Directions::Left:
-			return std::array<unsigned char, 12>({ 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0 });
-		case Directions::Right:
-			return std::array<unsigned char, 12>({ 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 1, 1 });
-		case Directions::Top:
-			return std::array<unsigned char, 12>({ 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0 });
-		case Directions::Bottom:
-			return std::array<unsigned char, 12>({ 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1 });
-		}
-
-		return {};
-	}
-
-	void LevelRenderer::AddIndices(ChunkMeshConstructionData& meshData, int count)
-	{
-		for (int i = 0; i < count; i++)
-		{
-			meshData.indices.push_back(meshData.index_count);
-			meshData.indices.push_back(meshData.index_count + 1);
-			meshData.indices.push_back(meshData.index_count + 2);
-			meshData.indices.push_back(meshData.index_count + 2);
-			meshData.indices.push_back(meshData.index_count + 3);
-			meshData.indices.push_back(meshData.index_count);
-
-			meshData.index_count += 4;
 		}
 	}
 
@@ -439,68 +226,6 @@ namespace Eon
 		}
 
 		return lod;
-	}
-
-	BlockFaceTexture LevelRenderer::GetTextureId(BlockType blockType, Directions faceDirection)
-	{
-		switch (blockType)
-		{
-		case Eon::BlockType::AIR:
-			return BlockFaceTexture::ERR;
-		case Eon::BlockType::STONE:
-			return BlockFaceTexture::STONE;
-		case Eon::BlockType::GRASS:
-			switch (faceDirection)
-			{
-			case Eon::Directions::Front:
-				return BlockFaceTexture::GRASSIDE;
-			case Eon::Directions::Back:
-				return BlockFaceTexture::GRASSIDE;
-			case Eon::Directions::Left:
-				return BlockFaceTexture::GRASSIDE;
-			case Eon::Directions::Right:
-				return BlockFaceTexture::GRASSIDE;
-			case Eon::Directions::Top:
-				return BlockFaceTexture::GRASSTOP;
-			case Eon::Directions::Bottom:
-				return BlockFaceTexture::DIRT;
-			}
-			break;
-		case Eon::BlockType::DIRT:
-			return BlockFaceTexture::DIRT;
-		case Eon::BlockType::WATER:
-			return BlockFaceTexture::WATER;
-		case Eon::BlockType::SAND:
-			return BlockFaceTexture::SAND;
-		case Eon::BlockType::OAKLOG:
-			switch (faceDirection)
-			{
-			case Eon::Directions::Front:
-				return BlockFaceTexture::OAKLOGSIDE;
-				break;
-			case Eon::Directions::Back:
-				return BlockFaceTexture::OAKLOGSIDE;
-
-			case Eon::Directions::Left:
-				return BlockFaceTexture::OAKLOGSIDE;
-
-			case Eon::Directions::Right:
-				return BlockFaceTexture::OAKLOGSIDE;
-
-			case Eon::Directions::Top:
-				return BlockFaceTexture::OAKLOGTOP;
-
-			case Eon::Directions::Bottom:
-				return BlockFaceTexture::OAKLOGTOP;
-			}
-			break;
-		case Eon::BlockType::LEAF:
-			return Eon::BlockFaceTexture::LEAF;
-		case Eon::BlockType::GRAVEL:
-			return Eon::BlockFaceTexture::GRAVEL;
-		}
-
-		return Eon::BlockFaceTexture::ERR;
 	}
 
 	bool LevelRenderer::CanChunkBeMeshed(ChunkPosition position)

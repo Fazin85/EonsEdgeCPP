@@ -27,7 +27,5 @@ namespace Eon
 		std::unique_ptr<LevelRenderer> level_renderer;
 		std::unique_ptr<BillboardSprite> sprite;
 		std::unique_ptr<Skybox> skybox;
-		std::vector<std::unique_ptr<PlaneMesh>> water_planes;
-		std::unique_ptr<PlaneMesh> bedrock_plane;
 	};
 }

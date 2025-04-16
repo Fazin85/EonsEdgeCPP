@@ -142,6 +142,8 @@
     <ClCompile Include="src\billboard_sprite.cpp" />
     <ClCompile Include="src\bounding_box.cpp" />
     <ClCompile Include="src\compress.cpp" />
+    <ClCompile Include="src\DefaultAABBChunkRendererProvider.cpp" />
+    <ClCompile Include="src\fast_noise.cpp" />
     <ClCompile Include="src\frustum.cpp" />
     <ClCompile Include="src\game.cpp" />
     <ClCompile Include="src\image.cpp" />
@@ -171,6 +173,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\aabb.h" />
+    <ClInclude Include="src\aabb_chunk_renderer_provider.h" />
     <ClInclude Include="src\abstract_level_generator.h" />
     <ClInclude Include="src\basic_terrain_generator.h" />
     <ClInclude Include="src\billboard_sprite.h" />
@@ -180,6 +183,8 @@
     <ClInclude Include="src\chunk_info.h" />
     <ClInclude Include="src\compress.h" />
     <ClInclude Include="src\aabb_chunk_renderer.h" />
+    <ClInclude Include="src\DefaultAABBChunkRendererProvider.h" />
+    <ClInclude Include="src\fast_noise.h" />
     <ClInclude Include="src\noise_generator_improved.h" />
     <ClInclude Include="src\noise_generator_octaves.h" />
     <ClInclude Include="src\ogt_vox.h" />
@@ -187,7 +192,6 @@
     <ClInclude Include="src\plane_mesh.h" />
     <ClInclude Include="src\scope_timer.h" />
     <ClInclude Include="src\skybox.h" />
-    <ClInclude Include="src\fast_noise_lite.h" />
     <ClInclude Include="src\fps.h" />
     <ClInclude Include="src\frustum.h" />
     <ClInclude Include="src\game.h" />
