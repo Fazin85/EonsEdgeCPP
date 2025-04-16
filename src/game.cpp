@@ -5,7 +5,7 @@
 #include <chrono>
 #include <SFML/Window.hpp>
 #include "basic_terrain_generator.h"
-#include "DefaultAABBChunkRendererProvider.h"
+#include "default_aabb_chunk_renderer_provider.h"
 
 namespace Eon
 {

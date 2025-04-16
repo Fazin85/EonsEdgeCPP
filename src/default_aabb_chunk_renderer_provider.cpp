@@ -1,4 +1,4 @@
-#include "DefaultAABBChunkRendererProvider.h"
+#include "default_aabb_chunk_renderer_provider.h"
 #include "log.h"
 
 namespace Eon {

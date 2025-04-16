@@ -108,7 +108,7 @@
     <ClCompile Include="src\fast_noise.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\DefaultAABBChunkRendererProvider.cpp">
+    <ClCompile Include="src\default_aabb_chunk_renderer_provider.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -239,7 +239,7 @@
     <ClInclude Include="src\aabb_chunk_renderer_provider.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\DefaultAABBChunkRendererProvider.h">
+    <ClInclude Include="src\default_aabb_chunk_renderer_provider.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
