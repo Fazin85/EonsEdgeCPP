@@ -17,7 +17,7 @@ namespace Eon
 
 		EON_INFO("Starting...");
 
-		Window::Create(3440, 1440, GameSettings.max_fps, "Eon's Edge", false);
+		Window::Create(1920, 1080, GameSettings.max_fps, "Eon's Edge", false);
 		gladLoadGL();
 
 		Init();
@@ -104,8 +104,7 @@ namespace Eon
 
 		auto chunkRendererProvider = new DefaultAABBChunkRendererProvider(*level);
 
-		level_renderer = std::make_unique<LevelRenderer>(*chunkRendererProvider);
-		level_renderer->SetLevel(level.get());
+		level_renderer = std::make_unique<LevelRenderer>(*level, *chunkRendererProvider);
 
 		level->AddChunkUnloadedEventListener(*level_renderer);
 

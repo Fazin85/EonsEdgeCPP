@@ -119,14 +119,14 @@ namespace Eon
 		chunk_unloaded_event_listeners.push_back(&eventListener);
 	}
 
-	std::vector<std::reference_wrapper<Chunk>> Level::GetChunks(std::vector<ChunkPosition>& chunkPositions)
+	std::vector<std::reference_wrapper<Chunk>> Level::GetChunks(ChunkPosition* chunkPositions, int size)
 	{
 		std::vector<std::reference_wrapper<Chunk>> chunks;
 
 		std::lock_guard<std::mutex> lock(chunk_mutex);
 
-		for (ChunkPosition& chunkPosition : chunkPositions) {
-			auto chunk = GetChunk(chunkPosition, false);
+		for (int i = 0; i < size; i++) {
+			auto chunk = GetChunk(chunkPositions[i], false);
 
 			if (chunk.has_value()) {
 				chunks.push_back(*chunk);
@@ -168,31 +168,6 @@ namespace Eon
 		}
 	}
 
-	void Level::PlaceTree(short x, short z)
-	{
-		auto chunk = GetChunk(ChunkPosition(x, z).Validate());
-
-		if (!chunk.has_value())
-		{
-			return;
-		}
-
-		//short y = chunk->get().GetHeightestBlockY(x - (chunk->get().Position().x), z - (chunk->get().Position().z));
-		//DON'T USE
-		for (int yp = 10; yp < 10 + 6; yp++)
-		{
-			SetBlock({ BlockType::OAKLOG }, x, yp, z);
-		}
-
-		for (int px = x - 3; px < x + 3; px++)
-		{
-			for (int pz = z - 3; pz < z + 3; pz++)
-			{
-				SetBlock(Block(Eon::BlockType::LEAF), px, 10 + 5, pz);
-			}
-		}
-	}
-
 	void Level::ChunkGenThread()
 	{
 		ChunkPosition chunkPosition;
@@ -203,8 +178,9 @@ namespace Eon
 				abstract_level_generator.GenerateTerrainShape(*chunkPrimer, chunkPosition.x, chunkPosition.z);
 				generated_chunks.enqueue(std::make_unique<Chunk>(*chunkPrimer, chunkPosition));
 			}
-
-			std::this_thread::sleep_for(std::chrono::milliseconds(4));
+			else {
+				std::this_thread::sleep_for(std::chrono::milliseconds(16));
+			}
 		}
 	}
 

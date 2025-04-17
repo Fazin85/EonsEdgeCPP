@@ -36,11 +36,10 @@ namespace Eon
 		bool ChunkExistsAt(ChunkPosition position);
 		void Update(ChunkPosition playerChunkPosition, int simulationDistance);
 		void AddChunkUnloadedEventListener(ChunkUnloadedEventListener& eventListener);
-		std::vector<std::reference_wrapper<Chunk>> GetChunks(std::vector<ChunkPosition>& chunkPositions);
+		std::vector<std::reference_wrapper<Chunk>> GetChunks(ChunkPosition* chunkPositions, int size);
 
 	private:
 		void PlaceModel(VoxelModel& model, short x, short y, short z);
-		void PlaceTree(short x, short z);
 		void ChunkGenThread();
 		void LoadNewChunks(ChunkPosition& playerChunkPosition, int simulationDistanceBlocks);
 		void UnloadFarChunks(ChunkPosition& playerChunkPosition, int unloadDistance);

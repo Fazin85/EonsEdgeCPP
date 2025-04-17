@@ -1,5 +1,6 @@
 #include "basic_terrain_generator.h"
 #include <algorithm>
+#include "scope_timer.h"
 
 namespace Eon {
 	void BasicTerrainGenerator::GenerateTerrainShape(ChunkPrimer& chunkPrimer, int x, int z)

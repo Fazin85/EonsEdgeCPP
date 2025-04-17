@@ -25,9 +25,8 @@ namespace Eon
 	class LevelRenderer : public ChunkUnloadedEventListener
 	{
 	public:
-		LevelRenderer(AABBChunkRendererProvider& chunkRendererProvider);
+		LevelRenderer(Level& level, AABBChunkRendererProvider& chunkRendererProvider);
 		~LevelRenderer();
-		void SetLevel(Level* level);
 		void MeshChunk(ChunkPosition chunkPosition);
 		void RemoveMesh(ChunkPosition chunkPosition);
 		void Update(Frustum& frustum, glm::vec3 cameraPosition);
@@ -50,7 +49,7 @@ namespace Eon
 		AABBChunkRendererProvider& aabb_chunk_renderer_provider;
 		moodycamel::ConcurrentQueue<ChunkPosition> chunks_to_mesh;
 		moodycamel::ConcurrentQueue<std::unique_ptr<AABBChunkRenderer>> meshes_to_setup;
-		Level* level;
+		Level& level;
 		std::unordered_map<ChunkPosition, std::unique_ptr<AABBChunkRenderer>> chunk_renderers;
 	};
 }  // namespace Eon

@@ -8,9 +8,8 @@
 
 namespace Eon
 {
-	LevelRenderer::LevelRenderer(AABBChunkRendererProvider& chunkRendererProvider) : aabb_chunk_renderer_provider(chunkRendererProvider)
+	LevelRenderer::LevelRenderer(Level& level, AABBChunkRendererProvider& chunkRendererProvider) : level(level), aabb_chunk_renderer_provider(chunkRendererProvider)
 	{
-		level = nullptr;
 		exit = false;
 
 		for (int i = 0; i < GameSettings.mesh_gen_threads_count; i++)
@@ -55,11 +54,6 @@ namespace Eon
 		{
 			mesh_threads[i].join();
 		}
-	}
-
-	void LevelRenderer::SetLevel(Level* level)
-	{
-		this->level = level;
 	}
 
 	void LevelRenderer::MeshChunk(ChunkPosition chunkPosition)
@@ -112,12 +106,7 @@ namespace Eon
 
 	void LevelRenderer::Render(Camera& camera, glm::vec3 cameraPosition)
 	{
-		if (level == nullptr)
-		{
-			return;
-		}
-
-		glClearColor(level->SkyColor().r, level->SkyColor().g, level->SkyColor().b, level->SkyColor().a);
+		glClearColor(level.SkyColor().r, level.SkyColor().g, level.SkyColor().b, level.SkyColor().a);
 
 		glCullFace(GL_BACK);
 		glEnable(GL_BLEND);
@@ -126,7 +115,7 @@ namespace Eon
 		chunk_texture->Bind();
 
 		chunk_shader->Bind();
-		chunk_shader->UniformFVec4("fog_color", level->SkyColor());
+		chunk_shader->UniformFVec4("fog_color", level.SkyColor());
 		camera.CalculateViewMatrix(glm::vec3(0, 0, 0));
 		chunk_shader->UniformMatrix4("view", *camera.ViewMatrix());
 		chunk_shader->UniformMatrix4("projection", *camera.ProjectionMatrix());
@@ -206,7 +195,7 @@ namespace Eon
 
 	bool LevelRenderer::CanChunkBeMeshed(ChunkPosition position, Frustum& frustum)
 	{
-		auto chunk = level->GetChunk(position);
+		auto chunk = level.GetChunk(position);
 
 		if (!chunk.has_value()) {
 			return false;
@@ -214,14 +203,14 @@ namespace Eon
 
 		bool flag = !chunk_renderers.contains(position) && !IsChunkBeingMeshed(position) && frustum.BoxInFrustum(chunk->get().GetAABB());
 
-		bool chunkExists1 = level->ChunkExistsAt(position.Offset(CHUNK_WIDTH, 0));
-		bool chunkExists2 = level->ChunkExistsAt(position.Offset(0, CHUNK_WIDTH));
-		bool chunkExists3 = level->ChunkExistsAt(position.Offset(-CHUNK_WIDTH, 0));
-		bool chunkExists4 = level->ChunkExistsAt(position.Offset(0, -CHUNK_WIDTH));
-		bool chunkExists5 = level->ChunkExistsAt(position.Offset(CHUNK_WIDTH, CHUNK_WIDTH));
-		bool chunkExists6 = level->ChunkExistsAt(position.Offset(-CHUNK_WIDTH, CHUNK_WIDTH));
-		bool chunkExists7 = level->ChunkExistsAt(position.Offset(CHUNK_WIDTH, -CHUNK_WIDTH));
-		bool chunkExists8 = level->ChunkExistsAt(position.Offset(-CHUNK_WIDTH, -CHUNK_WIDTH));
+		bool chunkExists1 = level.ChunkExistsAt(position.Offset(CHUNK_WIDTH, 0));
+		bool chunkExists2 = level.ChunkExistsAt(position.Offset(0, CHUNK_WIDTH));
+		bool chunkExists3 = level.ChunkExistsAt(position.Offset(-CHUNK_WIDTH, 0));
+		bool chunkExists4 = level.ChunkExistsAt(position.Offset(0, -CHUNK_WIDTH));
+		bool chunkExists5 = level.ChunkExistsAt(position.Offset(CHUNK_WIDTH, CHUNK_WIDTH));
+		bool chunkExists6 = level.ChunkExistsAt(position.Offset(-CHUNK_WIDTH, CHUNK_WIDTH));
+		bool chunkExists7 = level.ChunkExistsAt(position.Offset(CHUNK_WIDTH, -CHUNK_WIDTH));
+		bool chunkExists8 = level.ChunkExistsAt(position.Offset(-CHUNK_WIDTH, -CHUNK_WIDTH));
 
 		return flag && chunkExists1 && chunkExists2 && chunkExists3 && chunkExists4 && chunkExists5 && chunkExists6 && chunkExists7 && chunkExists8;
 	}
@@ -241,7 +230,7 @@ namespace Eon
 		};
 
 		for (ChunkPosition& chunkPosition : positions) {
-			auto chunk = level->GetChunk(chunkPosition);
+			auto chunk = level.GetChunk(chunkPosition);
 
 			if (chunk.has_value()) {
 				chunk->get().SetCanUnload(canUnload);

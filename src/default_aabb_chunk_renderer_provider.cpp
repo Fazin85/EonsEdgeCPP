@@ -1,6 +1,5 @@
 #include "default_aabb_chunk_renderer_provider.h"
 #include "log.h"
-#include "scope_timer.h"
 
 namespace Eon {
 	DefaultAABBChunkRendererProvider::DefaultAABBChunkRendererProvider(Level& level) : level(level)
@@ -12,7 +11,7 @@ namespace Eon {
 		auto chunk = level.GetChunk(inChunkPosition);
 
 		if (!chunk.has_value()) {
-			std::stringstream ss{};
+			std::stringstream ss;
 			ss << "Failed to get chunk at " << inChunkPosition.x << "," << inChunkPosition.z << "\n";
 			throw std::runtime_error(ss.str());
 		}
@@ -181,13 +180,13 @@ namespace Eon {
 
 	int DefaultAABBChunkRendererProvider::CalculateLowestPoint(ChunkPosition& position, int middleLowest)
 	{
-		std::vector<ChunkPosition> positionsToCheck = {
+		std::array<ChunkPosition, 4> positionsToCheck = {
 			position.Offset(CHUNK_WIDTH, 0),
 			position.Offset(0, CHUNK_WIDTH),
 			position.Offset(-CHUNK_WIDTH, 0),
 			position.Offset(0, -CHUNK_WIDTH) };
 
-		auto chunks = level.GetChunks(positionsToCheck);
+		auto chunks = level.GetChunks(positionsToCheck.data(), positionsToCheck.size());
 
 		if (chunks.size() != positionsToCheck.size()) {
 			EON_WARN("Failed to get all chunks for lowest point check");
