@@ -40,7 +40,7 @@ namespace Eon {
 						continue;
 					}
 
-					if (block.TransparentThick() || block.Transparent())
+					if (block.IsCutout() || block.Translucent())
 					{
 						tranparency = true;
 						currentTransparent = true;
@@ -52,7 +52,7 @@ namespace Eon {
 					if (x > 0)
 					{
 						auto sideBlock = chunk->get().GetBlock(x - 1, y, z);
-						if (sideBlock.Transparent() || (!block.TransparentThick() && sideBlock.TransparentThick()))
+						if (sideBlock.IsCutout() || (!block.Translucent() && sideBlock.Translucent()))
 						{
 							AddFace(currentTransparent ? transparentMeshData : opaqueMeshData, position, type, dir);
 							currentTransparent ? numTransparentFaces++ : numOpaqueFaces++;
@@ -61,7 +61,7 @@ namespace Eon {
 					else
 					{
 						auto sideBlock = level.GetBlock(chunkPosition + glm::ivec3(x - 1, y, z));
-						if (sideBlock.Transparent() || (!block.TransparentThick() && sideBlock.TransparentThick()))
+						if (sideBlock.IsCutout() || (!block.Translucent() && sideBlock.Translucent()))
 						{
 							AddFace(currentTransparent ? transparentMeshData : opaqueMeshData, position, type, dir);
 							currentTransparent ? numTransparentFaces++ : numOpaqueFaces++;
@@ -72,7 +72,7 @@ namespace Eon {
 					if (x < CHUNK_WIDTH - 1)
 					{
 						auto sideBlock = chunk->get().GetBlock(x + 1, y, z);
-						if (sideBlock.Transparent() || (!block.TransparentThick() && sideBlock.TransparentThick()))
+						if (sideBlock.IsCutout() || (!block.Translucent() && sideBlock.Translucent()))
 						{
 							AddFace(currentTransparent ? transparentMeshData : opaqueMeshData, position, type, dir);
 							currentTransparent ? numTransparentFaces++ : numOpaqueFaces++;
@@ -81,7 +81,7 @@ namespace Eon {
 					else
 					{
 						auto sideBlock = level.GetBlock(chunkPosition + glm::ivec3(x + 1, y, z));
-						if (sideBlock.Transparent() || (!block.TransparentThick() && sideBlock.TransparentThick()))
+						if (sideBlock.IsCutout() || (!block.Translucent() && sideBlock.Translucent()))
 						{
 							AddFace(currentTransparent ? transparentMeshData : opaqueMeshData, position, type, dir);
 							currentTransparent ? numTransparentFaces++ : numOpaqueFaces++;
@@ -92,7 +92,7 @@ namespace Eon {
 					if (y < CHUNK_HEIGHT - 1)
 					{
 						auto sideBlock = chunk->get().GetBlock(x, y + 1, z);
-						if (sideBlock.Transparent() || (!block.TransparentThick() && sideBlock.TransparentThick()))
+						if (sideBlock.IsCutout() || (!block.Translucent() && sideBlock.Translucent()))
 						{
 							AddFace(currentTransparent ? transparentMeshData : opaqueMeshData, position, type, dir);
 							currentTransparent ? numTransparentFaces++ : numOpaqueFaces++;
@@ -108,7 +108,7 @@ namespace Eon {
 					if (y > 0)
 					{
 						auto sideBlock = chunk->get().GetBlock(x, y - 1, z);
-						if (sideBlock.Transparent() || (!block.TransparentThick() && sideBlock.TransparentThick()))
+						if (sideBlock.IsCutout() || (!block.Translucent() && sideBlock.Translucent()))
 						{
 							AddFace(currentTransparent ? transparentMeshData : opaqueMeshData, position, type, dir);
 							currentTransparent ? numTransparentFaces++ : numOpaqueFaces++;
@@ -119,7 +119,7 @@ namespace Eon {
 					if (z < CHUNK_WIDTH - 1)
 					{
 						auto sideBlock = chunk->get().GetBlock(x, y, z + 1);
-						if (sideBlock.Transparent() || (!block.TransparentThick() && sideBlock.TransparentThick()))
+						if (sideBlock.IsCutout() || (!block.Translucent() && sideBlock.Translucent()))
 						{
 							AddFace(currentTransparent ? transparentMeshData : opaqueMeshData, position, type, dir);
 							currentTransparent ? numTransparentFaces++ : numOpaqueFaces++;
@@ -128,7 +128,7 @@ namespace Eon {
 					else
 					{
 						auto sideBlock = level.GetBlock(chunkPosition + glm::ivec3(x, y, z + 1));
-						if (sideBlock.Transparent() || (!block.TransparentThick() && sideBlock.TransparentThick()))
+						if (sideBlock.IsCutout() || (!block.Translucent() && sideBlock.Translucent()))
 						{
 							AddFace(currentTransparent ? transparentMeshData : opaqueMeshData, position, type, dir);
 							currentTransparent ? numTransparentFaces++ : numOpaqueFaces++;
@@ -139,7 +139,7 @@ namespace Eon {
 					if (z > 0)
 					{
 						auto sideBlock = chunk->get().GetBlock(x, y, z - 1);
-						if (sideBlock.Transparent() || (!block.TransparentThick() && sideBlock.TransparentThick()))
+						if (sideBlock.IsCutout() || (!block.Translucent() && sideBlock.Translucent()))
 						{
 							AddFace(currentTransparent ? transparentMeshData : opaqueMeshData, position, type, dir);
 							currentTransparent ? numTransparentFaces++ : numOpaqueFaces++;
@@ -149,7 +149,7 @@ namespace Eon {
 					{
 						auto sideBlock = level.GetBlock(chunkPosition + glm::ivec3(x, y, z - 1));
 
-						if (sideBlock.Transparent() || (!block.TransparentThick() && sideBlock.TransparentThick()))
+						if (sideBlock.IsCutout() || (!block.Translucent() && sideBlock.Translucent()))
 						{
 							AddFace(currentTransparent ? transparentMeshData : opaqueMeshData, position, type, dir);
 							currentTransparent ? numTransparentFaces++ : numOpaqueFaces++;

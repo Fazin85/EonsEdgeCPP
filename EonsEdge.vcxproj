@@ -142,6 +142,7 @@
     <ClCompile Include="src\billboard_sprite.cpp" />
     <ClCompile Include="src\bounding_box.cpp" />
     <ClCompile Include="src\chunk_primer.cpp" />
+    <ClCompile Include="src\chunk_renderer_container.cpp" />
     <ClCompile Include="src\chunk_section.cpp" />
     <ClCompile Include="src\compress.cpp" />
     <ClCompile Include="src\default_aabb_chunk_renderer_provider.cpp" />
@@ -181,6 +182,7 @@
     <ClInclude Include="src\block_face_texture.h" />
     <ClInclude Include="src\bounding_box.h" />
     <ClInclude Include="src\chunk_primer.h" />
+    <ClInclude Include="src\chunk_renderer_container.h" />
     <ClInclude Include="src\chunk_section.h" />
     <ClInclude Include="src\chunk_unloaded_event_listener.h" />
     <ClInclude Include="src\chunk_info.h" />

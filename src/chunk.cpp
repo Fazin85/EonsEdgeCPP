@@ -153,7 +153,7 @@ namespace Eon
 			Block currentBlock = GetBlockInternal(x, y, z, false);
 			Block aboveBlock = GetBlockInternal(x, y + 1, z, false);
 
-			if ((!currentBlock.Transparent() && !currentBlock.TransparentThick()) && (aboveBlock.Transparent() || aboveBlock.TransparentThick())) {
+			if ((!currentBlock.IsCutout() && !currentBlock.Translucent()) && (aboveBlock.IsCutout() || aboveBlock.Translucent())) {
 				column_heights[x][z].lowest = y;
 				if (y < chunk_heights.lowest) {
 					chunk_heights.lowest = y;

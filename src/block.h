@@ -28,12 +28,12 @@ namespace Eon
 		BlockType type;
 		//unsigned char light;
 
-		bool Transparent() const
+		bool IsCutout() const
 		{
 			return type == BlockType::AIR || type == BlockType::LEAF;
 		}
 
-		bool TransparentThick() const {
+		bool Translucent() const {
 			return type == BlockType::WATER;
 		}
 	};
