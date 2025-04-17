@@ -145,7 +145,7 @@
     <ClCompile Include="src\chunk_renderer_container.cpp" />
     <ClCompile Include="src\chunk_section.cpp" />
     <ClCompile Include="src\compress.cpp" />
-    <ClCompile Include="src\default_aabb_chunk_renderer_provider.cpp" />
+    <ClCompile Include="src\default_chunk_renderer_container_provider.cpp" />
     <ClCompile Include="src\fast_noise.cpp" />
     <ClCompile Include="src\frustum.cpp" />
     <ClCompile Include="src\game.cpp" />
@@ -158,7 +158,6 @@
     <ClCompile Include="src\level.cpp" />
     <ClCompile Include="src\level_renderer.cpp" />
     <ClCompile Include="src\level_renderer.h" />
-    <ClCompile Include="src\aabb_chunk_renderer.cpp" />
     <ClCompile Include="src\log.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\noise_generator_improved.cpp" />
@@ -175,7 +174,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\aabb.h" />
-    <ClInclude Include="src\aabb_chunk_renderer_provider.h" />
+    <ClInclude Include="src\chunk_renderer_container_provider.h" />
     <ClInclude Include="src\abstract_level_generator.h" />
     <ClInclude Include="src\basic_terrain_generator.h" />
     <ClInclude Include="src\billboard_sprite.h" />
@@ -187,8 +186,7 @@
     <ClInclude Include="src\chunk_unloaded_event_listener.h" />
     <ClInclude Include="src\chunk_info.h" />
     <ClInclude Include="src\compress.h" />
-    <ClInclude Include="src\aabb_chunk_renderer.h" />
-    <ClInclude Include="src\default_aabb_chunk_renderer_provider.h" />
+    <ClInclude Include="src\default_chunk_renderer_container_provider.h" />
     <ClInclude Include="src\fast_noise.h" />
     <ClInclude Include="src\noise_generator_improved.h" />
     <ClInclude Include="src\noise_generator_octaves.h" />

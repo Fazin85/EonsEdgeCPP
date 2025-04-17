@@ -9,9 +9,15 @@ namespace Eon {
 		ChunkRendererContainer(Chunk& chunk, std::unique_ptr<ChunkRenderer> opaqueRenderer);
 
 		Chunk& GetChunk();
+
+		void Setup();
+
 		ChunkRenderer& GetOpaqueRenderer();
 		std::optional<std::reference_wrapper<ChunkRenderer>> GetCutoutRenderer();
 		std::optional<std::reference_wrapper<ChunkRenderer>> GetTranslucentRenderer();
+
+		void SetCutoutRenderer(std::unique_ptr<ChunkRenderer> cutoutRenderer);
+		void SetTranslucentRenderer(std::unique_ptr<ChunkRenderer> translucentRenderer);
 
 	private:
 		Chunk& chunk;

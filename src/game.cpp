@@ -5,7 +5,7 @@
 #include <chrono>
 #include <SFML/Window.hpp>
 #include "basic_terrain_generator.h"
-#include "default_aabb_chunk_renderer_provider.h"
+#include "default_chunk_renderer_container_provider.h"
 
 namespace Eon
 {
@@ -102,7 +102,7 @@ namespace Eon
 
 		level->SkyColor() = glm::vec4(153.0f / 255.0f, 204.0f / 255.0f, 1.0f, 1.0f);
 
-		auto chunkRendererProvider = new DefaultAABBChunkRendererProvider(*level);
+		auto chunkRendererProvider = new DefaultChunkRendererContainerProvider(*level);
 
 		level_renderer = std::make_unique<LevelRenderer>(*level, *chunkRendererProvider);
 

@@ -8,7 +8,7 @@
 
 namespace Eon
 {
-	ChunkRenderer::ChunkRenderer(ChunkMeshConstructionData& meshData) : vertex_position_data(), dir_light_data(), indices(), setup(false), water_mesh(std::nullopt)
+	ChunkRenderer::ChunkRenderer(ChunkMeshConstructionData& meshData) : vertex_position_data(), dir_light_data(), indices(), setup(false)
 	{
 		indices = meshData.indices;
 		index_count = indices.size();
@@ -31,11 +31,6 @@ namespace Eon
 	ChunkRenderer::~ChunkRenderer()
 	{
 		Destroy();
-	}
-
-	void ChunkRenderer::SetWaterMesh(std::unique_ptr<ChunkRenderer> waterMesh)
-	{
-		water_mesh = std::move(waterMesh);
 	}
 
 	void ChunkRenderer::Render() const
@@ -92,14 +87,10 @@ namespace Eon
 
 		std::vector<unsigned int>().swap(indices);
 
-		if (water_mesh.has_value()) {
-			water_mesh->get()->Setup();
-		}
-
 		setup = true;
 	}
 
-	void ChunkRenderer::Destroy()
+	void ChunkRenderer::Destroy() const
 	{
 		if (setup)
 		{
@@ -109,18 +100,5 @@ namespace Eon
 			glDeleteBuffers(1, &vertex_position_vbo);
 			glDeleteBuffers(1, &dir_light_vbo);
 		}
-
-		if (water_mesh.has_value()) {
-			water_mesh->get()->Destroy();
-		}
-	}
-
-	std::optional<std::reference_wrapper<ChunkRenderer>> ChunkRenderer::GetWaterMesh()
-	{
-		if (water_mesh.has_value()) {
-			return *water_mesh.value();
-		}
-
-		return std::nullopt;
 	}
 }  // namespace Eon

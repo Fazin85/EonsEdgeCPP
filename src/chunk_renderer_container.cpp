@@ -10,6 +10,19 @@ namespace Eon {
 		return chunk;
 	}
 
+	void ChunkRendererContainer::Setup()
+	{
+		opaque_renderer->Setup();
+
+		if (cutout_renderer.has_value()) {
+			cutout_renderer->get()->Setup();
+		}
+
+		if (translucent_renderer.has_value()) {
+			translucent_renderer->get()->Setup();
+		}
+	}
+
 	ChunkRenderer& ChunkRendererContainer::GetOpaqueRenderer()
 	{
 		return *opaque_renderer;
@@ -31,5 +44,15 @@ namespace Eon {
 		}
 
 		return std::nullopt;
+	}
+
+	void ChunkRendererContainer::SetCutoutRenderer(std::unique_ptr<ChunkRenderer> cutoutRenderer)
+	{
+		cutout_renderer = std::move(cutoutRenderer);
+	}
+
+	void ChunkRendererContainer::SetTranslucentRenderer(std::unique_ptr<ChunkRenderer> translucentRenderer)
+	{
+		translucent_renderer = std::move(translucentRenderer);
 	}
 }

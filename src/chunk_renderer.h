@@ -15,10 +15,9 @@ namespace Eon
 	public:
 		ChunkRenderer(ChunkMeshConstructionData& meshConstructionData);
 		~ChunkRenderer();
-		void SetWaterMesh(std::unique_ptr<ChunkRenderer> waterMesh);
 		void Render() const;
 		void Setup();
-		void Destroy();
+		void Destroy() const;
 		std::optional<std::reference_wrapper<ChunkRenderer>> GetWaterMesh();
 
 	private:
@@ -27,7 +26,6 @@ namespace Eon
 		std::vector<unsigned int> dir_light_data;
 		std::vector<unsigned int> indices;
 		size_t index_count;
-		std::optional<std::unique_ptr<ChunkRenderer>> water_mesh;
 		unsigned int vao;
 		unsigned int ibo;
 		unsigned int vertex_position_vbo;

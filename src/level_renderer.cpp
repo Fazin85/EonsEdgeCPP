@@ -8,7 +8,7 @@
 
 namespace Eon
 {
-	LevelRenderer::LevelRenderer(Level& level, AABBChunkRendererProvider& chunkRendererProvider) : level(level), aabb_chunk_renderer_provider(chunkRendererProvider)
+	LevelRenderer::LevelRenderer(Level& level, ChunkRendererContainerProvider& chunkRendererContainerProvider) : level(level), chunk_renderer_container_provider(chunkRendererContainerProvider)
 	{
 		exit = false;
 
@@ -72,7 +72,7 @@ namespace Eon
 
 	void LevelRenderer::Update(Frustum& frustum, glm::vec3 cameraPosition)
 	{
-		std::unique_ptr<AABBChunkRenderer> chunk;
+		std::unique_ptr<ChunkRendererContainer> chunk;
 		ChunkPosition position;
 
 		if (meshes_to_setup.try_dequeue(chunk))
@@ -125,8 +125,12 @@ namespace Eon
 
 		glm::vec3 playerChunkPosition = glm::vec3((static_cast<int>(cameraPosition.x) >> CHUNK_BITSHIFT_AMOUNT) * CHUNK_WIDTH, 0, (static_cast<int>(cameraPosition.z) >> CHUNK_BITSHIFT_AMOUNT) * CHUNK_WIDTH);
 
-		static std::vector<std::pair<AABBChunkRenderer*, float>> renderers;
-		renderers.clear();
+		static std::vector<std::pair<ChunkRendererContainer*, float>> cutoutRenderers;
+		static std::vector<std::pair<ChunkRendererContainer*, float>> translucentRenderers;
+		cutoutRenderers.clear();
+		translucentRenderers.clear();
+
+		int drawCalls[3]{ 0 };
 
 		for (const auto& [chunkPosition, chunkRenderer] : chunk_renderers)
 		{
@@ -138,31 +142,50 @@ namespace Eon
 				continue;
 			}
 
-			auto waterMesh = chunkRenderer->GetBaseChunkRenderer().GetWaterMesh();
-			if (waterMesh.has_value()) {
-				renderers.emplace_back(chunkRenderer.get(), distance);
+			auto cutoutRenderer = chunkRenderer->GetCutoutRenderer();
+			auto translucentRenderer = chunkRenderer->GetTranslucentRenderer();
+
+			if (cutoutRenderer.has_value()) {
+				cutoutRenderers.push_back({ chunkRenderer.get(), distance });
+			}
+
+			if (translucentRenderer.has_value()) {
+				translucentRenderers.push_back({ chunkRenderer.get(), distance });
 			}
 
 			chunk_shader->UniformFVec3("chunkPos", glm::vec3(chunkPosition.x, 0.0f, chunkPosition.z));
 
-			chunkRenderer->Render(0);
+			chunkRenderer->GetOpaqueRenderer().Render();
+			drawCalls[0]++;
 		}
 
-		std::sort(renderers.begin(), renderers.end(), [cameraPosition](std::pair<AABBChunkRenderer*, float> first, std::pair<AABBChunkRenderer*, float> second) -> bool
-			{
-				ChunkPosition firstPosition = first.first->GetChunk().Position();
-				ChunkPosition secondPosition = second.first->GetChunk().Position();
+		SortRenderersByDistance(cutoutRenderers, cameraPosition);
+		SortRenderersByDistance(translucentRenderers, cameraPosition);
 
-				return glm::distance(cameraPosition, glm::vec3(firstPosition.x, 0, firstPosition.z)) > glm::distance(cameraPosition, glm::vec3(secondPosition.x, 0, secondPosition.z));
-			});
-
-		for (const auto& pair : renderers)
+		for (const auto& pair : cutoutRenderers)
 		{
 			ChunkPosition chunkPosition = pair.first->GetChunk().Position();
 
 			chunk_shader->UniformFVec3("chunkPos", glm::vec3(chunkPosition.x, 0.0f, chunkPosition.z));
 
-			pair.first->GetBaseChunkRenderer().GetWaterMesh()->get().Render();
+			pair.first->GetCutoutRenderer()->get().Render();
+			drawCalls[1]++;
+		}
+
+		for (const auto& pair : translucentRenderers)
+		{
+			ChunkPosition chunkPosition = pair.first->GetChunk().Position();
+
+			chunk_shader->UniformFVec3("chunkPos", glm::vec3(chunkPosition.x, 0.0f, chunkPosition.z));
+
+			pair.first->GetTranslucentRenderer()->get().Render();
+			drawCalls[2]++;
+		}
+
+		static int timer = 0;
+		timer++;
+		if (timer % 200 == 0) {
+			std::cout << "odc:" << drawCalls[0] << ", cdc:" << drawCalls[1] << ", tdc:" << drawCalls[2] << "\n";
 		}
 	}
 
@@ -181,6 +204,17 @@ namespace Eon
 		RemoveMesh(chunk.Position());
 	}
 
+	void LevelRenderer::SortRenderersByDistance(std::vector<std::pair<ChunkRendererContainer*, float>>& renderers, glm::vec3 cameraPosition)
+	{
+		std::sort(renderers.begin(), renderers.end(), [cameraPosition](std::pair<ChunkRendererContainer*, float> first, std::pair<ChunkRendererContainer*, float> second) -> bool
+			{
+				ChunkPosition firstPosition = first.first->GetChunk().Position();
+				ChunkPosition secondPosition = second.first->GetChunk().Position();
+
+				return glm::distance(cameraPosition, glm::vec3(firstPosition.x, 0, firstPosition.z)) > glm::distance(cameraPosition, glm::vec3(secondPosition.x, 0, secondPosition.z));
+			});
+	}
+
 	void LevelRenderer::MeshThread()
 	{
 		while (!exit)
@@ -188,7 +222,7 @@ namespace Eon
 			ChunkPosition chunkPosition;
 			if (chunks_to_mesh.try_dequeue(chunkPosition))
 			{
-				meshes_to_setup.enqueue(std::move(aabb_chunk_renderer_provider.ProvideRenderer(chunkPosition)));
+				meshes_to_setup.enqueue(std::move(chunk_renderer_container_provider.ProvideRenderer(chunkPosition)));
 			}
 		}
 	}

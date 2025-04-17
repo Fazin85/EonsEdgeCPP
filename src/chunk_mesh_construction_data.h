@@ -15,5 +15,6 @@ namespace Eon
 		std::vector<unsigned char> directions;
 		std::vector<unsigned char> light;
 		unsigned int index_count;
+		unsigned int face_count;
 	};
 }

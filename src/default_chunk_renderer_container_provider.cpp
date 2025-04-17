@@ -1,25 +1,26 @@
-#include "default_aabb_chunk_renderer_provider.h"
+#include "default_chunk_renderer_container_provider.h"
 #include "log.h"
 
 namespace Eon {
-	DefaultAABBChunkRendererProvider::DefaultAABBChunkRendererProvider(Level& level) : level(level)
+	DefaultChunkRendererContainerProvider::DefaultChunkRendererContainerProvider(Level& level) : level(level)
 	{
 	}
 
-	std::unique_ptr<AABBChunkRenderer> DefaultAABBChunkRendererProvider::ProvideRenderer(ChunkPosition inChunkPosition)
+	std::unique_ptr<ChunkRendererContainer> DefaultChunkRendererContainerProvider::ProvideRenderer(ChunkPosition inChunkPosition)
 	{
 		auto chunk = level.GetChunk(inChunkPosition);
 
 		if (!chunk.has_value()) {
 			std::stringstream ss;
-			ss << "Failed to get chunk at " << inChunkPosition.x << "," << inChunkPosition.z << "\n";
+			ss << "ProvideRenderer::Failed to get chunk at " << inChunkPosition.x << "," << inChunkPosition.z << "\n";
 			throw std::runtime_error(ss.str());
 		}
 
 		glm::ivec3 chunkPosition(inChunkPosition.x, 0, inChunkPosition.z);
+
 		ChunkMeshConstructionData opaqueMeshData{};
-		ChunkMeshConstructionData transparentMeshData{};
-		bool tranparency = false;
+		ChunkMeshConstructionData cutoutMeshData{};
+		ChunkMeshConstructionData translucentMeshData{};
 
 		int lowest = CalculateLowestPoint(inChunkPosition, chunk->get().GetChunkHeights().lowest);
 
@@ -29,22 +30,19 @@ namespace Eon {
 			{
 				for (int y = lowest; y <= chunk->get().GetColumnHeights(x, z).highest; y++) {
 
-					int numOpaqueFaces = 0;
-					int numTransparentFaces = 0;
+					opaqueMeshData.face_count = 0;
+					cutoutMeshData.face_count = 0;
+					translucentMeshData.face_count = 0;
+
 					glm::ivec3 position(x, y, z);
 					Block block = chunk->get().GetBlock(x, y, z);
-					bool currentTransparent = false;
 
 					if (block.type == BlockType::AIR)
 					{
 						continue;
 					}
 
-					if (block.IsCutout() || block.Translucent())
-					{
-						tranparency = true;
-						currentTransparent = true;
-					}
+					auto& currentMeshData = GetMeshData(block, opaqueMeshData, cutoutMeshData, translucentMeshData);
 
 					BlockType type = block.type;
 
@@ -54,8 +52,7 @@ namespace Eon {
 						auto sideBlock = chunk->get().GetBlock(x - 1, y, z);
 						if (sideBlock.IsCutout() || (!block.Translucent() && sideBlock.Translucent()))
 						{
-							AddFace(currentTransparent ? transparentMeshData : opaqueMeshData, position, type, dir);
-							currentTransparent ? numTransparentFaces++ : numOpaqueFaces++;
+							AddFace(currentMeshData, position, type, dir);
 						}
 					}
 					else
@@ -63,8 +60,7 @@ namespace Eon {
 						auto sideBlock = level.GetBlock(chunkPosition + glm::ivec3(x - 1, y, z));
 						if (sideBlock.IsCutout() || (!block.Translucent() && sideBlock.Translucent()))
 						{
-							AddFace(currentTransparent ? transparentMeshData : opaqueMeshData, position, type, dir);
-							currentTransparent ? numTransparentFaces++ : numOpaqueFaces++;
+							AddFace(currentMeshData, position, type, dir);
 						}
 					}
 
@@ -74,8 +70,7 @@ namespace Eon {
 						auto sideBlock = chunk->get().GetBlock(x + 1, y, z);
 						if (sideBlock.IsCutout() || (!block.Translucent() && sideBlock.Translucent()))
 						{
-							AddFace(currentTransparent ? transparentMeshData : opaqueMeshData, position, type, dir);
-							currentTransparent ? numTransparentFaces++ : numOpaqueFaces++;
+							AddFace(currentMeshData, position, type, dir);
 						}
 					}
 					else
@@ -83,8 +78,7 @@ namespace Eon {
 						auto sideBlock = level.GetBlock(chunkPosition + glm::ivec3(x + 1, y, z));
 						if (sideBlock.IsCutout() || (!block.Translucent() && sideBlock.Translucent()))
 						{
-							AddFace(currentTransparent ? transparentMeshData : opaqueMeshData, position, type, dir);
-							currentTransparent ? numTransparentFaces++ : numOpaqueFaces++;
+							AddFace(currentMeshData, position, type, dir);
 						}
 					}
 
@@ -94,14 +88,12 @@ namespace Eon {
 						auto sideBlock = chunk->get().GetBlock(x, y + 1, z);
 						if (sideBlock.IsCutout() || (!block.Translucent() && sideBlock.Translucent()))
 						{
-							AddFace(currentTransparent ? transparentMeshData : opaqueMeshData, position, type, dir);
-							currentTransparent ? numTransparentFaces++ : numOpaqueFaces++;
+							AddFace(currentMeshData, position, type, dir);
 						}
 					}
 					else
 					{
-						AddFace(currentTransparent ? transparentMeshData : opaqueMeshData, position, type, dir);
-						currentTransparent ? numTransparentFaces++ : numOpaqueFaces++;
+						AddFace(currentMeshData, position, type, dir);
 					}
 
 					dir = Directions::Bottom;
@@ -110,8 +102,7 @@ namespace Eon {
 						auto sideBlock = chunk->get().GetBlock(x, y - 1, z);
 						if (sideBlock.IsCutout() || (!block.Translucent() && sideBlock.Translucent()))
 						{
-							AddFace(currentTransparent ? transparentMeshData : opaqueMeshData, position, type, dir);
-							currentTransparent ? numTransparentFaces++ : numOpaqueFaces++;
+							AddFace(currentMeshData, position, type, dir);
 						}
 					}
 
@@ -121,8 +112,7 @@ namespace Eon {
 						auto sideBlock = chunk->get().GetBlock(x, y, z + 1);
 						if (sideBlock.IsCutout() || (!block.Translucent() && sideBlock.Translucent()))
 						{
-							AddFace(currentTransparent ? transparentMeshData : opaqueMeshData, position, type, dir);
-							currentTransparent ? numTransparentFaces++ : numOpaqueFaces++;
+							AddFace(currentMeshData, position, type, dir);
 						}
 					}
 					else
@@ -130,8 +120,7 @@ namespace Eon {
 						auto sideBlock = level.GetBlock(chunkPosition + glm::ivec3(x, y, z + 1));
 						if (sideBlock.IsCutout() || (!block.Translucent() && sideBlock.Translucent()))
 						{
-							AddFace(currentTransparent ? transparentMeshData : opaqueMeshData, position, type, dir);
-							currentTransparent ? numTransparentFaces++ : numOpaqueFaces++;
+							AddFace(currentMeshData, position, type, dir);
 						}
 					}
 
@@ -141,8 +130,7 @@ namespace Eon {
 						auto sideBlock = chunk->get().GetBlock(x, y, z - 1);
 						if (sideBlock.IsCutout() || (!block.Translucent() && sideBlock.Translucent()))
 						{
-							AddFace(currentTransparent ? transparentMeshData : opaqueMeshData, position, type, dir);
-							currentTransparent ? numTransparentFaces++ : numOpaqueFaces++;
+							AddFace(currentMeshData, position, type, dir);
 						}
 					}
 					else
@@ -151,34 +139,40 @@ namespace Eon {
 
 						if (sideBlock.IsCutout() || (!block.Translucent() && sideBlock.Translucent()))
 						{
-							AddFace(currentTransparent ? transparentMeshData : opaqueMeshData, position, type, dir);
-							currentTransparent ? numTransparentFaces++ : numOpaqueFaces++;
+							AddFace(currentMeshData, position, type, dir);
 						}
 					}
 
-					if (opaqueMeshData.vertexPositions.size() > 0)
-					{
-						AddIndices(opaqueMeshData, numOpaqueFaces);
+					if (opaqueMeshData.face_count > 0) {
+						AddIndices(opaqueMeshData);
 					}
 
-					if (transparentMeshData.vertexPositions.size() > 0)
-					{
-						AddIndices(transparentMeshData, numTransparentFaces);
+					if (cutoutMeshData.face_count > 0) {
+						AddIndices(cutoutMeshData);
+					}
+
+					if (translucentMeshData.face_count > 0) {
+						AddIndices(translucentMeshData);
 					}
 				}
 			}
 		}
 
-		std::unique_ptr<ChunkRenderer> chunkRenderer = std::make_unique<ChunkRenderer>(opaqueMeshData);
-		if (tranparency)
-		{
-			chunkRenderer->SetWaterMesh(std::make_unique<ChunkRenderer>(transparentMeshData));
+		std::unique_ptr<ChunkRenderer> opaqueChunkRenderer = std::make_unique<ChunkRenderer>(opaqueMeshData);
+		auto chunkRendererContainer = std::make_unique<ChunkRendererContainer>(*chunk, std::move(opaqueChunkRenderer));
+
+		if (!cutoutMeshData.vertexPositions.empty()) {
+			chunkRendererContainer->SetCutoutRenderer(std::make_unique<ChunkRenderer>(cutoutMeshData));
 		}
 
-		return std::make_unique<AABBChunkRenderer>(chunk->get(), std::move(chunkRenderer));
+		if (!translucentMeshData.vertexPositions.empty()) {
+			chunkRendererContainer->SetTranslucentRenderer(std::make_unique<ChunkRenderer>(translucentMeshData));
+		}
+
+		return chunkRendererContainer;
 	}
 
-	int DefaultAABBChunkRendererProvider::CalculateLowestPoint(ChunkPosition& position, int middleLowest)
+	int DefaultChunkRendererContainerProvider::CalculateLowestPoint(ChunkPosition& position, int middleLowest)
 	{
 		std::array<ChunkPosition, 4> positionsToCheck = {
 			position.Offset(CHUNK_WIDTH, 0),
@@ -206,7 +200,19 @@ namespace Eon {
 		return lowest;
 	}
 
-	void DefaultAABBChunkRendererProvider::AddFace(ChunkMeshConstructionData& meshData, const glm::ivec3& blockPosition, BlockType blockType, Directions direction)
+	ChunkMeshConstructionData& DefaultChunkRendererContainerProvider::GetMeshData(Block block, ChunkMeshConstructionData& opaqueMeshData, ChunkMeshConstructionData& cutoutMeshData, ChunkMeshConstructionData& translucentMeshData)
+	{
+		if (block.IsCutout()) {
+			return cutoutMeshData;
+		}
+		else if (block.Translucent()) {
+			return translucentMeshData;
+		}
+
+		return opaqueMeshData;
+	}
+
+	void DefaultChunkRendererContainerProvider::AddFace(ChunkMeshConstructionData& meshData, const glm::ivec3& blockPosition, BlockType blockType, Directions direction)
 	{
 		auto faceData = GetFaceDataFromDirection(direction);
 
@@ -222,9 +228,11 @@ namespace Eon {
 			meshData.light.push_back(15);
 			meshData.uvs.push_back({ i, GetTextureId(blockType, direction) });
 		}
+
+		meshData.face_count++;
 	}
 
-	std::array<unsigned char, 12> DefaultAABBChunkRendererProvider::GetFaceDataFromDirection(Directions dir)
+	std::array<unsigned char, 12> DefaultChunkRendererContainerProvider::GetFaceDataFromDirection(Directions dir)
 	{
 		switch (dir)
 		{
@@ -245,9 +253,9 @@ namespace Eon {
 		return {};
 	}
 
-	void DefaultAABBChunkRendererProvider::AddIndices(ChunkMeshConstructionData& meshData, int count)
+	void DefaultChunkRendererContainerProvider::AddIndices(ChunkMeshConstructionData& meshData)
 	{
-		for (int i = 0; i < count; i++)
+		for (int i = 0; i < meshData.face_count; i++)
 		{
 			meshData.indices.push_back(meshData.index_count);
 			meshData.indices.push_back(meshData.index_count + 1);
@@ -260,7 +268,7 @@ namespace Eon {
 		}
 	}
 
-	BlockFaceTexture DefaultAABBChunkRendererProvider::GetTextureId(BlockType blockType, Directions faceDirection)
+	BlockFaceTexture DefaultChunkRendererContainerProvider::GetTextureId(BlockType blockType, Directions faceDirection)
 	{
 		switch (blockType)
 		{
