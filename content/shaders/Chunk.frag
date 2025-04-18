@@ -5,6 +5,7 @@ in vec4 v_color;
 in vec3 v_viewpos;
 in vec3 v_normal;
 in vec3 frag_pos;
+in vec3 worldPos;
 flat in uint blockType;
 
 out vec4 FragColor;
@@ -18,6 +19,7 @@ uniform vec3 light_color;
 uniform sampler2DArray textureSampler;
 
 const float MIN_DIFFUSE_LIGHT = 0.35;
+const uint WATER_TYPE = 5U;
 
 void main() 
 {
@@ -36,8 +38,17 @@ void main()
 	vec4 diffuse = vec4(d, 1.0);
 	
 	//ambient lighting
-	vec4 ambient = FragColor * ambient_light;
+	vec4 ambient = FragColor * ambient_light;	
 	
+	if(blockType == WATER_TYPE) {
+		vec3 viewDir = normalize(v_viewpos - worldPos);
+		vec3 halfVector = normalize(lightDir + viewDir);
+		float specular = pow(max(0.0, dot(norm, halfVector)), 100.0);
+		vec3 specularColor = vec3(1.0) * specular * 0.7;
+		
+		FragColor.rgb += specularColor;
+	}
+
 	//fog
 	float fog = smoothstep(fog_near, fog_far, length(v_viewpos));
 	//FragColor = (diffuse + ambient) * FragColor;

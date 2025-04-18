@@ -8,6 +8,7 @@ out vec4 v_color;
 out vec3 v_viewpos;
 out vec3 v_normal;
 out vec3 frag_pos;
+out vec3 worldPos;
 flat out uint blockType;
 
 // uniform variables
@@ -32,6 +33,7 @@ void main()
 	
 	vec3 vertexPosition = vec3(x, y, z);
 	vec4 worldPosition = vec4(vertexPosition + chunkPos - camPos, 1.0);
+	worldPos = worldPosition.xyz;
 	gl_Position = worldPosition * model * view * projection; // coordinates
 	
 	uint inLight = (uvDirLightData & (0xFFU << 24U)) >> 24U;

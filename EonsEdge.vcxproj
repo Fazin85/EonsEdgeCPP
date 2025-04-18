@@ -145,8 +145,11 @@
     <ClCompile Include="src\chunk_renderer_container.cpp" />
     <ClCompile Include="src\chunk_section.cpp" />
     <ClCompile Include="src\compress.cpp" />
+    <ClCompile Include="src\cube_renderer.cpp" />
     <ClCompile Include="src\default_chunk_renderer_container_provider.cpp" />
+    <ClCompile Include="src\display_list.cpp" />
     <ClCompile Include="src\fast_noise.cpp" />
+    <ClCompile Include="src\fish_renderer.cpp" />
     <ClCompile Include="src\frustum.cpp" />
     <ClCompile Include="src\game.cpp" />
     <ClCompile Include="src\image.cpp" />
@@ -186,8 +189,11 @@
     <ClInclude Include="src\chunk_unloaded_event_listener.h" />
     <ClInclude Include="src\chunk_info.h" />
     <ClInclude Include="src\compress.h" />
+    <ClInclude Include="src\cube_renderer.h" />
     <ClInclude Include="src\default_chunk_renderer_container_provider.h" />
+    <ClInclude Include="src\display_list.h" />
     <ClInclude Include="src\fast_noise.h" />
+    <ClInclude Include="src\fish_renderer.h" />
     <ClInclude Include="src\noise_generator_improved.h" />
     <ClInclude Include="src\noise_generator_octaves.h" />
     <ClInclude Include="src\ogt_vox.h" />

@@ -18,7 +18,6 @@ namespace Eon
 		void Render() const;
 		void Setup();
 		void Destroy() const;
-		std::optional<std::reference_wrapper<ChunkRenderer>> GetWaterMesh();
 
 	private:
 		bool setup;

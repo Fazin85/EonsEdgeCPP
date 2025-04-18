@@ -6,6 +6,7 @@
 #include "plane_mesh.h"
 #include "player.h"
 #include "skybox.h"
+#include "cube_renderer.h"
 
 namespace Eon
 {
