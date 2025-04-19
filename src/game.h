@@ -7,6 +7,9 @@
 #include "player.h"
 #include "skybox.h"
 #include "cube_renderer.h"
+#include "npc_system.h"
+
+#define FIXED_UPDATE_TPS 60.0f
 
 namespace Eon
 {
@@ -23,10 +26,12 @@ namespace Eon
 
 		int exitCode;
 		bool stop;
+		double elapsed;
 		std::unique_ptr<Player> player;
 		std::unique_ptr<Level> level;
 		std::unique_ptr<LevelRenderer> level_renderer;
 		std::unique_ptr<BillboardSprite> sprite;
 		std::unique_ptr<Skybox> skybox;
+		std::unique_ptr<NPCSystem> npc_system;
 	};
 }

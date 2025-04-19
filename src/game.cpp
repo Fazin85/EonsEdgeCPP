@@ -13,6 +13,7 @@ namespace Eon
 	int Game::Run()
 	{
 		exitCode = 0;
+		elapsed = 0;
 		stop = false;
 		Log::Init();
 
@@ -88,48 +89,6 @@ namespace Eon
 		stop = true;
 	}
 
-	static void DrawCube() {
-		glBegin(GL_QUADS);
-
-		// Front face
-		glTexCoord2f(0.0f, 0.0f); glVertex3f(-1.0f, -1.0f, 1.0f);
-		glTexCoord2f(1.0f, 0.0f); glVertex3f(1.0f, -1.0f, 1.0f);
-		glTexCoord2f(1.0f, 1.0f); glVertex3f(1.0f, 1.0f, 1.0f);
-		glTexCoord2f(0.0f, 1.0f); glVertex3f(-1.0f, 1.0f, 1.0f);
-
-		// Back face
-		glTexCoord2f(0.0f, 0.0f); glVertex3f(1.0f, -1.0f, -1.0f);
-		glTexCoord2f(1.0f, 0.0f); glVertex3f(-1.0f, -1.0f, -1.0f);
-		glTexCoord2f(1.0f, 1.0f); glVertex3f(-1.0f, 1.0f, -1.0f);
-		glTexCoord2f(0.0f, 1.0f); glVertex3f(1.0f, 1.0f, -1.0f);
-
-		// Left face
-		glTexCoord2f(0.0f, 0.0f); glVertex3f(-1.0f, -1.0f, -1.0f);
-		glTexCoord2f(1.0f, 0.0f); glVertex3f(-1.0f, -1.0f, 1.0f);
-		glTexCoord2f(1.0f, 1.0f); glVertex3f(-1.0f, 1.0f, 1.0f);
-		glTexCoord2f(0.0f, 1.0f); glVertex3f(-1.0f, 1.0f, -1.0f);
-
-		// Right face
-		glTexCoord2f(0.0f, 0.0f); glVertex3f(1.0f, -1.0f, 1.0f);
-		glTexCoord2f(1.0f, 0.0f); glVertex3f(1.0f, -1.0f, -1.0f);
-		glTexCoord2f(1.0f, 1.0f); glVertex3f(1.0f, 1.0f, -1.0f);
-		glTexCoord2f(0.0f, 1.0f); glVertex3f(1.0f, 1.0f, 1.0f);
-
-		// Top face
-		glTexCoord2f(0.0f, 0.0f); glVertex3f(-1.0f, 1.0f, 1.0f);
-		glTexCoord2f(1.0f, 0.0f); glVertex3f(1.0f, 1.0f, 1.0f);
-		glTexCoord2f(1.0f, 1.0f); glVertex3f(1.0f, 1.0f, -1.0f);
-		glTexCoord2f(0.0f, 1.0f); glVertex3f(-1.0f, 1.0f, -1.0f);
-
-		// Bottom face
-		glTexCoord2f(0.0f, 0.0f); glVertex3f(-1.0f, -1.0f, -1.0f);
-		glTexCoord2f(1.0f, 0.0f); glVertex3f(1.0f, -1.0f, -1.0f);
-		glTexCoord2f(1.0f, 1.0f); glVertex3f(1.0f, -1.0f, 1.0f);
-		glTexCoord2f(0.0f, 1.0f); glVertex3f(-1.0f, -1.0f, 1.0f);
-
-		glEnd();
-	}
-
 	void Game::Init()
 	{
 		glEnable(GL_DEPTH_TEST);
@@ -165,10 +124,21 @@ namespace Eon
 		};
 
 		skybox = std::make_unique<Skybox>(facesCubemap);
+
+		npc_system = std::make_unique<NPCSystem>();
+		int npc = npc_system->NewNPC(NPCType::FISH, { 0, 104, 0 }, { 0, 0, 0 });
+		npc_system->AtIndex(npc).color = { 0, 1, 1 };
 	}
 
 	void Game::Update(float dt)
 	{
+		elapsed += dt;
+
+		if (elapsed >= 1.0f / FIXED_UPDATE_TPS) {
+			npc_system->Tick();
+			elapsed = 0;
+		}
+
 		player->GetCamera().CalculateViewMatrix(player->Position());
 		level_renderer->Update(player->GetCamera().GetFrustum(), player->Position());
 
@@ -183,6 +153,8 @@ namespace Eon
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		level_renderer->Render(player->GetCamera(), player->Position());
+
+		npc_system->Render(player->GetCamera(), player->Position());
 
 		sprite->Render(player->GetCamera(), player->Position());
 

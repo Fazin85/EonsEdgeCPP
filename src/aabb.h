@@ -57,6 +57,6 @@ namespace Eon
 		}
 
 		glm::vec3 position;
-		const glm::vec3 dimensions;
+		glm::vec3 dimensions;
 	};
 }

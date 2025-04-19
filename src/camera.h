@@ -15,7 +15,7 @@ namespace Eon
 		Camera(float fov, float sensitivity);
 		void CalculateViewMatrix(glm::vec3 position);
 		glm::mat4* ViewMatrix();
-		glm::mat4* ProjectionMatrix() ;
+		glm::mat4* ProjectionMatrix();
 		void Update(float dt);
 		float Yaw() const;
 		Frustum& GetFrustum();
