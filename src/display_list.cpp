@@ -4,11 +4,12 @@ namespace Eon {
 	DisplayList::DisplayList()
 	{
 		id = glGenLists(1);
+		destroyed = false;
 	}
 
 	DisplayList::~DisplayList()
 	{
-		glDeleteLists(id, 1);
+		Destroy();
 	}
 
 	void DisplayList::Begin() const
@@ -24,5 +25,13 @@ namespace Eon {
 	void DisplayList::Call() const
 	{
 		glCallList(id);
+	}
+
+	void DisplayList::Destroy()
+	{
+		if (!destroyed) {
+			glDeleteLists(id, 1);
+			destroyed = true;
+		}
 	}
 }

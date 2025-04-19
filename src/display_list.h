@@ -12,7 +12,10 @@ namespace Eon {
 		void End();
 
 		void Call() const;
+
+		void Destroy();
 	private:
 		unsigned int id;
+		bool destroyed;
 	};
 }

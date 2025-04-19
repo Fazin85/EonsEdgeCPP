@@ -7,6 +7,7 @@
 #include <optional>
 
 #include "chunk_mesh_construction_data.h"
+#include "display_list.h"
 
 namespace Eon
 {
@@ -21,13 +22,8 @@ namespace Eon
 
 	private:
 		bool setup;
-		std::vector<unsigned int> vertex_position_data;
-		std::vector<unsigned int> dir_light_data;
+		std::vector<glm::ivec3> vertices;
 		std::vector<unsigned int> indices;
-		size_t index_count;
-		unsigned int vao;
-		unsigned int ibo;
-		unsigned int vertex_position_vbo;
-		unsigned int dir_light_vbo;
+		int list;
 	};
 }  // namespace Eon

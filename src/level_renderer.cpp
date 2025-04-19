@@ -3,6 +3,7 @@
 #include "level_renderer.h"
 #include "log.h"
 #include "settings.h"
+#include "cube_renderer.h"
 #include <lz4.h>
 #include <zlib.h>
 
@@ -106,22 +107,24 @@ namespace Eon
 
 	void LevelRenderer::Render(Camera& camera, glm::vec3 cameraPosition)
 	{
-		glClearColor(level.SkyColor().r, level.SkyColor().g, level.SkyColor().b, level.SkyColor().a);
+		//glClearColor(level.SkyColor().r, level.SkyColor().g, level.SkyColor().b, level.SkyColor().a);
+
+		//chunk_texture->Bind();
+
+		glUseProgram(0);
 
 		glCullFace(GL_BACK);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-		chunk_texture->Bind();
-
-		chunk_shader->Bind();
-		chunk_shader->UniformFVec4("fog_color", level.SkyColor());
-		camera.CalculateViewMatrix(glm::vec3(0, 0, 0));
-		chunk_shader->UniformMatrix4("view", *camera.ViewMatrix());
-		chunk_shader->UniformMatrix4("projection", *camera.ProjectionMatrix());
-		chunk_shader->UniformFVec3("camPos", cameraPosition);
+		glMatrixMode(GL_PROJECTION);
+		auto& proj = *camera.ProjectionMatrix();
+		glLoadMatrixf(&proj[0][0]);
 
 		camera.CalculateViewMatrix(cameraPosition);
+		glMatrixMode(GL_MODELVIEW);
+		auto& view = *camera.ViewMatrix();
+		glLoadMatrixf(&view[0][0]);
 
 		glm::vec3 playerChunkPosition = glm::vec3((static_cast<int>(cameraPosition.x) >> CHUNK_BITSHIFT_AMOUNT) * CHUNK_WIDTH, 0, (static_cast<int>(cameraPosition.z) >> CHUNK_BITSHIFT_AMOUNT) * CHUNK_WIDTH);
 
@@ -153,16 +156,18 @@ namespace Eon
 				translucentRenderers.push_back({ chunkRenderer.get(), distance });
 			}
 
-			chunk_shader->UniformFVec3("chunkPos", glm::vec3(chunkPosition.x, 0.0f, chunkPosition.z));
-
-			chunkRenderer->GetOpaqueRenderer().Render();
-			drawCalls[0]++;
+			glPushMatrix(); {
+				glTranslatef(chunkPosition.x, 0.0f, chunkPosition.z);
+				chunkRenderer->GetOpaqueRenderer().Render();
+				drawCalls[0]++;
+			}
+			glPopMatrix();
 		}
 
 		SortRenderersByDistance(cutoutRenderers, cameraPosition);
 		SortRenderersByDistance(translucentRenderers, cameraPosition);
 
-		for (const auto& pair : cutoutRenderers)
+		/*for (const auto& pair : cutoutRenderers)
 		{
 			ChunkPosition chunkPosition = pair.first->GetChunk().Position();
 
@@ -180,7 +185,7 @@ namespace Eon
 
 			pair.first->GetTranslucentRenderer()->get().Render();
 			drawCalls[2]++;
-		}
+		}*/
 
 		static int timer = 0;
 		timer++;

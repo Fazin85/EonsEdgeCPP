@@ -159,6 +159,25 @@ namespace Eon
 		sprite->Render(player->GetCamera(), player->Position());
 
 		skybox->Render(player->GetCamera(), player->Position());
+
+		static std::vector<int> errors;
+		errors.clear();
+
+		/*int err = glGetError();
+		while (err != GL_NO_ERROR) {
+			if (std::find(errors.begin(), errors.end(), err) == errors.end()) {
+				errors.push_back(err);
+			}
+
+			err = glGetError();
+		}
+
+		std::stringstream ss;
+		for (int err : errors) {
+			ss << "OpenGL error: " << err << "\n";
+		}
+
+		EON_CRITICAL(ss.str());*/
 	}
 
 	void Game::OnExit()
