@@ -15,7 +15,7 @@ namespace Eon
 		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST/*_MIPMAP_NEAREST*/);
 		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-		glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA8, width, height, imagefilePaths.size(), 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+		glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA8, width, height, static_cast<GLsizei>(imagefilePaths.size()), 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
 
 		for (size_t i = 0; i < imagefilePaths.size(); i++)
 		{
@@ -31,7 +31,7 @@ namespace Eon
 				return;
 			}
 
-			glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, i, width, height, 1, GL_RGBA, GL_UNSIGNED_BYTE, imageData);
+			glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, static_cast<GLsizei>(i), width, height, 1, GL_RGBA, GL_UNSIGNED_BYTE, imageData);
 
 			stbi_image_free(imageData);
 		}
@@ -52,7 +52,7 @@ namespace Eon
 		glBindTexture(GL_TEXTURE_2D_ARRAY, id);
 	}
 
-	void TextureArray::Unbind()
+	void TextureArray::Unbind() const
 	{
 		glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
 	}

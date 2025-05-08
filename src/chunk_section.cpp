@@ -15,8 +15,8 @@ namespace Eon {
 		}
 	}
 
-	void ChunkSection::SetBlock(int x, int y, int z, Block block) {
-		if (x >= CHUNK_WIDTH || x < 0 || y >= 16 || y < 0 || z >= CHUNK_WIDTH || z < 0 || block.type == this->block.type) {
+	void ChunkSection::SetBlock(int x, int y, int z, Block b) {
+		if (x >= CHUNK_WIDTH || x < 0 || y >= 16 || y < 0 || z >= CHUNK_WIDTH || z < 0 || b.type == this->block.type) {
 			return;
 		}
 
@@ -24,7 +24,7 @@ namespace Eon {
 			blocks.resize(CHUNK_WIDTH * 16 * CHUNK_WIDTH);
 		}
 
-		blocks[x + CHUNK_WIDTH * (y + 16 * z)] = block;
+		blocks[x + CHUNK_WIDTH * (y + 16 * z)] = b;
 	}
 
 	void ChunkSection::CalculateUniformity()
@@ -38,7 +38,7 @@ namespace Eon {
 			}
 		}
 
-		if (is_uniform && blocks.size() > 0) {
+		if (is_uniform && !blocks.empty()) {
 			block = blocks[0];
 			std::vector<Block>().swap(blocks);
 		}

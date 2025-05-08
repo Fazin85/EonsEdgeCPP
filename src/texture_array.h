@@ -11,7 +11,7 @@ namespace Eon
 		TextureArray(std::vector<std::string>& imagefilePaths, unsigned int width, unsigned int height);
 		~TextureArray();
 		void Bind() const;
-		void Unbind();
+		void Unbind() const;
 
 	private:
 		unsigned int id;

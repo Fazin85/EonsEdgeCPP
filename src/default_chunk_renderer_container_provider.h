@@ -8,7 +8,7 @@
 namespace Eon {
 	class DefaultChunkRendererContainerProvider : public ChunkRendererContainerProvider {
 	public:
-		DefaultChunkRendererContainerProvider(Level& level);
+		explicit DefaultChunkRendererContainerProvider(Level& level);
 
 		std::unique_ptr<ChunkRendererContainer> ProvideRenderer(ChunkPosition inChunkPosition) override;
 	private:
@@ -16,10 +16,10 @@ namespace Eon {
 
 		ChunkMeshConstructionData& GetMeshData(Block block, ChunkMeshConstructionData& opaqueMeshData, ChunkMeshConstructionData& cutoutMeshData, ChunkMeshConstructionData& translucentMeshData);
 
-		void AddFace(ChunkMeshConstructionData& meshData, const glm::ivec3& blockPosition, BlockType blockType, Directions direction);
-		std::array<unsigned char, 12> GetFaceDataFromDirection(Directions dir);
-		void AddIndices(ChunkMeshConstructionData& meshData);
-		BlockFaceTexture GetTextureId(BlockType blockType, Directions faceDirection);
+		void AddFace(ChunkMeshConstructionData& meshData, const glm::ivec3& blockPosition, BlockType blockType, Directions direction) const;
+		std::array<unsigned char, 12> GetFaceDataFromDirection(Directions dir) const;
+		void AddIndices(ChunkMeshConstructionData& meshData) const;
+		BlockFaceTexture GetTextureId(BlockType blockType, Directions faceDirection) const;
 
 		Level& level;
 	};

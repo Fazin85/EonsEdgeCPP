@@ -14,7 +14,7 @@ namespace Eon
 		~Shader();
 
 		void Bind() const;
-		void Unbind();
+		void Unbind() const;
 
 		void UniformMatrix4(const std::string& uniformName, const glm::mat4& matrix);
 		void UniformMatrix4NoTranspose(const std::string& uniformName, const glm::mat4& matrix);

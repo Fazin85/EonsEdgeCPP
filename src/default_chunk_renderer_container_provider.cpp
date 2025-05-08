@@ -1,7 +1,8 @@
 #include "default_chunk_renderer_container_provider.h"
 #include "log.h"
 
-namespace Eon {
+namespace Eon
+{
 	DefaultChunkRendererContainerProvider::DefaultChunkRendererContainerProvider(Level& level) : level(level)
 	{
 	}
@@ -10,7 +11,8 @@ namespace Eon {
 	{
 		auto chunk = level.GetChunk(inChunkPosition);
 
-		if (!chunk.has_value()) {
+		if (!chunk.has_value())
+		{
 			std::stringstream ss;
 			ss << "ProvideRenderer::Failed to get chunk at " << inChunkPosition.x << "," << inChunkPosition.z << "\n";
 			throw std::runtime_error(ss.str());
@@ -28,7 +30,8 @@ namespace Eon {
 		{
 			for (int z = 0; z < CHUNK_WIDTH; z++)
 			{
-				for (int y = lowest; y <= chunk->get().GetColumnHeights(x, z).highest; y++) {
+				for (int y = lowest; y <= chunk->get().GetColumnHeights(x, z).highest; y++)
+				{
 
 					opaqueMeshData.face_count = 0;
 					cutoutMeshData.face_count = 0;
@@ -143,29 +146,24 @@ namespace Eon {
 						}
 					}
 
-					if (opaqueMeshData.face_count > 0) {
-						AddIndices(opaqueMeshData);
-					}
-
-					if (cutoutMeshData.face_count > 0) {
-						AddIndices(cutoutMeshData);
-					}
-
-					if (translucentMeshData.face_count > 0) {
-						AddIndices(translucentMeshData);
+					if (currentMeshData.face_count > 0)
+					{
+						AddIndices(currentMeshData);
 					}
 				}
 			}
 		}
 
-		std::unique_ptr<ChunkRenderer> opaqueChunkRenderer = std::make_unique<ChunkRenderer>(opaqueMeshData);
+		auto opaqueChunkRenderer = std::make_unique<ChunkRenderer>(opaqueMeshData);
 		auto chunkRendererContainer = std::make_unique<ChunkRendererContainer>(*chunk, std::move(opaqueChunkRenderer));
 
-		if (!cutoutMeshData.vertexPositions.empty()) {
+		if (!cutoutMeshData.vertexPositions.empty())
+		{
 			chunkRendererContainer->SetCutoutRenderer(std::make_unique<ChunkRenderer>(cutoutMeshData));
 		}
 
-		if (!translucentMeshData.vertexPositions.empty()) {
+		if (!translucentMeshData.vertexPositions.empty())
+		{
 			chunkRendererContainer->SetTranslucentRenderer(std::make_unique<ChunkRenderer>(translucentMeshData));
 		}
 
@@ -180,19 +178,22 @@ namespace Eon {
 			position.Offset(-CHUNK_WIDTH, 0),
 			position.Offset(0, -CHUNK_WIDTH) };
 
-		auto chunks = level.GetChunks(positionsToCheck.data(), positionsToCheck.size());
+		auto chunks = level.GetChunks(positionsToCheck);
 
-		if (chunks.size() != positionsToCheck.size()) {
+		if (chunks.size() != positionsToCheck.size())
+		{
 			EON_WARN("Failed to get all chunks for lowest point check");
 			return 0;
 		}
 
 		int lowest = middleLowest;
 
-		for (auto& chunk : chunks) {
+		for (const auto& chunk : chunks)
+		{
 			int chunkLowest = chunk.get().GetChunkHeights().lowest;
 
-			if (chunkLowest < lowest) {
+			if (chunkLowest < lowest)
+			{
 				lowest = chunkLowest;
 			}
 		}
@@ -202,17 +203,19 @@ namespace Eon {
 
 	ChunkMeshConstructionData& DefaultChunkRendererContainerProvider::GetMeshData(Block block, ChunkMeshConstructionData& opaqueMeshData, ChunkMeshConstructionData& cutoutMeshData, ChunkMeshConstructionData& translucentMeshData)
 	{
-		if (block.IsCutout()) {
+		if (block.IsCutout())
+		{
 			return cutoutMeshData;
 		}
-		else if (block.Translucent()) {
+		else if (block.Translucent())
+		{
 			return translucentMeshData;
 		}
 
 		return opaqueMeshData;
 	}
 
-	void DefaultChunkRendererContainerProvider::AddFace(ChunkMeshConstructionData& meshData, const glm::ivec3& blockPosition, BlockType blockType, Directions direction)
+	void DefaultChunkRendererContainerProvider::AddFace(ChunkMeshConstructionData& meshData, const glm::ivec3& blockPosition, BlockType blockType, Directions direction) const
 	{
 		auto faceData = GetFaceDataFromDirection(direction);
 
@@ -232,7 +235,7 @@ namespace Eon {
 		meshData.face_count++;
 	}
 
-	std::array<unsigned char, 12> DefaultChunkRendererContainerProvider::GetFaceDataFromDirection(Directions dir)
+	std::array<unsigned char, 12> DefaultChunkRendererContainerProvider::GetFaceDataFromDirection(Directions dir) const
 	{
 		switch (dir)
 		{
@@ -253,7 +256,7 @@ namespace Eon {
 		return {};
 	}
 
-	void DefaultChunkRendererContainerProvider::AddIndices(ChunkMeshConstructionData& meshData)
+	void DefaultChunkRendererContainerProvider::AddIndices(ChunkMeshConstructionData& meshData) const
 	{
 		for (int i = 0; i < meshData.face_count; i++)
 		{
@@ -268,7 +271,7 @@ namespace Eon {
 		}
 	}
 
-	BlockFaceTexture DefaultChunkRendererContainerProvider::GetTextureId(BlockType blockType, Directions faceDirection)
+	BlockFaceTexture DefaultChunkRendererContainerProvider::GetTextureId(BlockType blockType, Directions faceDirection) const
 	{
 		switch (blockType)
 		{

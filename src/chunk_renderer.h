@@ -13,12 +13,11 @@ namespace Eon
 	class ChunkRenderer
 	{
 	public:
-		ChunkRenderer(ChunkMeshConstructionData& meshConstructionData);
+		explicit ChunkRenderer(ChunkMeshConstructionData& meshConstructionData);
 		~ChunkRenderer();
 		void Render() const;
 		void Setup();
 		void Destroy() const;
-		std::optional<std::reference_wrapper<ChunkRenderer>> GetWaterMesh();
 
 	private:
 		bool setup;

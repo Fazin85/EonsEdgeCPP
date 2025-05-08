@@ -17,6 +17,7 @@
 #include <unordered_map>
 #include <optional>
 #include <concurrentqueue/concurrentqueue.h>
+#include <span>
 
 #define LEVEL_WIDTH_CHUNKS 32
 
@@ -36,13 +37,12 @@ namespace Eon
 		bool ChunkExistsAt(ChunkPosition position);
 		void Update(ChunkPosition playerChunkPosition, int simulationDistance);
 		void AddChunkUnloadedEventListener(ChunkUnloadedEventListener& eventListener);
-		std::vector<std::reference_wrapper<Chunk>> GetChunks(ChunkPosition* chunkPositions, int size);
+		std::vector<std::reference_wrapper<Chunk>> GetChunks(std::span<ChunkPosition> chunkPositions);
 
 	private:
-		void PlaceModel(VoxelModel& model, short x, short y, short z);
 		void ChunkGenThread();
-		void LoadNewChunks(ChunkPosition& playerChunkPosition, int simulationDistanceBlocks);
-		void UnloadFarChunks(ChunkPosition& playerChunkPosition, int unloadDistance);
+		void LoadNewChunks(const ChunkPosition& playerChunkPosition, int simulationDistanceBlocks);
+		void UnloadFarChunks(const ChunkPosition& playerChunkPosition, int unloadDistance);
 
 		std::unordered_map<ChunkPosition, std::unique_ptr<Chunk>> chunks;
 		std::vector<ChunkPosition> chunks_being_generated;

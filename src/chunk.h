@@ -21,8 +21,8 @@ namespace Eon
 			int lowest;
 		};
 
-		Chunk(ChunkPrimer& chunkPrimer, ChunkPosition chunkPosition);
-		void SetBlock(int x, int y, int z, Block& block);
+		Chunk(const ChunkPrimer& chunkPrimer, ChunkPosition chunkPosition);
+		void SetBlock(int x, int y, int z, const Block& block);
 		Block GetBlock(int x, int y, int z);
 		ChunkPosition Position() const;
 		ColumnHeights GetColumnHeights(int x, int z);
@@ -35,8 +35,8 @@ namespace Eon
 		AABB& GetAABB();
 
 	private:
-		Block GetBlockInternal(int x, int y, int z, bool lock);
-		void CalculateColumnHeights(int x, int z, bool lock);
+		Block GetBlockInternal(int x, int y, int z);
+		void CalculateColumnHeights(int x, int z);
 
 		ChunkPosition position;
 		std::array<ChunkSection, CHUNK_HEIGHT / 16> sections;

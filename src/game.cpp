@@ -129,7 +129,7 @@ namespace Eon
 		player->GetCamera().CalculateViewMatrix(player->Position());
 		level_renderer->Update(player->GetCamera().GetFrustum(), player->Position());
 
-		level->Update(ChunkPosition(player->Position().x, player->Position().z), GameSettings.render_distance + 2);
+		level->Update(ChunkPosition(static_cast<int>(player->Position().x), static_cast<int>(player->Position().z)), GameSettings.render_distance + 2);
 
 		player->Update(dt);
 	}

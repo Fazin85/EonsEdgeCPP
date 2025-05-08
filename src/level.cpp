@@ -40,8 +40,8 @@ namespace Eon
 
 		std::optional<std::reference_wrapper<Chunk>> result;
 
-		const auto iter = chunks.find(position);
-		if (iter != chunks.end()) {
+		if (auto iter = chunks.find(position); iter != chunks.end())
+		{
 			result = *iter->second;
 		}
 
@@ -54,9 +54,9 @@ namespace Eon
 
 	void Level::SetBlock(Block block, int x, int y, int z)
 	{
-		std::lock_guard<std::mutex> lock(chunk_mutex);
+		std::scoped_lock<std::mutex> lock(chunk_mutex);
 
-		auto chunkPosition = ChunkPosition(x, z).Validate();
+		auto chunkPosition = ChunkPosition{ x, z }.Validate();
 
 		auto chunk = GetChunk(chunkPosition, false);
 
@@ -74,8 +74,8 @@ namespace Eon
 	{
 		std::vector<BoundingBox> bbs;
 
-		glm::ivec3 min = glm::ivec3(static_cast<int>(bb.min.x), static_cast<int>(bb.min.y), static_cast<int>(bb.min.z));
-		glm::ivec3 max = glm::ivec3(static_cast<int>(bb.max.x) + 1, static_cast<int>(bb.max.y) + 1, static_cast<int>(bb.max.z) + 1);
+		auto min = glm::ivec3(static_cast<int>(bb.min.x), static_cast<int>(bb.min.y), static_cast<int>(bb.min.z));
+		auto max = glm::ivec3(static_cast<int>(bb.max.x) + 1, static_cast<int>(bb.max.y) + 1, static_cast<int>(bb.max.z) + 1);
 
 		for (int x = min.x; x <= max.x; x++)
 		{
@@ -98,7 +98,7 @@ namespace Eon
 
 	bool Level::ChunkExistsAt(ChunkPosition position)
 	{
-		std::lock_guard<std::mutex> lock(chunk_mutex);
+		std::scoped_lock<std::mutex> lock(chunk_mutex);
 
 		return chunks.contains(position);
 	}
@@ -119,53 +119,35 @@ namespace Eon
 		chunk_unloaded_event_listeners.push_back(&eventListener);
 	}
 
-	std::vector<std::reference_wrapper<Chunk>> Level::GetChunks(ChunkPosition* chunkPositions, int size)
+	std::vector<std::reference_wrapper<Chunk>> Level::GetChunks(std::span<ChunkPosition> chunkPositions)
 	{
-		std::vector<std::reference_wrapper<Chunk>> chunks;
+		std::vector<std::reference_wrapper<Chunk>> resultChunks;
 
-		std::lock_guard<std::mutex> lock(chunk_mutex);
+		std::scoped_lock<std::mutex> lock(chunk_mutex);
 
-		for (int i = 0; i < size; i++) {
-			auto chunk = GetChunk(chunkPositions[i], false);
+		for (const auto& position : chunkPositions)
+		{
+			auto chunk = GetChunk(position, false);
 
-			if (chunk.has_value()) {
-				chunks.push_back(*chunk);
+			if (chunk.has_value())
+			{
+				resultChunks.push_back(*chunk);
 			}
 		}
 
-		return chunks;
+		return resultChunks;
 	}
 
 	Block Level::GetBlock(glm::ivec3 position)
 	{
-		std::lock_guard<std::mutex> lock(chunk_mutex);
+		std::scoped_lock<std::mutex> lock(chunk_mutex);
 
-		auto chunk = GetChunk(ChunkPosition{ position.x, position.z }.Validate(), false);
-		if (chunk.has_value())
+		if (auto chunk = GetChunk(ChunkPosition{ position.x, position.z }.Validate(), false); chunk.has_value())
 		{
 			return chunk->get().GetBlock(position.x - chunk->get().Position().x, position.y, position.z - chunk->get().Position().z);
 		}
 
 		return { BlockType::AIR };
-	}
-
-	void Level::PlaceModel(VoxelModel& model, short x, short y, short z)
-	{
-		for (int mx = 0; mx < model.Size().x; mx++)
-		{
-			for (int my = 0; my < model.Size().y; my++)
-			{
-				for (int mz = 0; mz < model.Size().z; mz++)
-				{
-					BlockType type = model.GetBlockType(mx, my, mz);
-
-					if (type != BlockType::AIR)
-					{
-						SetBlock(Block(type), x + mx, y + my, z + mz);
-					}
-				}
-			}
-		}
 	}
 
 	void Level::ChunkGenThread()
@@ -184,14 +166,14 @@ namespace Eon
 		}
 	}
 
-	void Level::LoadNewChunks(ChunkPosition& playerChunkPosition, int simulationDistanceBlocks)
+	void Level::LoadNewChunks(const ChunkPosition& playerChunkPosition, int simulationDistanceBlocks)
 	{
 		static std::vector<ChunkPosition> toGen;
 		toGen.clear();
 
 		for (int cx = playerChunkPosition.x - simulationDistanceBlocks; cx <= playerChunkPosition.x + simulationDistanceBlocks; cx += CHUNK_WIDTH) {
 			for (int cz = playerChunkPosition.z - simulationDistanceBlocks; cz <= playerChunkPosition.z + simulationDistanceBlocks; cz += CHUNK_WIDTH) {
-				ChunkPosition currentChunkPosition(cx, cz);
+				ChunkPosition currentChunkPosition{ cx, cz };
 				currentChunkPosition.Validate();
 
 				if (!ChunkExistsAt(currentChunkPosition) &&
@@ -216,7 +198,7 @@ namespace Eon
 		size_t actualCount = generated_chunks.try_dequeue_bulk(items.data(), maxItems);
 
 		if (actualCount > 0) {
-			std::lock_guard<std::mutex> lock(chunk_mutex);
+			std::scoped_lock<std::mutex> lock(chunk_mutex);
 
 			for (int i = 0; i < actualCount; i++) {
 				std::unique_ptr<Chunk> chunk = std::move(items[i]);
@@ -227,24 +209,24 @@ namespace Eon
 		}
 	}
 
-	void Level::UnloadFarChunks(ChunkPosition& playerChunkPosition, int unloadDistance)
+	void Level::UnloadFarChunks(const ChunkPosition& playerChunkPosition, int unloadDistance)
 	{
 		static std::vector<ChunkPosition> chunksToUnload;
 		chunksToUnload.clear();
 
-		std::lock_guard<std::mutex> lock(chunk_mutex);
+		std::scoped_lock<std::mutex> lock(chunk_mutex);
 
-		for (auto& chunk : chunks) {
-			if (chunk.second->CanUnload()) {
-				float distance = glm::distance(glm::vec2(playerChunkPosition.x, playerChunkPosition.z), glm::vec2(chunk.first.x, chunk.first.z));
+		for (const auto& [position, chunk] : chunks) {
+			if (chunk->CanUnload()) {
+				float distance = glm::distance(glm::vec2(playerChunkPosition.x, playerChunkPosition.z), glm::vec2(position.x, position.z));
 
-				if (distance >= unloadDistance) {
-					chunksToUnload.push_back(chunk.first);
+				if (distance >= static_cast<float>(unloadDistance)) {
+					chunksToUnload.push_back(position);
 				}
 			}
 		}
 
-		for (ChunkPosition& position : chunksToUnload) {
+		for (const ChunkPosition& position : chunksToUnload) {
 			auto iter = chunks.find(position);
 
 			for (auto eventListener : chunk_unloaded_event_listeners) {

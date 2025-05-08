@@ -81,7 +81,7 @@ namespace Eon
 
 		GLint count;
 		constexpr GLsizei bufSize = 256;//increase this if we have really long uniform names in our shaders
-		GLchar name[bufSize];
+		GLchar name[bufSize] = { 0 };
 		GLint length;
 		GLint size;
 		GLenum type;
@@ -96,7 +96,7 @@ namespace Eon
 			glGetActiveUniform(id, i, bufSize, &length, &size, &type, name);
 
 			int location = glGetUniformLocation(id, name);
-			uniform_cache.insert({ name, location });
+			uniform_cache.try_emplace(name, location);
 		}
 
 		EON_INFO("Loaded vertex shader: " + vertexShaderName);
@@ -113,7 +113,7 @@ namespace Eon
 		glUseProgram(id);
 	}
 
-	void Shader::Unbind()
+	void Shader::Unbind() const
 	{
 		glUseProgram(0);
 	}

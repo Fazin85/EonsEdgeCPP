@@ -43,7 +43,7 @@ namespace Eon
 		glBindVertexArray(vao);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 
-		glDrawElements(GL_TRIANGLES, index_count, GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(index_count), GL_UNSIGNED_INT, nullptr);
 	}
 
 	void ChunkRenderer::Setup()
@@ -66,7 +66,7 @@ namespace Eon
 
 		std::vector<unsigned int>().swap(vertex_position_data);
 
-		glVertexAttribIPointer(0, 1, GL_UNSIGNED_INT, 0, 0);
+		glVertexAttribIPointer(0, 1, GL_UNSIGNED_INT, 0, nullptr);
 		glEnableVertexAttribArray(0);
 
 		glGenBuffers(1, &dir_light_vbo);
@@ -77,7 +77,7 @@ namespace Eon
 
 		std::vector<unsigned int>().swap(dir_light_data);
 
-		glVertexAttribIPointer(1, 1, GL_UNSIGNED_INT, 0, 0);
+		glVertexAttribIPointer(1, 1, GL_UNSIGNED_INT, 0, nullptr);
 		glEnableVertexAttribArray(1);
 
 		glGenBuffers(1, &ibo);
