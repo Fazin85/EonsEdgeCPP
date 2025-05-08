@@ -28,8 +28,8 @@ namespace Eon
 	public:
 		Level(AbstractLevelGenerator& abstractLevelGenerator);
 		~Level();
-		std::optional<std::reference_wrapper<Chunk>> GetChunk(ChunkPosition position);
-		std::optional<std::reference_wrapper<Chunk>> GetChunk(ChunkPosition position, bool lock);
+		std::optional<std::shared_ptr<Chunk>> GetChunk(ChunkPosition position);
+		std::optional<std::shared_ptr<Chunk>> GetChunk(ChunkPosition position, bool lock);
 		void SetBlock(Block block, int x, int y, int z);
 		Block GetBlock(glm::ivec3 position);
 		glm::vec4& SkyColor();
@@ -37,18 +37,18 @@ namespace Eon
 		bool ChunkExistsAt(ChunkPosition position);
 		void Update(ChunkPosition playerChunkPosition, int simulationDistance);
 		void AddChunkUnloadedEventListener(ChunkUnloadedEventListener& eventListener);
-		std::vector<std::reference_wrapper<Chunk>> GetChunks(std::span<ChunkPosition> chunkPositions);
+		std::vector<std::shared_ptr<Chunk>> GetChunks(std::span<ChunkPosition> chunkPositions);
 
 	private:
 		void ChunkGenThread();
 		void LoadNewChunks(const ChunkPosition& playerChunkPosition, int simulationDistanceBlocks);
 		void UnloadFarChunks(const ChunkPosition& playerChunkPosition, int unloadDistance);
 
-		std::unordered_map<ChunkPosition, std::unique_ptr<Chunk>> chunks;
+		std::unordered_map<ChunkPosition, std::shared_ptr<Chunk>> chunks;
 		std::vector<ChunkPosition> chunks_being_generated;
 		moodycamel::ConcurrentQueue<ChunkPosition> chunks_to_generate;
-		moodycamel::ConcurrentQueue<std::unique_ptr<Chunk>> generated_chunks;
-		std::thread chunk_gen_thread;
+		moodycamel::ConcurrentQueue<std::shared_ptr<Chunk>> generated_chunks;
+		std::jthread chunk_gen_thread;
 		glm::vec4 sky_color;
 		AbstractLevelGenerator& abstract_level_generator;
 		std::unique_ptr<VoxelModel> tree_model;

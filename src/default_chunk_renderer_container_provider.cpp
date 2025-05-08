@@ -24,13 +24,13 @@ namespace Eon
 		ChunkMeshConstructionData cutoutMeshData{};
 		ChunkMeshConstructionData translucentMeshData{};
 
-		int lowest = CalculateLowestPoint(inChunkPosition, chunk->get().GetChunkHeights().lowest);
+		int lowest = CalculateLowestPoint(inChunkPosition, chunk.value()->GetChunkHeights().lowest);
 
 		for (int x = 0; x < CHUNK_WIDTH; x++)
 		{
 			for (int z = 0; z < CHUNK_WIDTH; z++)
 			{
-				for (int y = lowest; y <= chunk->get().GetColumnHeights(x, z).highest; y++)
+				for (int y = lowest; y <= chunk.value()->GetColumnHeights(x, z).highest; y++)
 				{
 
 					opaqueMeshData.face_count = 0;
@@ -38,7 +38,7 @@ namespace Eon
 					translucentMeshData.face_count = 0;
 
 					glm::ivec3 position(x, y, z);
-					Block block = chunk->get().GetBlock(x, y, z);
+					Block block = chunk.value()->GetBlock(x, y, z);
 
 					if (block.type == BlockType::AIR)
 					{
@@ -52,7 +52,7 @@ namespace Eon
 					Directions dir = Directions::Left;
 					if (x > 0)
 					{
-						auto sideBlock = chunk->get().GetBlock(x - 1, y, z);
+						auto sideBlock = chunk.value()->GetBlock(x - 1, y, z);
 						if (sideBlock.IsCutout() || (!block.Translucent() && sideBlock.Translucent()))
 						{
 							AddFace(currentMeshData, position, type, dir);
@@ -70,7 +70,7 @@ namespace Eon
 					dir = Directions::Right;
 					if (x < CHUNK_WIDTH - 1)
 					{
-						auto sideBlock = chunk->get().GetBlock(x + 1, y, z);
+						auto sideBlock = chunk.value()->GetBlock(x + 1, y, z);
 						if (sideBlock.IsCutout() || (!block.Translucent() && sideBlock.Translucent()))
 						{
 							AddFace(currentMeshData, position, type, dir);
@@ -88,7 +88,7 @@ namespace Eon
 					dir = Directions::Top;
 					if (y < CHUNK_HEIGHT - 1)
 					{
-						auto sideBlock = chunk->get().GetBlock(x, y + 1, z);
+						auto sideBlock = chunk.value()->GetBlock(x, y + 1, z);
 						if (sideBlock.IsCutout() || (!block.Translucent() && sideBlock.Translucent()))
 						{
 							AddFace(currentMeshData, position, type, dir);
@@ -102,7 +102,7 @@ namespace Eon
 					dir = Directions::Bottom;
 					if (y > 0)
 					{
-						auto sideBlock = chunk->get().GetBlock(x, y - 1, z);
+						auto sideBlock = chunk.value()->GetBlock(x, y - 1, z);
 						if (sideBlock.IsCutout() || (!block.Translucent() && sideBlock.Translucent()))
 						{
 							AddFace(currentMeshData, position, type, dir);
@@ -112,7 +112,7 @@ namespace Eon
 					dir = Directions::Front;
 					if (z < CHUNK_WIDTH - 1)
 					{
-						auto sideBlock = chunk->get().GetBlock(x, y, z + 1);
+						auto sideBlock = chunk.value()->GetBlock(x, y, z + 1);
 						if (sideBlock.IsCutout() || (!block.Translucent() && sideBlock.Translucent()))
 						{
 							AddFace(currentMeshData, position, type, dir);
@@ -130,7 +130,7 @@ namespace Eon
 					dir = Directions::Back;
 					if (z > 0)
 					{
-						auto sideBlock = chunk->get().GetBlock(x, y, z - 1);
+						auto sideBlock = chunk.value()->GetBlock(x, y, z - 1);
 						if (sideBlock.IsCutout() || (!block.Translucent() && sideBlock.Translucent()))
 						{
 							AddFace(currentMeshData, position, type, dir);
@@ -190,7 +190,7 @@ namespace Eon
 
 		for (const auto& chunk : chunks)
 		{
-			int chunkLowest = chunk.get().GetChunkHeights().lowest;
+			int chunkLowest = chunk->GetChunkHeights().lowest;
 
 			if (chunkLowest < lowest)
 			{

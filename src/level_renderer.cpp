@@ -49,11 +49,6 @@ namespace Eon
 	LevelRenderer::~LevelRenderer()
 	{
 		this->exit = true;
-
-		for (int i = 0; i < mesh_threads.size(); i++)
-		{
-			mesh_threads[i].join();
-		}
 	}
 
 	void LevelRenderer::MeshChunk(ChunkPosition chunkPosition)
@@ -70,14 +65,14 @@ namespace Eon
 		}
 	}
 
-	void LevelRenderer::Update(Frustum& frustum, glm::vec3 cameraPosition)
+	void LevelRenderer::Update(const Frustum& frustum, glm::vec3 cameraPosition)
 	{
 		std::unique_ptr<ChunkRendererContainer> chunk;
 		ChunkPosition position;
 
 		if (meshes_to_setup.try_dequeue(chunk))
 		{
-			position = chunk->GetChunk().Position();
+			position = chunk->GetChunk()->Position();
 
 			if (chunk_renderers.contains(position)) {
 				chunk_renderers.erase(position);
@@ -90,11 +85,11 @@ namespace Eon
 			MarkCanUnloadForMeshing(position, true);
 		}
 
-		glm::vec3 playerChunkPosition = glm::vec3((static_cast<int>(cameraPosition.x) >> CHUNK_BITSHIFT_AMOUNT) * CHUNK_WIDTH, 0, (static_cast<int>(cameraPosition.z) >> CHUNK_BITSHIFT_AMOUNT) * CHUNK_WIDTH);
+		auto playerChunkPosition = glm::vec3((static_cast<int>(cameraPosition.x) >> CHUNK_BITSHIFT_AMOUNT) * CHUNK_WIDTH, 0, (static_cast<int>(cameraPosition.z) >> CHUNK_BITSHIFT_AMOUNT) * CHUNK_WIDTH);
 
-		for (int cx = playerChunkPosition.x - (CHUNK_WIDTH * GameSettings.render_distance); cx <= playerChunkPosition.x + (CHUNK_WIDTH * GameSettings.render_distance); cx += CHUNK_WIDTH) {
-			for (int cz = playerChunkPosition.z - (CHUNK_WIDTH * GameSettings.render_distance); cz <= playerChunkPosition.z + (CHUNK_WIDTH * GameSettings.render_distance); cz += CHUNK_WIDTH) {
-				ChunkPosition currentChunkPosition(cx, cz);
+		for (int cx = static_cast<int>(playerChunkPosition.x) - (CHUNK_WIDTH * GameSettings.render_distance); cx <= static_cast<int>(playerChunkPosition.x) + (CHUNK_WIDTH * GameSettings.render_distance); cx += CHUNK_WIDTH) {
+			for (int cz = static_cast<int>(playerChunkPosition.z) - (CHUNK_WIDTH * GameSettings.render_distance); cz <= static_cast<int>(playerChunkPosition.z) + (CHUNK_WIDTH * GameSettings.render_distance); cz += CHUNK_WIDTH) {
+				ChunkPosition currentChunkPosition{ cx, cz };
 
 				if (CanChunkBeMeshed(currentChunkPosition, frustum)) {
 					MarkCanUnloadForMeshing(currentChunkPosition, false);
@@ -123,7 +118,7 @@ namespace Eon
 
 		camera.CalculateViewMatrix(cameraPosition);
 
-		glm::vec3 playerChunkPosition = glm::vec3((static_cast<int>(cameraPosition.x) >> CHUNK_BITSHIFT_AMOUNT) * CHUNK_WIDTH, 0, (static_cast<int>(cameraPosition.z) >> CHUNK_BITSHIFT_AMOUNT) * CHUNK_WIDTH);
+		auto playerChunkPosition = glm::vec3((static_cast<int>(cameraPosition.x) >> CHUNK_BITSHIFT_AMOUNT) * CHUNK_WIDTH, 0, (static_cast<int>(cameraPosition.z) >> CHUNK_BITSHIFT_AMOUNT) * CHUNK_WIDTH);
 
 		static std::vector<std::pair<ChunkRendererContainer*, float>> cutoutRenderers;
 		static std::vector<std::pair<ChunkRendererContainer*, float>> translucentRenderers;
@@ -136,8 +131,8 @@ namespace Eon
 		{
 			float distance = glm::distance(playerChunkPosition, glm::vec3(chunkPosition.x, 0, chunkPosition.z));
 
-			if (distance > GameSettings.render_distance * CHUNK_WIDTH ||
-				!camera.GetFrustum().BoxInFrustum(chunkRenderer->GetChunk().GetAABB()))
+			if (distance > static_cast<float>(GameSettings.render_distance * CHUNK_WIDTH) ||
+				!camera.GetFrustum().BoxInFrustum(chunkRenderer->GetChunk()->GetAABB()))
 			{
 				continue;
 			}
@@ -162,23 +157,23 @@ namespace Eon
 		SortRenderersByDistance(cutoutRenderers, cameraPosition);
 		SortRenderersByDistance(translucentRenderers, cameraPosition);
 
-		for (const auto& pair : cutoutRenderers)
+		for (const auto& [chunkRenderer, distance] : cutoutRenderers)
 		{
-			ChunkPosition chunkPosition = pair.first->GetChunk().Position();
+			ChunkPosition chunkPosition = chunkRenderer->GetChunk()->Position();
 
 			chunk_shader->UniformFVec3("chunkPos", glm::vec3(chunkPosition.x, 0.0f, chunkPosition.z));
 
-			pair.first->GetCutoutRenderer()->get().Render();
+			chunkRenderer->GetCutoutRenderer()->get().Render();
 			drawCalls[1]++;
 		}
 
-		for (const auto& pair : translucentRenderers)
+		for (const auto& [chunkRenderer, distance] : translucentRenderers)
 		{
-			ChunkPosition chunkPosition = pair.first->GetChunk().Position();
+			ChunkPosition chunkPosition = chunkRenderer->GetChunk()->Position();
 
 			chunk_shader->UniformFVec3("chunkPos", glm::vec3(chunkPosition.x, 0.0f, chunkPosition.z));
 
-			pair.first->GetTranslucentRenderer()->get().Render();
+			chunkRenderer->GetTranslucentRenderer()->get().Render();
 			drawCalls[2]++;
 		}
 
@@ -204,12 +199,12 @@ namespace Eon
 		RemoveMesh(chunk.Position());
 	}
 
-	void LevelRenderer::SortRenderersByDistance(std::vector<std::pair<ChunkRendererContainer*, float>>& renderers, glm::vec3 cameraPosition)
+	void LevelRenderer::SortRenderersByDistance(std::vector<std::pair<ChunkRendererContainer*, float>>& renderers, glm::vec3 cameraPosition) const
 	{
-		std::sort(renderers.begin(), renderers.end(), [cameraPosition](std::pair<ChunkRendererContainer*, float> first, std::pair<ChunkRendererContainer*, float> second) -> bool
+		std::sort(renderers.begin(), renderers.end(), [cameraPosition](std::pair<ChunkRendererContainer*, float> first, std::pair<ChunkRendererContainer*, float> second)
 			{
-				ChunkPosition firstPosition = first.first->GetChunk().Position();
-				ChunkPosition secondPosition = second.first->GetChunk().Position();
+				ChunkPosition firstPosition = first.first->GetChunk()->Position();
+				ChunkPosition secondPosition = second.first->GetChunk()->Position();
 
 				return glm::distance(cameraPosition, glm::vec3(firstPosition.x, 0, firstPosition.z)) > glm::distance(cameraPosition, glm::vec3(secondPosition.x, 0, secondPosition.z));
 			});
@@ -222,20 +217,20 @@ namespace Eon
 			ChunkPosition chunkPosition;
 			if (chunks_to_mesh.try_dequeue(chunkPosition))
 			{
-				meshes_to_setup.enqueue(std::move(chunk_renderer_container_provider.ProvideRenderer(chunkPosition)));
+				meshes_to_setup.enqueue(chunk_renderer_container_provider.ProvideRenderer(chunkPosition));
 			}
 		}
 	}
 
-	bool LevelRenderer::CanChunkBeMeshed(ChunkPosition position, Frustum& frustum)
+	bool LevelRenderer::CanChunkBeMeshed(ChunkPosition position, const Frustum& frustum)
 	{
 		auto chunk = level.GetChunk(position);
 
-		if (!chunk.has_value()) {
+		if (!chunk) {
 			return false;
 		}
 
-		bool flag = !chunk_renderers.contains(position) && !IsChunkBeingMeshed(position) && frustum.BoxInFrustum(chunk->get().GetAABB());
+		bool flag = !chunk_renderers.contains(position) && !IsChunkBeingMeshed(position) && frustum.BoxInFrustum(chunk.value()->GetAABB());
 
 		bool chunkExists1 = level.ChunkExistsAt(position.Offset(CHUNK_WIDTH, 0));
 		bool chunkExists2 = level.ChunkExistsAt(position.Offset(0, CHUNK_WIDTH));
@@ -263,11 +258,11 @@ namespace Eon
 			position.Offset(-CHUNK_WIDTH, -CHUNK_WIDTH)
 		};
 
-		for (ChunkPosition& chunkPosition : positions) {
+		for (const ChunkPosition& chunkPosition : positions) {
 			auto chunk = level.GetChunk(chunkPosition);
 
 			if (chunk.has_value()) {
-				chunk->get().SetCanUnload(canUnload);
+				chunk.value()->SetCanUnload(canUnload);
 			}
 			else {
 				std::stringstream ss;

@@ -23,26 +23,24 @@ namespace Eon
 	Level::~Level()
 	{
 		exit = true;
-
-		chunk_gen_thread.join();
 	}
 
-	std::optional<std::reference_wrapper<Chunk>> Level::GetChunk(ChunkPosition position)
+	std::optional<std::shared_ptr<Chunk>> Level::GetChunk(ChunkPosition position)
 	{
 		return GetChunk(position, true);
 	}
 
-	std::optional<std::reference_wrapper<Chunk>> Level::GetChunk(ChunkPosition position, bool lock)
+	std::optional<std::shared_ptr<Chunk>> Level::GetChunk(ChunkPosition position, bool lock)
 	{
 		if (lock) {
 			chunk_mutex.lock();
 		}
 
-		std::optional<std::reference_wrapper<Chunk>> result;
+		std::optional<std::shared_ptr<Chunk>> result;
 
 		if (auto iter = chunks.find(position); iter != chunks.end())
 		{
-			result = *iter->second;
+			result = iter->second;
 		}
 
 		if (lock) {
@@ -60,8 +58,8 @@ namespace Eon
 
 		auto chunk = GetChunk(chunkPosition, false);
 
-		if (chunk.has_value()) {
-			chunk->get().SetBlock(x - chunkPosition.x, y, z - chunkPosition.z, block);
+		if (chunk) {
+			chunk.value()->SetBlock(x - chunkPosition.x, y, z - chunkPosition.z, block);
 		}
 	}
 
@@ -119,9 +117,9 @@ namespace Eon
 		chunk_unloaded_event_listeners.push_back(&eventListener);
 	}
 
-	std::vector<std::reference_wrapper<Chunk>> Level::GetChunks(std::span<ChunkPosition> chunkPositions)
+	std::vector<std::shared_ptr<Chunk>> Level::GetChunks(std::span<ChunkPosition> chunkPositions)
 	{
-		std::vector<std::reference_wrapper<Chunk>> resultChunks;
+		std::vector<std::shared_ptr<Chunk>> resultChunks;
 
 		std::scoped_lock<std::mutex> lock(chunk_mutex);
 
@@ -129,7 +127,7 @@ namespace Eon
 		{
 			auto chunk = GetChunk(position, false);
 
-			if (chunk.has_value())
+			if (chunk)
 			{
 				resultChunks.push_back(*chunk);
 			}
@@ -142,9 +140,9 @@ namespace Eon
 	{
 		std::scoped_lock<std::mutex> lock(chunk_mutex);
 
-		if (auto chunk = GetChunk(ChunkPosition{ position.x, position.z }.Validate(), false); chunk.has_value())
+		if (auto chunk = GetChunk(ChunkPosition{ position.x, position.z }.Validate(), false); chunk)
 		{
-			return chunk->get().GetBlock(position.x - chunk->get().Position().x, position.y, position.z - chunk->get().Position().z);
+			return chunk.value()->GetBlock(position.x - chunk.value()->Position().x, position.y, position.z - chunk.value()->Position().z);
 		}
 
 		return { BlockType::AIR };
@@ -158,7 +156,7 @@ namespace Eon
 		while (!exit) {
 			if (chunks_to_generate.try_dequeue(chunkPosition)) {
 				abstract_level_generator.GenerateTerrainShape(*chunkPrimer, chunkPosition.x, chunkPosition.z);
-				generated_chunks.enqueue(std::make_unique<Chunk>(*chunkPrimer, chunkPosition));
+				generated_chunks.enqueue(std::make_shared<Chunk>(*chunkPrimer, chunkPosition));
 			}
 			else {
 				std::this_thread::sleep_for(std::chrono::milliseconds(16));
@@ -194,17 +192,17 @@ namespace Eon
 
 		constexpr size_t maxItems = 32;
 
-		static std::array<std::unique_ptr<Chunk>, maxItems> items;
+		static std::array<std::shared_ptr<Chunk>, maxItems> items;
 		size_t actualCount = generated_chunks.try_dequeue_bulk(items.data(), maxItems);
 
 		if (actualCount > 0) {
 			std::scoped_lock<std::mutex> lock(chunk_mutex);
 
 			for (int i = 0; i < actualCount; i++) {
-				std::unique_ptr<Chunk> chunk = std::move(items[i]);
+				std::shared_ptr<Chunk> chunk = items[i];
 
 				chunks_being_generated.erase(std::find(chunks_being_generated.begin(), chunks_being_generated.end(), chunk->Position()));
-				chunks[chunk->Position()] = std::move(chunk);
+				chunks[chunk->Position()] = chunk;
 			}
 		}
 	}

@@ -26,10 +26,10 @@ namespace Eon
 	{
 	public:
 		LevelRenderer(Level& level, ChunkRendererContainerProvider& chunkRendererContainerProvider);
-		~LevelRenderer();
+		~LevelRenderer() final;
 		void MeshChunk(ChunkPosition chunkPosition);
 		void RemoveMesh(ChunkPosition chunkPosition);
-		void Update(Frustum& frustum, glm::vec3 cameraPosition);
+		void Update(const Frustum& frustum, glm::vec3 cameraPosition);
 		void Render(Camera& camera, glm::vec3 cameraPosition);
 		int ChunkRendererCount();
 		bool IsChunkBeingMeshed(ChunkPosition position);
@@ -37,14 +37,14 @@ namespace Eon
 		void OnChunkUnloaded(Chunk& chunk) override;
 
 	private:
-		void SortRenderersByDistance(std::vector<std::pair<ChunkRendererContainer*, float>>& renderers, glm::vec3 cameraPosition);
+		void SortRenderersByDistance(std::vector<std::pair<ChunkRendererContainer*, float>>& renderers, glm::vec3 cameraPosition) const;
 		void MeshThread();
-		bool CanChunkBeMeshed(ChunkPosition position, Frustum& frustum);
+		bool CanChunkBeMeshed(ChunkPosition position, const Frustum& frustum);
 		void MarkCanUnloadForMeshing(ChunkPosition position, bool canUnload);
 
 		std::unique_ptr<Shader> chunk_shader;
 		std::unique_ptr<TextureArray> chunk_texture;
-		std::vector<std::thread> mesh_threads;
+		std::vector<std::jthread> mesh_threads;
 		std::vector<ChunkPosition> chunks_to_mesh_vector;
 		std::atomic_bool exit;
 		ChunkRendererContainerProvider& chunk_renderer_container_provider;

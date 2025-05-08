@@ -1,11 +1,11 @@
 #include "chunk_renderer_container.h"
 
 namespace Eon {
-	ChunkRendererContainer::ChunkRendererContainer(Chunk& chunk, std::unique_ptr<ChunkRenderer> opaqueRenderer) : chunk(chunk), opaque_renderer(std::move(opaqueRenderer))
+	ChunkRendererContainer::ChunkRendererContainer(std::shared_ptr<Chunk> chunk, std::unique_ptr<ChunkRenderer> opaqueRenderer) : chunk(chunk), opaque_renderer(std::move(opaqueRenderer))
 	{
 	}
 
-	Chunk& ChunkRendererContainer::GetChunk()
+	std::shared_ptr<Chunk> ChunkRendererContainer::GetChunk()
 	{
 		return chunk;
 	}
