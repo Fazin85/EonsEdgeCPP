@@ -27,36 +27,22 @@ namespace Eon
 
 	std::optional<std::shared_ptr<Chunk>> Level::GetChunk(ChunkPosition position)
 	{
-		return GetChunk(position, true);
-	}
-
-	std::optional<std::shared_ptr<Chunk>> Level::GetChunk(ChunkPosition position, bool lock)
-	{
-		if (lock) {
-			chunk_mutex.lock();
-		}
-
+		std::scoped_lock<std::mutex> lock(chunk_mutex);
 		std::optional<std::shared_ptr<Chunk>> result;
 
 		if (auto iter = chunks.find(position); iter != chunks.end())
 		{
-			result = iter->second;
+			return iter->second;
 		}
 
-		if (lock) {
-			chunk_mutex.unlock();
-		}
-
-		return result;
+		return std::nullopt;
 	}
 
 	void Level::SetBlock(Block block, int x, int y, int z)
 	{
-		std::scoped_lock<std::mutex> lock(chunk_mutex);
-
 		auto chunkPosition = ChunkPosition{ x, z }.Validate();
 
-		auto chunk = GetChunk(chunkPosition, false);
+		auto chunk = GetChunk(chunkPosition);
 
 		if (chunk) {
 			chunk.value()->SetBlock(x - chunkPosition.x, y, z - chunkPosition.z, block);
@@ -125,7 +111,7 @@ namespace Eon
 
 		for (const auto& position : chunkPositions)
 		{
-			auto chunk = GetChunk(position, false);
+			auto chunk = GetChunkNoLock(position);
 
 			if (chunk)
 			{
@@ -140,7 +126,7 @@ namespace Eon
 	{
 		std::scoped_lock<std::mutex> lock(chunk_mutex);
 
-		if (auto chunk = GetChunk(ChunkPosition{ position.x, position.z }.Validate(), false); chunk)
+		if (auto chunk = GetChunkNoLock(ChunkPosition{ position.x, position.z }.Validate()); chunk)
 		{
 			return chunk.value()->GetBlock(position.x - chunk.value()->Position().x, position.y, position.z - chunk.value()->Position().z);
 		}
@@ -233,5 +219,17 @@ namespace Eon
 
 			chunks.erase(iter);
 		}
+	}
+	
+	std::optional<std::shared_ptr<Chunk>> Level::GetChunkNoLock(ChunkPosition position)
+	{
+		std::optional<std::shared_ptr<Chunk>> result;
+
+		if (auto iter = chunks.find(position); iter != chunks.end())
+		{
+			return iter->second;
+		}
+
+		return std::nullopt;
 	}
 }  // namespace Eon

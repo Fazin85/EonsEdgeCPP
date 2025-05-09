@@ -26,10 +26,9 @@ namespace Eon
 	class Level
 	{
 	public:
-		Level(AbstractLevelGenerator& abstractLevelGenerator);
+		explicit Level(AbstractLevelGenerator& abstractLevelGenerator);
 		~Level();
 		std::optional<std::shared_ptr<Chunk>> GetChunk(ChunkPosition position);
-		std::optional<std::shared_ptr<Chunk>> GetChunk(ChunkPosition position, bool lock);
 		void SetBlock(Block block, int x, int y, int z);
 		Block GetBlock(glm::ivec3 position);
 		glm::vec4& SkyColor();
@@ -43,6 +42,7 @@ namespace Eon
 		void ChunkGenThread();
 		void LoadNewChunks(const ChunkPosition& playerChunkPosition, int simulationDistanceBlocks);
 		void UnloadFarChunks(const ChunkPosition& playerChunkPosition, int unloadDistance);
+		std::optional<std::shared_ptr<Chunk>> GetChunkNoLock(ChunkPosition position);
 
 		std::unordered_map<ChunkPosition, std::shared_ptr<Chunk>> chunks;
 		std::vector<ChunkPosition> chunks_being_generated;

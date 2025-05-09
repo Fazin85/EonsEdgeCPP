@@ -13,6 +13,7 @@ namespace Eon
 
 		if (!chunk.has_value())
 		{
+			//TODO: This isn't actually an error, if it happens more we should just remove it.
 			std::stringstream ss;
 			ss << "ProvideRenderer::Failed to get chunk at " << inChunkPosition.x << "," << inChunkPosition.z << "\n";
 			throw std::runtime_error(ss.str());
