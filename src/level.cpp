@@ -9,9 +9,9 @@
 
 namespace Eon
 {
-	Level::Level(AbstractLevelGenerator& abstractLevelGenerator) :
+	Level::Level(std::unique_ptr<AbstractLevelGenerator> abstractLevelGenerator) :
 		exit(false),
-		abstract_level_generator(abstractLevelGenerator),
+		abstract_level_generator(std::move(abstractLevelGenerator)),
 		chunks{},
 		sky_color{},
 		chunk_mutex{},
@@ -144,7 +144,7 @@ namespace Eon
 		{
 			if (chunks_to_generate.try_dequeue(chunkPosition))
 			{
-				abstract_level_generator.GenerateTerrainShape(*chunkPrimer, chunkPosition.x, chunkPosition.z);
+				abstract_level_generator->GenerateTerrainShape(*chunkPrimer, chunkPosition.x, chunkPosition.z);
 				generated_chunks.enqueue(std::make_shared<Chunk>(*chunkPrimer, chunkPosition));
 			}
 			else

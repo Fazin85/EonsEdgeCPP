@@ -24,7 +24,7 @@ namespace Eon
 	class Level
 	{
 	public:
-		explicit Level(AbstractLevelGenerator& abstractLevelGenerator);
+		explicit Level(std::unique_ptr<AbstractLevelGenerator> abstractLevelGenerator);
 		~Level();
 		std::optional<std::shared_ptr<Chunk>> GetChunk(ChunkPosition position);
 		void SetBlock(Block block, int x, int y, int z);
@@ -48,7 +48,7 @@ namespace Eon
 		moodycamel::ConcurrentQueue<std::shared_ptr<Chunk>> generated_chunks;
 		std::jthread chunk_gen_thread;
 		glm::vec4 sky_color;
-		AbstractLevelGenerator& abstract_level_generator;
+		std::unique_ptr<AbstractLevelGenerator> abstract_level_generator;
 		std::unique_ptr<VoxelModel> tree_model;
 		std::mutex chunk_mutex;
 		std::atomic_bool exit;

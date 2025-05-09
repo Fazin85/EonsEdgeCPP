@@ -95,16 +95,12 @@ namespace Eon
 
 		Window::Get().setMouseCursorVisible(false);
 
-		BasicTerrainGenerator* btg = new BasicTerrainGenerator();
-
-		level = std::make_unique<Level>(*btg);
+		level = std::make_unique<Level>(std::make_unique<BasicTerrainGenerator>());
 		player = std::make_unique<Player>(level.get());
 
 		level->SkyColor() = glm::vec4(153.0f / 255.0f, 204.0f / 255.0f, 1.0f, 1.0f);
 
-		auto chunkRendererProvider = new DefaultChunkRendererContainerProvider(*level);
-
-		level_renderer = std::make_unique<LevelRenderer>(*level, *chunkRendererProvider);
+		level_renderer = std::make_unique<LevelRenderer>(*level, std::make_unique<DefaultChunkRendererContainerProvider>(*level));
 
 		level->AddChunkUnloadedEventListener(*level_renderer);
 

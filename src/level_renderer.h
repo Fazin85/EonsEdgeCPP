@@ -25,7 +25,7 @@ namespace Eon
 	class LevelRenderer : public ChunkUnloadedEventListener
 	{
 	public:
-		LevelRenderer(Level& level, ChunkRendererContainerProvider& chunkRendererContainerProvider);
+		LevelRenderer(Level& level, std::unique_ptr<ChunkRendererContainerProvider> chunkRendererContainerProvider);
 		~LevelRenderer() final;
 		void MeshChunk(ChunkPosition chunkPosition);
 		void RemoveMesh(ChunkPosition chunkPosition);
@@ -47,7 +47,7 @@ namespace Eon
 		std::vector<std::jthread> mesh_threads;
 		std::vector<ChunkPosition> chunks_to_mesh_vector;
 		std::atomic_bool exit;
-		ChunkRendererContainerProvider& chunk_renderer_container_provider;
+		std::unique_ptr<ChunkRendererContainerProvider> chunk_renderer_container_provider;
 		moodycamel::ConcurrentQueue<ChunkPosition> chunks_to_mesh;
 		moodycamel::ConcurrentQueue<std::unique_ptr<ChunkRendererContainer>> meshes_to_setup;
 		Level& level;

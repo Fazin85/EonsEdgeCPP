@@ -8,7 +8,7 @@
 
 namespace Eon
 {
-	LevelRenderer::LevelRenderer(Level& level, ChunkRendererContainerProvider& chunkRendererContainerProvider) : level(level), chunk_renderer_container_provider(chunkRendererContainerProvider)
+	LevelRenderer::LevelRenderer(Level& level, std::unique_ptr<ChunkRendererContainerProvider> chunkRendererContainerProvider) : level(level), chunk_renderer_container_provider(std::move(chunkRendererContainerProvider))
 	{
 		exit = false;
 
@@ -224,7 +224,7 @@ namespace Eon
 			ChunkPosition chunkPosition;
 			if (chunks_to_mesh.try_dequeue(chunkPosition))
 			{
-				meshes_to_setup.enqueue(chunk_renderer_container_provider.ProvideRenderer(chunkPosition));
+				meshes_to_setup.enqueue(chunk_renderer_container_provider->ProvideRenderer(chunkPosition));
 			}
 		}
 	}
