@@ -10,15 +10,15 @@ namespace Eon
 	class Skybox
 	{
 	public:
-		Skybox(std::string* faceFileNames);
-		void Render(Camera& camera, glm::vec3 cameraPosition) const;
+		explicit Skybox(std::array<std::string, 6>& faceFileNames);
+		void Render(Camera& camera) const;
 
 	private:
 		unsigned int vao;
 		unsigned int vbo;
 		unsigned int ebo;
 		unsigned int texture;
-		static inline Shader* shader = nullptr;
+		static inline std::unique_ptr<Shader> shader = nullptr;
 
 		static inline float vertices[]
 		{

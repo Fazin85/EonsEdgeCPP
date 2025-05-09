@@ -107,7 +107,7 @@ namespace Eon
 		Image image("Test.png");
 		sprite = std::make_unique<BillboardSprite>(image);
 
-		std::string facesCubemap[6] =
+		std::array<std::string, 6> facesCubemap =
 		{
 			"skybox/front.png",
 			"skybox/left.png",
@@ -125,7 +125,7 @@ namespace Eon
 		player->GetCamera().CalculateViewMatrix(player->Position());
 		level_renderer->Update(player->GetCamera().GetFrustum(), player->Position());
 
-		level->Update(ChunkPosition(static_cast<int>(player->Position().x), static_cast<int>(player->Position().z)), GameSettings.render_distance + 2);
+		level->Update(ChunkPosition{ static_cast<int>(player->Position().x), static_cast<int>(player->Position().z) }, GameSettings.render_distance + 2);
 
 		player->Update(dt);
 	}
@@ -139,7 +139,7 @@ namespace Eon
 
 		sprite->Render(player->GetCamera(), player->Position());
 
-		skybox->Render(player->GetCamera(), player->Position());
+		skybox->Render(player->GetCamera());
 	}
 
 	void Game::OnExit()

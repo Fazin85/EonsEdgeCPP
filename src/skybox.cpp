@@ -3,11 +3,11 @@
 #include "stb_image.h"
 #include "log.h"
 
-Eon::Skybox::Skybox(std::string* faceFileNames)
+Eon::Skybox::Skybox(std::array<std::string, 6>& faceFileNames)
 {
 	if (shader == nullptr)
 	{
-		shader = new Shader("Skybox.vert", "Skybox.frag");
+		shader = std::make_unique<Shader>("Skybox.vert", "Skybox.frag");
 	}
 
 	glGenVertexArrays(1, &vao);
@@ -33,9 +33,11 @@ Eon::Skybox::Skybox(std::string* faceFileNames)
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
-	for (unsigned int i = 0; i < 6; i++)
+	for (unsigned int i = 0; i < faceFileNames.size(); i++)
 	{
-		int width, height, nrChannels;
+		int width;
+		int height;
+		int nrChannels;
 		std::string fileName = "content/images/" + faceFileNames[i];
 		unsigned char* data = stbi_load(fileName.c_str(), &width, &height, &nrChannels, 0);
 		if (data)
@@ -53,7 +55,7 @@ Eon::Skybox::Skybox(std::string* faceFileNames)
 				GL_UNSIGNED_BYTE,
 				data
 			);
-			
+
 			stbi_image_free(data);
 			EON_INFO("Loaded image: " + faceFileNames[i]);
 		}
@@ -65,7 +67,7 @@ Eon::Skybox::Skybox(std::string* faceFileNames)
 	}
 }
 
-void Eon::Skybox::Render(Camera& camera, glm::vec3 cameraPosition) const
+void Eon::Skybox::Render(Camera& camera) const
 {
 	glDepthFunc(GL_LEQUAL);
 	glCullFace(GL_FRONT);
@@ -79,7 +81,7 @@ void Eon::Skybox::Render(Camera& camera, glm::vec3 cameraPosition) const
 	glBindVertexArray(vao);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, texture);
-	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
 	glBindVertexArray(0);
 
 	glDepthFunc(GL_LESS);
