@@ -31,7 +31,7 @@ namespace Eon
 		void RemoveMesh(ChunkPosition chunkPosition);
 		void Update(const Frustum& frustum, glm::vec3 cameraPosition);
 		void Render(Camera& camera, glm::vec3 cameraPosition);
-		int ChunkRendererCount();
+		size_t ChunkRendererCount();
 		bool IsChunkBeingMeshed(ChunkPosition position);
 
 		void OnChunkUnloaded(std::shared_ptr<Chunk> chunk) override;

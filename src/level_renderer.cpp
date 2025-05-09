@@ -24,11 +24,11 @@ namespace Eon
 		chunk_shader->UniformFVec3("light_color", glm::vec3(1, 1, 1));
 		chunk_shader->UniformFloat("ambient_light", 0.15f);
 		chunk_shader->UniformMatrix4("model", glm::mat4(1.0f));
-		chunk_shader->UniformFloat("fog_near", (GameSettings.render_distance * CHUNK_WIDTH / 2) + CHUNK_WIDTH);
+		chunk_shader->UniformFloat("fog_near", (static_cast<float>(GameSettings.render_distance) * static_cast<float>(CHUNK_WIDTH) / 2) + CHUNK_WIDTH);
 		chunk_shader->UniformInt1("textureSampler", 0);
 
 		int fogFar = GameSettings.fog ? GameSettings.render_distance * CHUNK_WIDTH : 100000;
-		chunk_shader->UniformFloat("fog_far", fogFar);
+		chunk_shader->UniformFloat("fog_far", static_cast<float>(fogFar));
 
 		std::vector<std::string> imageNames;
 		imageNames.emplace_back("Error.png");
@@ -82,7 +82,7 @@ namespace Eon
 			chunk_renderers[position] = std::move(chunk);
 			chunk_renderers[position]->Setup();
 
-			chunks_to_mesh_vector.erase(std::remove(chunks_to_mesh_vector.begin(), chunks_to_mesh_vector.end(), position), chunks_to_mesh_vector.end());
+			std::erase(chunks_to_mesh_vector, position);
 			MarkCanUnloadForMeshing(position, true);
 		}
 
@@ -129,7 +129,7 @@ namespace Eon
 		cutoutRenderers.clear();
 		translucentRenderers.clear();
 
-		int drawCalls[3]{ 0 };
+		std::array<int, 3> drawCalls = { 0 };
 
 		for (const auto& [chunkPosition, chunkRenderer] : chunk_renderers)
 		{
@@ -191,14 +191,14 @@ namespace Eon
 		}
 	}
 
-	int LevelRenderer::ChunkRendererCount()
+	size_t LevelRenderer::ChunkRendererCount()
 	{
 		return chunk_renderers.size();
 	}
 
 	bool LevelRenderer::IsChunkBeingMeshed(ChunkPosition position)
 	{
-		return std::find(chunks_to_mesh_vector.begin(), chunks_to_mesh_vector.end(), position) != chunks_to_mesh_vector.end();
+		return std::ranges::find(chunks_to_mesh_vector, position) != chunks_to_mesh_vector.end();
 	}
 
 	void LevelRenderer::OnChunkUnloaded(std::shared_ptr<Chunk> chunk)
@@ -208,7 +208,7 @@ namespace Eon
 
 	void LevelRenderer::SortRenderersByDistance(std::vector<std::pair<ChunkRendererContainer*, float>>& renderers, glm::vec3 cameraPosition) const
 	{
-		std::sort(renderers.begin(), renderers.end(), [cameraPosition](std::pair<ChunkRendererContainer*, float> first, std::pair<ChunkRendererContainer*, float> second)
+		std::ranges::sort(renderers, [cameraPosition](std::pair<ChunkRendererContainer*, float> first, std::pair<ChunkRendererContainer*, float> second)
 			{
 				ChunkPosition firstPosition = first.first->GetChunk()->Position();
 				ChunkPosition secondPosition = second.first->GetChunk()->Position();
