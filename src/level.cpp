@@ -40,7 +40,7 @@ namespace Eon
 
 	void Level::SetBlock(Block block, int x, int y, int z)
 	{
-		auto chunkPosition = ChunkPosition{ x, z }.Validate();
+		auto chunkPosition = ChunkPosition{ x, z };
 
 		auto chunk = GetChunk(chunkPosition);
 
@@ -90,7 +90,6 @@ namespace Eon
 
 	void Level::Update(ChunkPosition playerChunkPosition, int simulationDistance)
 	{
-		playerChunkPosition.Validate();
 		int simulationDistanceBlocks = simulationDistance * CHUNK_WIDTH;
 
 		LoadNewChunks(playerChunkPosition, simulationDistanceBlocks);
@@ -127,7 +126,7 @@ namespace Eon
 	{
 		std::scoped_lock<std::mutex> lock(chunk_mutex);
 
-		if (auto chunk = GetChunkNoLock(ChunkPosition{ position.x, position.z }.Validate()); chunk)
+		if (auto chunk = GetChunkNoLock(ChunkPosition{ position.x, position.z }); chunk)
 		{
 			return chunk.value()->GetBlock(position.x - chunk.value()->Position().x, position.y, position.z - chunk.value()->Position().z);
 		}
@@ -164,10 +163,9 @@ namespace Eon
 			for (int cz = playerChunkPosition.z - simulationDistanceBlocks; cz <= playerChunkPosition.z + simulationDistanceBlocks; cz += CHUNK_WIDTH)
 			{
 				ChunkPosition currentChunkPosition{ cx, cz };
-				currentChunkPosition.Validate();
 
 				if (!ChunkExistsAt(currentChunkPosition) &&
-					std::find(chunks_being_generated.begin(), chunks_being_generated.end(), currentChunkPosition) == chunks_being_generated.end())
+					std::ranges::find(chunks_being_generated, currentChunkPosition) == chunks_being_generated.end())
 				{
 					chunks_being_generated.push_back(currentChunkPosition);
 					toGen.push_back(currentChunkPosition);
@@ -176,7 +174,7 @@ namespace Eon
 		}
 
 		//load close chunks first
-		std::sort(toGen.begin(), toGen.end(), [&playerChunkPosition](const ChunkPosition& a, const ChunkPosition& b)
+		std::ranges::sort(toGen, [&playerChunkPosition](const ChunkPosition& a, const ChunkPosition& b)
 			{
 				glm::vec2 pcp(playerChunkPosition.x, playerChunkPosition.z);
 				return glm::distance(pcp, glm::vec2(a.x, a.z)) < glm::distance(pcp, glm::vec2(b.x, b.z));

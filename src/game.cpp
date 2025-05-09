@@ -118,6 +118,8 @@ namespace Eon
 		};
 
 		skybox = std::make_unique<Skybox>(facesCubemap);
+
+		text_renderer = std::make_unique<TextRenderer>("arial.ttf");
 	}
 
 	void Game::Update(float dt)
@@ -140,6 +142,10 @@ namespace Eon
 		sprite->Render(player->GetCamera(), player->Position());
 
 		skybox->Render(player->GetCamera());
+
+		text_renderer->Begin();
+		text_renderer->RenderText("Hello World!", 120, 120, 1, { 1, 1, 1 });
+		text_renderer->End();
 	}
 
 	void Game::OnExit()

@@ -144,14 +144,14 @@ namespace Eon
 			auto cutoutRenderer = chunkRenderer->GetCutoutRenderer();
 			auto translucentRenderer = chunkRenderer->GetTranslucentRenderer();
 
-			if (cutoutRenderer.has_value())
+			if (cutoutRenderer)
 			{
-				cutoutRenderers.push_back({ chunkRenderer.get(), distance });
+				cutoutRenderers.emplace_back(chunkRenderer.get(), distance);
 			}
 
-			if (translucentRenderer.has_value())
+			if (translucentRenderer)
 			{
-				translucentRenderers.push_back({ chunkRenderer.get(), distance });
+				translucentRenderers.emplace_back(chunkRenderer.get(), distance);
 			}
 
 			chunk_shader->UniformFVec3("chunkPos", glm::vec3(chunkPosition.x, 0.0f, chunkPosition.z));

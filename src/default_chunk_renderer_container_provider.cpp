@@ -33,11 +33,6 @@ namespace Eon
 			{
 				for (int y = lowest; y <= chunk.value()->GetColumnHeights(x, z).highest; y++)
 				{
-
-					opaqueMeshData.face_count = 0;
-					cutoutMeshData.face_count = 0;
-					translucentMeshData.face_count = 0;
-
 					glm::ivec3 position(x, y, z);
 					Block block = chunk.value()->GetBlock(x, y, z);
 
@@ -47,10 +42,11 @@ namespace Eon
 					}
 
 					auto& currentMeshData = GetMeshData(block, opaqueMeshData, cutoutMeshData, translucentMeshData);
+					currentMeshData.face_count = 0;
 
 					BlockType type = block.type;
-
 					Directions dir = Directions::Left;
+
 					if (x > 0)
 					{
 						auto sideBlock = chunk.value()->GetBlock(x - 1, y, z);

@@ -109,6 +109,7 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -129,6 +130,7 @@
       <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
       <FloatingPointModel>Fast</FloatingPointModel>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -169,6 +171,7 @@
     <ClCompile Include="src\skybox.cpp" />
     <ClCompile Include="src\texture.cpp" />
     <ClCompile Include="src\texture_array.cpp" />
+    <ClCompile Include="src\text_renderer.cpp" />
     <ClCompile Include="src\voxel_model.cpp" />
     <ClCompile Include="src\window.cpp" />
   </ItemGroup>
@@ -215,6 +218,7 @@
     <ClInclude Include="src\stb_image.h" />
     <ClInclude Include="src\texture.h" />
     <ClInclude Include="src\texture_array.h" />
+    <ClInclude Include="src\text_renderer.h" />
     <ClInclude Include="src\voxel_model.h" />
     <ClInclude Include="src\window.h" />
   </ItemGroup>
@@ -230,6 +234,8 @@
     <None Include="content\shaders\Plane.vert" />
     <None Include="content\shaders\Skybox.frag" />
     <None Include="content\shaders\Skybox.vert" />
+    <None Include="content\shaders\Text.frag" />
+    <None Include="content\shaders\Text.vert" />
     <None Include="vcpkg-configuration.json" />
     <None Include="vcpkg.json" />
   </ItemGroup>

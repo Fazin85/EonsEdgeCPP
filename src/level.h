@@ -46,9 +46,9 @@ namespace Eon
 		std::vector<ChunkPosition> chunks_being_generated;
 		moodycamel::ConcurrentQueue<ChunkPosition> chunks_to_generate;
 		moodycamel::ConcurrentQueue<std::shared_ptr<Chunk>> generated_chunks;
-		std::jthread chunk_gen_thread;
 		glm::vec4 sky_color;
 		std::unique_ptr<AbstractLevelGenerator> abstract_level_generator;
+		std::jthread chunk_gen_thread;
 		std::unique_ptr<VoxelModel> tree_model;
 		std::mutex chunk_mutex;
 		std::atomic_bool exit;

@@ -114,6 +114,9 @@
     <ClCompile Include="src\chunk_renderer_container.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\text_renderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\camera.h">
@@ -248,6 +251,9 @@
     <ClInclude Include="src\chunk_renderer_container.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\text_renderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="vcpkg.json" />
@@ -263,6 +269,8 @@
     <None Include="content\shaders\Skybox.frag" />
     <None Include="content\shaders\Skybox.vert" />
     <None Include="content\models\tree.vox" />
+    <None Include="content\shaders\Text.frag" />
+    <None Include="content\shaders\Text.vert" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="C:\Users\GODDIDIDIIDID\Downloads\player.png">
