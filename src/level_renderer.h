@@ -34,7 +34,7 @@ namespace Eon
 		int ChunkRendererCount();
 		bool IsChunkBeingMeshed(ChunkPosition position);
 
-		void OnChunkUnloaded(Chunk& chunk) override;
+		void OnChunkUnloaded(std::shared_ptr<Chunk> chunk) override;
 
 	private:
 		void SortRenderersByDistance(std::vector<std::pair<ChunkRendererContainer*, float>>& renderers, glm::vec3 cameraPosition) const;

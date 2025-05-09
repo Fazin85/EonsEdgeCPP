@@ -3,8 +3,10 @@
 #include "chunk_renderer.h"
 #include "chunk.h"
 
-namespace Eon {
-	class ChunkRendererContainer {
+namespace Eon
+{
+	class ChunkRendererContainer
+	{
 	public:
 		ChunkRendererContainer(std::shared_ptr<Chunk> chunk, std::unique_ptr<ChunkRenderer> opaqueRenderer);
 

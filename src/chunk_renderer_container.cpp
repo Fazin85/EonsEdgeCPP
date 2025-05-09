@@ -1,6 +1,7 @@
 #include "chunk_renderer_container.h"
 
-namespace Eon {
+namespace Eon
+{
 	ChunkRendererContainer::ChunkRendererContainer(std::shared_ptr<Chunk> chunk, std::unique_ptr<ChunkRenderer> opaqueRenderer) : chunk(chunk), opaque_renderer(std::move(opaqueRenderer))
 	{
 	}
@@ -14,11 +15,13 @@ namespace Eon {
 	{
 		opaque_renderer->Setup();
 
-		if (cutout_renderer.has_value()) {
+		if (cutout_renderer.has_value())
+		{
 			cutout_renderer->get()->Setup();
 		}
 
-		if (translucent_renderer.has_value()) {
+		if (translucent_renderer.has_value())
+		{
 			translucent_renderer->get()->Setup();
 		}
 	}
@@ -30,7 +33,8 @@ namespace Eon {
 
 	std::optional<std::reference_wrapper<ChunkRenderer>> ChunkRendererContainer::GetCutoutRenderer()
 	{
-		if (cutout_renderer.has_value()) {
+		if (cutout_renderer.has_value())
+		{
 			return *cutout_renderer->get();
 		}
 
@@ -39,7 +43,8 @@ namespace Eon {
 
 	std::optional<std::reference_wrapper<ChunkRenderer>> ChunkRendererContainer::GetTranslucentRenderer()
 	{
-		if (translucent_renderer.has_value()) {
+		if (translucent_renderer.has_value())
+		{
 			return *translucent_renderer->get();
 		}
 

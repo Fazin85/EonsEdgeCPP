@@ -44,7 +44,8 @@ namespace Eon
 
 		auto chunk = GetChunk(chunkPosition);
 
-		if (chunk) {
+		if (chunk)
+		{
 			chunk.value()->SetBlock(x - chunkPosition.x, y, z - chunkPosition.z, block);
 		}
 	}
@@ -139,12 +140,15 @@ namespace Eon
 		ChunkPosition chunkPosition;
 		auto chunkPrimer = std::make_unique<ChunkPrimer>();
 
-		while (!exit) {
-			if (chunks_to_generate.try_dequeue(chunkPosition)) {
+		while (!exit)
+		{
+			if (chunks_to_generate.try_dequeue(chunkPosition))
+			{
 				abstract_level_generator.GenerateTerrainShape(*chunkPrimer, chunkPosition.x, chunkPosition.z);
 				generated_chunks.enqueue(std::make_shared<Chunk>(*chunkPrimer, chunkPosition));
 			}
-			else {
+			else
+			{
 				std::this_thread::sleep_for(std::chrono::milliseconds(16));
 			}
 		}
@@ -155,13 +159,16 @@ namespace Eon
 		static std::vector<ChunkPosition> toGen;
 		toGen.clear();
 
-		for (int cx = playerChunkPosition.x - simulationDistanceBlocks; cx <= playerChunkPosition.x + simulationDistanceBlocks; cx += CHUNK_WIDTH) {
-			for (int cz = playerChunkPosition.z - simulationDistanceBlocks; cz <= playerChunkPosition.z + simulationDistanceBlocks; cz += CHUNK_WIDTH) {
+		for (int cx = playerChunkPosition.x - simulationDistanceBlocks; cx <= playerChunkPosition.x + simulationDistanceBlocks; cx += CHUNK_WIDTH)
+		{
+			for (int cz = playerChunkPosition.z - simulationDistanceBlocks; cz <= playerChunkPosition.z + simulationDistanceBlocks; cz += CHUNK_WIDTH)
+			{
 				ChunkPosition currentChunkPosition{ cx, cz };
 				currentChunkPosition.Validate();
 
 				if (!ChunkExistsAt(currentChunkPosition) &&
-					std::find(chunks_being_generated.begin(), chunks_being_generated.end(), currentChunkPosition) == chunks_being_generated.end()) {
+					std::find(chunks_being_generated.begin(), chunks_being_generated.end(), currentChunkPosition) == chunks_being_generated.end())
+				{
 					chunks_being_generated.push_back(currentChunkPosition);
 					toGen.push_back(currentChunkPosition);
 				}
@@ -169,9 +176,10 @@ namespace Eon
 		}
 
 		//load close chunks first
-		std::sort(toGen.begin(), toGen.end(), [&playerChunkPosition](const ChunkPosition& a, const ChunkPosition& b) {
-			glm::vec2 pcp(playerChunkPosition.x, playerChunkPosition.z);
-			return glm::distance(pcp, glm::vec2(a.x, a.z)) < glm::distance(pcp, glm::vec2(b.x, b.z));
+		std::sort(toGen.begin(), toGen.end(), [&playerChunkPosition](const ChunkPosition& a, const ChunkPosition& b)
+			{
+				glm::vec2 pcp(playerChunkPosition.x, playerChunkPosition.z);
+				return glm::distance(pcp, glm::vec2(a.x, a.z)) < glm::distance(pcp, glm::vec2(b.x, b.z));
 			});
 
 		chunks_to_generate.enqueue_bulk(toGen.data(), toGen.size());
@@ -181,10 +189,12 @@ namespace Eon
 		static std::array<std::shared_ptr<Chunk>, maxItems> items;
 		size_t actualCount = generated_chunks.try_dequeue_bulk(items.data(), maxItems);
 
-		if (actualCount > 0) {
+		if (actualCount > 0)
+		{
 			std::scoped_lock<std::mutex> lock(chunk_mutex);
 
-			for (int i = 0; i < actualCount; i++) {
+			for (int i = 0; i < actualCount; i++)
+			{
 				std::shared_ptr<Chunk> chunk = items[i];
 
 				chunks_being_generated.erase(std::find(chunks_being_generated.begin(), chunks_being_generated.end(), chunk->Position()));
@@ -200,27 +210,32 @@ namespace Eon
 
 		std::scoped_lock<std::mutex> lock(chunk_mutex);
 
-		for (const auto& [position, chunk] : chunks) {
-			if (chunk->CanUnload()) {
+		for (const auto& [position, chunk] : chunks)
+		{
+			if (chunk->CanUnload())
+			{
 				float distance = glm::distance(glm::vec2(playerChunkPosition.x, playerChunkPosition.z), glm::vec2(position.x, position.z));
 
-				if (distance >= static_cast<float>(unloadDistance)) {
+				if (distance >= static_cast<float>(unloadDistance))
+				{
 					chunksToUnload.push_back(position);
 				}
 			}
 		}
 
-		for (const ChunkPosition& position : chunksToUnload) {
+		for (const ChunkPosition& position : chunksToUnload)
+		{
 			auto iter = chunks.find(position);
 
-			for (auto eventListener : chunk_unloaded_event_listeners) {
-				eventListener->OnChunkUnloaded(*iter->second);
+			for (auto eventListener : chunk_unloaded_event_listeners)
+			{
+				eventListener->OnChunkUnloaded(iter->second);
 			}
 
 			chunks.erase(iter);
 		}
 	}
-	
+
 	std::optional<std::shared_ptr<Chunk>> Level::GetChunkNoLock(ChunkPosition position)
 	{
 		std::optional<std::shared_ptr<Chunk>> result;

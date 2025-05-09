@@ -2,7 +2,8 @@
 #include <algorithm>
 #include "scope_timer.h"
 
-namespace Eon {
+namespace Eon
+{
 	void BasicTerrainGenerator::GenerateTerrainShape(ChunkPrimer& chunkPrimer, int x, int z)
 	{
 		BaseNoise(chunkPrimer, x, z);
@@ -12,7 +13,8 @@ namespace Eon {
 	{
 	}
 
-	static float AverageHeight(float baseLevel, float input) {
+	static float AverageHeight(float baseLevel, float input)
+	{
 		return ((baseLevel + input) / 2) + (baseLevel / 2);
 	}
 
@@ -36,16 +38,21 @@ namespace Eon {
 
 		noise_gen.SetFractalOctaves(8);
 
-		for (int x = 0; x < noiseMapWidth; x++) {
-			for (int y = 0; y < noiseMapHeight; y++) {
-				for (int z = 0; z < noiseMapWidth; z++) {
+		for (int x = 0; x < noiseMapWidth; x++)
+		{
+			for (int y = 0; y < noiseMapHeight; y++)
+			{
+				for (int z = 0; z < noiseMapWidth; z++)
+				{
 					noiseValues[x][y][z] = noise_gen.GetSimplexFractal(chunkX + (x * noiseDivisorHorizontal), y * noiseDivisorVertical, chunkZ + (z * noiseDivisorHorizontal));
 				}
 			}
 		}
 
-		for (int x = 0; x < CHUNK_WIDTH; x++) {
-			for (int z = 0; z < CHUNK_WIDTH; z++) {
+		for (int x = 0; x < CHUNK_WIDTH; x++)
+		{
+			for (int z = 0; z < CHUNK_WIDTH; z++)
+			{
 				int worldX = chunkX + x;
 				int worldZ = chunkZ + z;
 
@@ -57,7 +64,8 @@ namespace Eon {
 				float mountain = noise_gen.GetSimplexFractal(worldX * 0.4f, worldZ * 0.4f) + 1 * 16;
 				cont += mountain;
 
-				for (int y = 0; y < CHUNK_HEIGHT; y++) {
+				for (int y = 0; y < CHUNK_HEIGHT; y++)
+				{
 					float baseLevel = AverageHeight(waterLevel, cont);
 					float densityMod = (baseLevel - y) * squishFactor;
 
@@ -75,13 +83,16 @@ namespace Eon {
 
 					Block block;
 
-					if (density + densityMod >= 0.0f) {
+					if (density + densityMod >= 0.0f)
+					{
 						block.type = BlockType::STONE;
 					}
-					else {
+					else
+					{
 						block.type = BlockType::AIR;
 
-						if (y <= waterLevel) {
+						if (y <= waterLevel)
+						{
 							block.type = BlockType::WATER;
 						}
 					}

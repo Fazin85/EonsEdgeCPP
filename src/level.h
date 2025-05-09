@@ -19,8 +19,6 @@
 #include <concurrentqueue/concurrentqueue.h>
 #include <span>
 
-#define LEVEL_WIDTH_CHUNKS 32
-
 namespace Eon
 {
 	class Level
