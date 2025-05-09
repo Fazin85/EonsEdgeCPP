@@ -157,6 +157,8 @@
     <ClCompile Include="src\chunk.cpp" />
     <ClCompile Include="src\chunk_renderer.cpp" />
     <ClCompile Include="src\file_util.cpp" />
+    <ClCompile Include="src\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="src\imgui_manager.cpp" />
     <ClCompile Include="src\level.cpp" />
     <ClCompile Include="src\level_renderer.cpp" />
     <ClCompile Include="src\level_renderer.h" />
@@ -166,6 +168,7 @@
     <ClCompile Include="src\noise_generator_octaves.cpp" />
     <ClCompile Include="src\plane_mesh.cpp" />
     <ClCompile Include="src\player.cpp" />
+    <ClCompile Include="src\scene_manager.cpp" />
     <ClCompile Include="src\scope_timer.cpp" />
     <ClCompile Include="src\shader.cpp" />
     <ClCompile Include="src\skybox.cpp" />
@@ -191,10 +194,14 @@
     <ClInclude Include="src\compress.h" />
     <ClInclude Include="src\default_chunk_renderer_container_provider.h" />
     <ClInclude Include="src\fast_noise.h" />
+    <ClInclude Include="src\imgui_impl_opengl3.h" />
+    <ClInclude Include="src\imgui_manager.h" />
     <ClInclude Include="src\noise_generator_improved.h" />
     <ClInclude Include="src\noise_generator_octaves.h" />
     <ClInclude Include="src\ogt_vox.h" />
     <ClInclude Include="src\plane_mesh.h" />
+    <ClInclude Include="src\scene.h" />
+    <ClInclude Include="src\scene_manager.h" />
     <ClInclude Include="src\scope_timer.h" />
     <ClInclude Include="src\skybox.h" />
     <ClInclude Include="src\fps.h" />

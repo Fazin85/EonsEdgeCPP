@@ -4,6 +4,7 @@
 #include "window.h"
 #include <chrono>
 #include <SFML/Window.hpp>
+#include <imgui.h>
 #include "basic_terrain_generator.h"
 #include "default_chunk_renderer_container_provider.h"
 
@@ -32,24 +33,6 @@ namespace Eon
 		{
 			fps.Update();
 			fpsCounter++;
-
-			sf::Event event;
-			while (Window::Get().pollEvent(event))
-			{
-				if (event.type == sf::Event::Closed)
-				{
-					stop = true;
-				}
-				else if (event.type == sf::Event::Resized)
-				{
-					glViewport(0, 0, event.size.width, event.size.height);
-				}
-			}
-
-			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape) || stop)
-			{
-				break;
-			}
 
 			sf::Time time = clock.restart();
 			float dt = time.asSeconds();
@@ -120,21 +103,81 @@ namespace Eon
 		skybox = std::make_unique<Skybox>(facesCubemap);
 
 		text_renderer = std::make_unique<TextRenderer>("arial.ttf");
+
+		imgui_manager = std::make_unique<ImGuiManager>(Window::Get());
+		imgui_manager->Init();
+		imgui_manager->SetRenderFunction([this]()
+			{
+				ImGui::SetNextWindowBgAlpha(0.0f); // Completely transparent background
+				ImGui::SetNextWindowPos(ImVec2(100, 100), ImGuiCond_Always);
+				ImGui::SetNextWindowSize(ImVec2(400, 300), ImGuiCond_Always);
+
+				ImGuiWindowFlags windowFlags =
+					ImGuiWindowFlags_NoDecoration |
+					ImGuiWindowFlags_NoTitleBar |
+					ImGuiWindowFlags_NoResize |
+					ImGuiWindowFlags_NoBackground;
+
+				// Begin the transparent window
+				if (ImGui::Begin("##TransparentUI", nullptr, windowFlags))
+				{
+					// Style the button how you want
+					ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2f, 0.2f, 0.8f, 1.0f));
+					ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.3f, 0.3f, 0.9f, 1.0f));
+					ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.1f, 0.1f, 0.7f, 1.0f));
+
+					// Center the button
+					float windowWidth = ImGui::GetWindowSize().x;
+					float textWidth = ImGui::CalcTextSize("Play").x;
+					float buttonWidth = textWidth + ImGui::GetStyle().FramePadding.x * 2.0f;
+					ImGui::SetCursorPosX((windowWidth - buttonWidth) * 0.5f);
+
+					// Create the button
+					if (ImGui::Button("Play", ImVec2(200, 50)))
+					{
+						//actionTriggered = true;
+					}
+
+					ImGui::PopStyleColor(3);
+				}
+				ImGui::End();
+			});
 	}
 
 	void Game::Update(float dt)
 	{
+		sf::Event event;
+		while (Window::Get().pollEvent(event))
+		{
+			imgui_manager->ProcessEvent(event);
+
+			if (event.type == sf::Event::Closed)
+			{
+				stop = true;
+			}
+			else if (event.type == sf::Event::Resized)
+			{
+				glViewport(0, 0, event.size.width, event.size.height);
+			}
+		}
+
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
+		{
+			Stop(0);
+		}
+		
 		player->GetCamera().CalculateViewMatrix(player->Position());
 		level_renderer->Update(player->GetCamera().GetFrustum(), player->Position());
 
 		level->Update(ChunkPosition{ static_cast<int>(player->Position().x), static_cast<int>(player->Position().z) }, GameSettings.render_distance + 2);
 
 		player->Update(dt);
+
+		imgui_manager->Update(dt);
 	}
 
 	void Game::Render()
 	{
-		glm::vec4 skyColor = level->SkyColor();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		level_renderer->Render(player->GetCamera(), player->Position());
@@ -146,6 +189,8 @@ namespace Eon
 		text_renderer->Begin();
 		text_renderer->RenderText("Hello World!", 120, 120, 1, { 1, 1, 1 });
 		text_renderer->End();
+
+		imgui_manager->Render();
 	}
 
 	void Game::OnExit()

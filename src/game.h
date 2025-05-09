@@ -7,6 +7,7 @@
 #include "player.h"
 #include "skybox.h"
 #include "text_renderer.h"
+#include "imgui_manager.h"
 
 namespace Eon
 {
@@ -29,5 +30,6 @@ namespace Eon
 		std::unique_ptr<BillboardSprite> sprite;
 		std::unique_ptr<Skybox> skybox;
 		std::unique_ptr<TextRenderer> text_renderer;
+		std::unique_ptr<ImGuiManager> imgui_manager;
 	};
 }

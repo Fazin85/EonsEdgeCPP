@@ -1,14 +1,16 @@
 {
   "dependencies": [
     "concurrentqueue",
+    "freetype",
     "glad",
     "glm",
+    "imgui-sfml",
     "lz4",
     "nlohmann-json",
     "parallel-hashmap",
     "sfml",
     "spdlog",
     "zlib",
-    "freetype"
+    "imgui"
   ]
 }
