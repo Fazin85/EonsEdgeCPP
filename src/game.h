@@ -17,7 +17,7 @@ namespace Eon
 		void OnExit();
 		void Stop(int exitCode);
 
-		int exitCode;
+		int exit_code;
 		bool stop;
 		std::unique_ptr<SceneManager> scene_manager;
 		std::unique_ptr<TextRenderer> text_renderer;

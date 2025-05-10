@@ -13,7 +13,7 @@ namespace Eon
 {
 	int Game::Run()
 	{
-		exitCode = 0;
+		exit_code = 0;
 		stop = false;
 		Log::Init();
 
@@ -51,12 +51,12 @@ namespace Eon
 
 		EON_INFO("Shut down successfully");
 
-		return exitCode;
+		return exit_code;
 	}
 
 	void Game::Stop(int exitCode)
 	{
-		this->exitCode = exitCode;
+		exit_code = exitCode;
 		stop = true;
 	}
 
