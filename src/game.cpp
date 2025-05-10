@@ -5,8 +5,9 @@
 #include <chrono>
 #include <SFML/Window.hpp>
 #include <imgui.h>
-#include "basic_terrain_generator.h"
-#include "default_chunk_renderer_container_provider.h"
+#include "scene_manager.h"
+#include "log.h"
+#include "in_game_scene.h"
 
 namespace Eon
 {
@@ -42,17 +43,6 @@ namespace Eon
 			Render();
 
 			Window::Get().display();
-
-			if (fpsCounter % GameSettings.max_fps == 0)
-			{
-				EON_INFO(fps.Get());
-				fpsCounter = 0;
-
-				std::stringstream ss{};
-
-				ss << "player pos " << player->Position().x << "," << player->Position().z << "\n";
-				EON_INFO(ss.str());
-			}
 		}
 
 		EON_INFO("Shutting down...");
@@ -72,35 +62,8 @@ namespace Eon
 
 	void Game::Init()
 	{
-		glEnable(GL_DEPTH_TEST);
-		glFrontFace(GL_CCW);
-		glEnable(GL_CULL_FACE);
-
-		Window::Get().setMouseCursorVisible(false);
-
-		level = std::make_unique<Level>(std::make_unique<BasicTerrainGenerator>());
-		player = std::make_unique<Player>(level.get());
-
-		level->SkyColor() = glm::vec4(153.0f / 255.0f, 204.0f / 255.0f, 1.0f, 1.0f);
-
-		level_renderer = std::make_unique<LevelRenderer>(*level, std::make_unique<DefaultChunkRendererContainerProvider>(*level));
-
-		level->AddChunkUnloadedEventListener(*level_renderer);
-
-		Image image("Test.png");
-		sprite = std::make_unique<BillboardSprite>(image);
-
-		std::array<std::string, 6> facesCubemap =
-		{
-			"skybox/front.png",
-			"skybox/left.png",
-			"skybox/top.png",
-			"skybox/bottom.png",
-			"skybox/back.png",
-			"skybox/right.png"
-		};
-
-		skybox = std::make_unique<Skybox>(facesCubemap);
+		scene_manager = std::make_unique<SceneManager>();
+		scene_manager->LoadScene(std::make_shared<InGameScene>());
 
 		text_renderer = std::make_unique<TextRenderer>("arial.ttf");
 
@@ -165,26 +128,15 @@ namespace Eon
 		{
 			Stop(0);
 		}
-		
-		player->GetCamera().CalculateViewMatrix(player->Position());
-		level_renderer->Update(player->GetCamera().GetFrustum(), player->Position());
 
-		level->Update(ChunkPosition{ static_cast<int>(player->Position().x), static_cast<int>(player->Position().z) }, GameSettings.render_distance + 2);
-
-		player->Update(dt);
+		scene_manager->GetCurrentScene()->Update(dt);
 
 		imgui_manager->Update(dt);
 	}
 
 	void Game::Render()
 	{
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		level_renderer->Render(player->GetCamera(), player->Position());
-
-		sprite->Render(player->GetCamera(), player->Position());
-
-		skybox->Render(player->GetCamera());
+		scene_manager->GetCurrentScene()->Render();
 
 		text_renderer->Begin();
 		text_renderer->RenderText("Hello World!", 120, 120, 1, { 1, 1, 1 });

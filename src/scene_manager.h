@@ -10,12 +10,10 @@ namespace Eon
 	class SceneManager
 	{
 	public:
-		static void RegisterScene(std::shared_ptr<Scene> scene);
-		static void LoadSceneByName(const std::string& name);
-		static void LoadScene(std::shared_ptr<Scene> scene);
+		void LoadScene(std::shared_ptr<Scene> scene);
+		std::shared_ptr<Scene> GetCurrentScene();
 
 	private:
-		static std::vector<std::shared_ptr<Scene>> scenes;
-		static size_t current_scene_index;
+		std::shared_ptr<Scene> current_scene = nullptr;
 	};
 }

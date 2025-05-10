@@ -1,4 +1,3 @@
-// src/imgui_manager.h
 #pragma once
 
 #include <SFML/Graphics/RenderWindow.hpp>
