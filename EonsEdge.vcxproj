@@ -142,6 +142,7 @@
   <ItemGroup>
     <ClCompile Include="src\basic_terrain_generator.cpp" />
     <ClCompile Include="src\billboard_sprite.cpp" />
+    <ClCompile Include="src\block.cpp" />
     <ClCompile Include="src\block_entity.cpp" />
     <ClCompile Include="src\bounding_box.cpp" />
     <ClCompile Include="src\byte_buffer.cpp" />

@@ -49,6 +49,9 @@ namespace Eon
 			}
 		}
 
+		const auto& stone = BlockRegistry::GetBlockByType(BlockType::STONE);
+		const auto& water = BlockRegistry::GetBlockByType(BlockType::WATER);
+
 		for (int x = 0; x < CHUNK_WIDTH; x++)
 		{
 			for (int z = 0; z < CHUNK_WIDTH; z++)
@@ -81,23 +84,14 @@ namespace Eon
 						y % noiseDivisorVertical / (float)noiseDivisorVertical,
 						z % noiseDivisorHorizontal / (float)noiseDivisorHorizontal);
 
-					Block block;
-
 					if (density + densityMod >= 0.0f)
 					{
-						block.type = BlockType::STONE;
+						chunk.SetBlock(x, y, z, stone);
 					}
-					else
+					else if (y <= waterLevel)
 					{
-						block.type = BlockType::AIR;
-
-						if (y <= waterLevel)
-						{
-							block.type = BlockType::WATER;
-						}
+						chunk.SetBlock(x, y, z, water);
 					}
-
-					chunk.SetBlock(x, y, z, block);
 				}
 			}
 		}

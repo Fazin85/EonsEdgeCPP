@@ -34,9 +34,9 @@ namespace Eon
 				for (int y = lowest; y <= chunk.value()->GetColumnHeights(x, z).highest; y++)
 				{
 					glm::ivec3 position(x, y, z);
-					Block block = chunk.value()->GetBlock(x, y, z);
+					const Block& block = chunk.value()->GetBlock(x, y, z);
 
-					if (block.type == BlockType::AIR)
+					if (block.GetType() == BlockType::AIR)
 					{
 						continue;
 					}
@@ -44,7 +44,6 @@ namespace Eon
 					auto& currentMeshData = GetMeshData(block, opaqueMeshData, cutoutMeshData, translucentMeshData);
 					currentMeshData.face_count = 0;
 
-					BlockType type = block.type;
 					Directions dir = Directions::Left;
 
 					if (x > 0)
@@ -52,7 +51,7 @@ namespace Eon
 						auto sideBlock = chunk.value()->GetBlock(x - 1, y, z);
 						if (sideBlock.IsCutout() || (!block.Translucent() && sideBlock.Translucent()))
 						{
-							AddFace(currentMeshData, position, type, dir);
+							AddFace(currentMeshData, position, block, dir);
 						}
 					}
 					else
@@ -60,7 +59,7 @@ namespace Eon
 						auto sideBlock = level.GetBlock(chunkPosition + glm::ivec3(x - 1, y, z));
 						if (sideBlock.IsCutout() || (!block.Translucent() && sideBlock.Translucent()))
 						{
-							AddFace(currentMeshData, position, type, dir);
+							AddFace(currentMeshData, position, block, dir);
 						}
 					}
 
@@ -70,7 +69,7 @@ namespace Eon
 						auto sideBlock = chunk.value()->GetBlock(x + 1, y, z);
 						if (sideBlock.IsCutout() || (!block.Translucent() && sideBlock.Translucent()))
 						{
-							AddFace(currentMeshData, position, type, dir);
+							AddFace(currentMeshData, position, block, dir);
 						}
 					}
 					else
@@ -78,7 +77,7 @@ namespace Eon
 						auto sideBlock = level.GetBlock(chunkPosition + glm::ivec3(x + 1, y, z));
 						if (sideBlock.IsCutout() || (!block.Translucent() && sideBlock.Translucent()))
 						{
-							AddFace(currentMeshData, position, type, dir);
+							AddFace(currentMeshData, position, block, dir);
 						}
 					}
 
@@ -88,12 +87,12 @@ namespace Eon
 						auto sideBlock = chunk.value()->GetBlock(x, y + 1, z);
 						if (sideBlock.IsCutout() || (!block.Translucent() && sideBlock.Translucent()))
 						{
-							AddFace(currentMeshData, position, type, dir);
+							AddFace(currentMeshData, position, block, dir);
 						}
 					}
 					else
 					{
-						AddFace(currentMeshData, position, type, dir);
+						AddFace(currentMeshData, position, block, dir);
 					}
 
 					dir = Directions::Bottom;
@@ -102,7 +101,7 @@ namespace Eon
 						auto sideBlock = chunk.value()->GetBlock(x, y - 1, z);
 						if (sideBlock.IsCutout() || (!block.Translucent() && sideBlock.Translucent()))
 						{
-							AddFace(currentMeshData, position, type, dir);
+							AddFace(currentMeshData, position, block, dir);
 						}
 					}
 
@@ -112,7 +111,7 @@ namespace Eon
 						auto sideBlock = chunk.value()->GetBlock(x, y, z + 1);
 						if (sideBlock.IsCutout() || (!block.Translucent() && sideBlock.Translucent()))
 						{
-							AddFace(currentMeshData, position, type, dir);
+							AddFace(currentMeshData, position, block, dir);
 						}
 					}
 					else
@@ -120,7 +119,7 @@ namespace Eon
 						auto sideBlock = level.GetBlock(chunkPosition + glm::ivec3(x, y, z + 1));
 						if (sideBlock.IsCutout() || (!block.Translucent() && sideBlock.Translucent()))
 						{
-							AddFace(currentMeshData, position, type, dir);
+							AddFace(currentMeshData, position, block, dir);
 						}
 					}
 
@@ -130,7 +129,7 @@ namespace Eon
 						auto sideBlock = chunk.value()->GetBlock(x, y, z - 1);
 						if (sideBlock.IsCutout() || (!block.Translucent() && sideBlock.Translucent()))
 						{
-							AddFace(currentMeshData, position, type, dir);
+							AddFace(currentMeshData, position, block, dir);
 						}
 					}
 					else
@@ -139,7 +138,7 @@ namespace Eon
 
 						if (sideBlock.IsCutout() || (!block.Translucent() && sideBlock.Translucent()))
 						{
-							AddFace(currentMeshData, position, type, dir);
+							AddFace(currentMeshData, position, block, dir);
 						}
 					}
 
@@ -167,7 +166,7 @@ namespace Eon
 		return chunkRendererContainer;
 	}
 
-	int DefaultChunkRendererContainerProvider::CalculateLowestPoint(ChunkPosition& position, int middleLowest)
+	int DefaultChunkRendererContainerProvider::CalculateLowestPoint(const ChunkPosition& position, int middleLowest)
 	{
 		std::array<ChunkPosition, 4> positionsToCheck = {
 			position.Offset(CHUNK_WIDTH, 0),
@@ -212,7 +211,7 @@ namespace Eon
 		return opaqueMeshData;
 	}
 
-	void DefaultChunkRendererContainerProvider::AddFace(ChunkMeshConstructionData& meshData, const glm::ivec3& blockPosition, BlockType blockType, Directions direction) const
+	void DefaultChunkRendererContainerProvider::AddFace(ChunkMeshConstructionData& meshData, const glm::ivec3& blockPosition, const Block& block, Directions direction) const
 	{
 		auto faceData = GetFaceDataFromDirection(direction);
 
@@ -226,7 +225,7 @@ namespace Eon
 			meshData.vertexPositions.emplace_back(x, y, z);
 			meshData.directions.push_back(static_cast<unsigned char>(direction));
 			meshData.light.push_back(15);
-			meshData.uvs.push_back({ i, GetTextureId(blockType, direction) });
+			meshData.uvs.push_back({ i, GetTextureId(block.GetType(), direction) });
 		}
 
 		meshData.face_count++;
@@ -299,7 +298,7 @@ namespace Eon
 			return BlockFaceTexture::WATER;
 		case Eon::BlockType::SAND:
 			return BlockFaceTexture::SAND;
-		case Eon::BlockType::OAKLOG:
+		case Eon::BlockType::OAK_LOG:
 			switch (faceDirection)
 			{
 			case Eon::Directions::Front:

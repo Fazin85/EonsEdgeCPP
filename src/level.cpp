@@ -38,7 +38,7 @@ namespace Eon
 		return std::nullopt;
 	}
 
-	void Level::SetBlock(Block block, int x, int y, int z)
+	void Level::SetBlock(const Block& block, int x, int y, int z)
 	{
 		auto chunkPosition = ChunkPosition{ x, z };
 
@@ -68,9 +68,9 @@ namespace Eon
 			{
 				for (int z = min.z; z <= max.z; z++)
 				{
-					Block block = GetBlock({ x, y, z });
+					const Block& block = GetBlock({ x, y, z });
 
-					if (block.type != BlockType::AIR)
+					if (block != BlockRegistry::GetBlockByID(0))
 					{
 						bbs.emplace_back(glm::vec3(x, y, z), glm::vec3(x + 1, y + 1, z + 1));
 					}
@@ -122,7 +122,7 @@ namespace Eon
 		return resultChunks;
 	}
 
-	Block Level::GetBlock(glm::ivec3 position)
+	const Block& Level::GetBlock(glm::ivec3 position)
 	{
 		std::scoped_lock<std::mutex> lock(chunk_mutex);
 
@@ -131,7 +131,7 @@ namespace Eon
 			return chunk.value()->GetBlock(position.x - chunk.value()->Position().x, position.y, position.z - chunk.value()->Position().z);
 		}
 
-		return { BlockType::AIR };
+		return BlockRegistry::GetBlockByID(0);
 	}
 
 	void Level::ChunkGenThread()
@@ -195,7 +195,7 @@ namespace Eon
 			{
 				std::shared_ptr<Chunk> chunk = items[i];
 
-				chunks_being_generated.erase(std::find(chunks_being_generated.begin(), chunks_being_generated.end(), chunk->Position()));
+				std::erase(chunks_being_generated, chunk->Position());
 				chunks[chunk->Position()] = chunk;
 			}
 		}

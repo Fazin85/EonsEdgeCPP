@@ -8,16 +8,16 @@
 namespace Eon {
 	class ChunkSection {
 	public:
-		Block GetBlock(int x, int y, int z);
-		void SetBlock(int x, int y, int z, Block block);
+		const Block& GetBlock(int x, int y, int z);
+		void SetBlock(int x, int y, int z, const Block& block);
 
 		void CalculateUniformity();
-		bool IsUniform(Block& outBlock) const;
+		std::optional<std::reference_wrapper<const Block>> IsUniform() const;
 
 	private:
 		bool is_uniform = true;
-		Block block;
+		uint8_t block;
 
-		std::vector<Block> blocks;
+		std::vector<uint8_t> blocks;
 	};
 }

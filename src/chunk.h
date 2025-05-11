@@ -12,6 +12,27 @@
 #include <memory>
 #include <mutex>
 
+#include <glm/glm.hpp>
+#include <functional>
+
+namespace std
+{
+	template<>
+	struct hash<glm::ivec3>
+	{
+		size_t operator()(const glm::ivec3& v) const
+		{
+			size_t h = 0;
+
+			h ^= std::hash<int>()(v.x) + 0x9e3779b9 + (h << 6) + (h >> 2);
+			h ^= std::hash<int>()(v.y) + 0x9e3779b9 + (h << 6) + (h >> 2);
+			h ^= std::hash<int>()(v.z) + 0x9e3779b9 + (h << 6) + (h >> 2);
+
+			return h;
+		}
+	};
+}
+
 namespace Eon
 {
 	class Chunk
@@ -24,7 +45,7 @@ namespace Eon
 
 		Chunk(const ChunkPrimer& chunkPrimer, ChunkPosition chunkPosition);
 		void SetBlock(int x, int y, int z, const Block& block);
-		Block GetBlock(int x, int y, int z);
+		const Block& GetBlock(int x, int y, int z);
 		ChunkPosition Position() const;
 		ColumnHeights GetColumnHeights(int x, int z);
 		ColumnHeights GetChunkHeights() const;
@@ -36,7 +57,7 @@ namespace Eon
 		AABB& GetAABB();
 
 	private:
-		Block GetBlockInternal(int x, int y, int z);
+		const Block& GetBlockInternal(int x, int y, int z);
 		void CalculateColumnHeights(int x, int z);
 
 		ChunkPosition position;

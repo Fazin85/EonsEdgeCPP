@@ -12,11 +12,11 @@ namespace Eon {
 
 		std::unique_ptr<ChunkRendererContainer> ProvideRenderer(ChunkPosition inChunkPosition) override;
 	private:
-		int CalculateLowestPoint(ChunkPosition& position, int middleLowest);
+		int CalculateLowestPoint(const ChunkPosition& position, int middleLowest);
 
 		ChunkMeshConstructionData& GetMeshData(Block block, ChunkMeshConstructionData& opaqueMeshData, ChunkMeshConstructionData& cutoutMeshData, ChunkMeshConstructionData& translucentMeshData);
 
-		void AddFace(ChunkMeshConstructionData& meshData, const glm::ivec3& blockPosition, BlockType blockType, Directions direction) const;
+		void AddFace(ChunkMeshConstructionData& meshData, const glm::ivec3& blockPosition, const Block& block, Directions direction) const;
 		std::array<unsigned char, 12> GetFaceDataFromDirection(Directions dir) const;
 		void AddIndices(ChunkMeshConstructionData& meshData) const;
 		BlockFaceTexture GetTextureId(BlockType blockType, Directions faceDirection) const;
