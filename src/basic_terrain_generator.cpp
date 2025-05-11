@@ -34,7 +34,7 @@ namespace Eon
 		const int noiseMapWidth = (CHUNK_WIDTH / noiseDivisorHorizontal) + 2;
 		const int noiseMapHeight = (CHUNK_HEIGHT / noiseDivisorVertical) + 2;
 
-		float noiseValues[noiseMapWidth][noiseMapHeight][noiseMapWidth]{};
+		std::array<std::array<std::array<float, noiseMapWidth>, noiseMapHeight>, noiseMapWidth> noiseValues = {};
 
 		noise_gen.SetFractalOctaves(8);
 
@@ -49,6 +49,7 @@ namespace Eon
 			}
 		}
 
+		const auto& air = BlockRegistry::GetBlockByID(0);
 		const auto& stone = BlockRegistry::GetBlockByType(BlockType::STONE);
 		const auto& water = BlockRegistry::GetBlockByType(BlockType::WATER);
 
@@ -91,6 +92,10 @@ namespace Eon
 					else if (y <= waterLevel)
 					{
 						chunk.SetBlock(x, y, z, water);
+					}
+					else
+					{
+						chunk.SetBlock(x, y, z, air);
 					}
 				}
 			}

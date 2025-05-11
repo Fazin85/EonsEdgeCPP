@@ -44,12 +44,12 @@ namespace Eon
 
 		std::unique_ptr<Shader> chunk_shader;
 		std::unique_ptr<TextureArray> chunk_texture;
-		std::vector<std::jthread> mesh_threads;
 		std::vector<ChunkPosition> chunks_to_mesh_vector;
 		std::atomic_bool exit;
 		std::unique_ptr<ChunkRendererContainerProvider> chunk_renderer_container_provider;
 		moodycamel::ConcurrentQueue<ChunkPosition> chunks_to_mesh;
 		moodycamel::ConcurrentQueue<std::unique_ptr<ChunkRendererContainer>> meshes_to_setup;
+		std::vector<std::jthread> mesh_threads;
 		Level& level;
 		std::unordered_map<ChunkPosition, std::unique_ptr<ChunkRendererContainer>> chunk_renderers;
 	};
