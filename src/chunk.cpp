@@ -13,7 +13,8 @@ namespace Eon
 		mutex(),
 		can_unload(true),
 		aabb(glm::vec3(CHUNK_WIDTH, CHUNK_HEIGHT, CHUNK_WIDTH)),
-		chunk_heights{ 0, CHUNK_HEIGHT - 1 }
+		chunk_heights{ 0, CHUNK_HEIGHT - 1 },
+		block_entities()
 	{
 		aabb.Update(glm::vec3(position.x, 0, position.z));
 

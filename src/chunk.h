@@ -6,6 +6,7 @@
 #include "chunk_primer.h"
 #include "chunk_section.h"
 #include "aabb.h"
+#include "block_entity.h"
 
 #include <array>
 #include <memory>
@@ -41,6 +42,7 @@ namespace Eon
 		ChunkPosition position;
 		std::array<ChunkSection, CHUNK_HEIGHT / 16> sections;
 		std::array<std::array<ColumnHeights, CHUNK_WIDTH>, CHUNK_WIDTH> column_heights;
+		std::unordered_map<glm::ivec3, std::unique_ptr<BlockEntity>> block_entities;
 		ColumnHeights chunk_heights;
 		bool decorated;
 		bool can_unload;
