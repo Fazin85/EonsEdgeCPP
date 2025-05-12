@@ -129,6 +129,23 @@ namespace Eon
 		return aabb;
 	}
 
+	std::vector<BlockEntity*> Chunk::GetBlockEntitys() const
+	{
+		std::vector<BlockEntity*> blockEntitys;
+
+		for (const auto& [pos, blockEntity] : block_entities)
+		{
+			blockEntitys.emplace_back(blockEntity.get());
+		}
+
+		return blockEntitys;
+	}
+
+	void Chunk::AddBlockEntity(std::unique_ptr<BlockEntity> blockEntity)
+	{
+		block_entities[blockEntity->GetWorldPosition()] = std::move(blockEntity);
+	}
+
 	const Block& Chunk::GetBlockInternal(int x, int y, int z)
 	{
 		int sy = y >> 4;

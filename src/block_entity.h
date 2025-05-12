@@ -1,6 +1,7 @@
 #pragma once
 
 #include "byte_buffer.h"
+#include "camera.h"
 
 #include <memory>
 #include <glm/glm.hpp>
@@ -16,7 +17,7 @@ namespace Eon
 		virtual ~BlockEntity() = default;
 
 		virtual void Update(float dt) {}
-		virtual void Render() {}
+		virtual void Render(const Camera& camera) {}
 		virtual void OnClicked(sf::Mouse::Button button) {}
 		virtual void Save(ByteBuffer& byteBuf) {}
 		virtual void Load(ByteBuffer& byteBuf) {}

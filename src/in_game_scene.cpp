@@ -2,6 +2,7 @@
 #include "basic_terrain_generator.h"
 #include "default_chunk_renderer_container_provider.h"
 #include "settings.h"
+#include "block_entity_test.h"
 
 namespace Eon
 {
@@ -42,6 +43,17 @@ namespace Eon
 	{
 		player->GetCamera().CalculateViewMatrix(player->Position());
 		level_renderer->Update(player->GetCamera().GetFrustum(), player->Position());
+
+		static bool done_thing = false;
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::G) && !done_thing)
+		{
+			if (auto chunk = level->GetChunk(ChunkPosition()); chunk)
+			{
+				auto pos = glm::ivec3(0, 200, 0);
+				chunk->get()->AddBlockEntity(std::make_unique<BlockEntityTest>(pos));
+				done_thing = true;
+			}
+		}
 
 		level->Update(ChunkPosition{ static_cast<int>(player->Position().x), static_cast<int>(player->Position().z) }, GameSettings.render_distance + 2);
 

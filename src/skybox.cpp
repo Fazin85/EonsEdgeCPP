@@ -75,8 +75,8 @@ void Eon::Skybox::Render(Camera& camera) const
 	camera.CalculateViewMatrix(glm::vec3(0, 0, 0));
 
 	shader->Bind();
-	shader->UniformMatrix4NoTranspose("view", *camera.ViewMatrix());
-	shader->UniformMatrix4NoTranspose("projection", *camera.ProjectionMatrix());
+	shader->UniformMatrix4NoTranspose("view", camera.ViewMatrix());
+	shader->UniformMatrix4NoTranspose("projection", camera.ProjectionMatrix());
 
 	glBindVertexArray(vao);
 	glActiveTexture(GL_TEXTURE0);

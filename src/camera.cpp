@@ -39,11 +39,14 @@ namespace Eon
 		view_matrix = glm::lookAt(position, position + front, up);
 	}
 
-	glm::mat4* Camera::ViewMatrix() { return &view_matrix; }
-
-	glm::mat4* Camera::ProjectionMatrix()
+	const glm::mat4& Camera::ViewMatrix() const
 	{
-		return &proj_matrix;
+		return view_matrix;
+	}
+
+	const glm::mat4& Camera::ProjectionMatrix() const
+	{
+		return proj_matrix;
 	}
 
 	void Camera::Update(float dt)

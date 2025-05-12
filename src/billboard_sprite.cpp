@@ -36,8 +36,8 @@ glm::vec2& Eon::BillboardSprite::Size()
 void Eon::BillboardSprite::Render(Camera& camera, glm::vec3 cameraPosition)
 {
 	camera.CalculateViewMatrix(cameraPosition);
-	glm::mat4& viewMatrix = *camera.ViewMatrix();
-	glm::mat4 viewProjectionMatrix = *camera.ProjectionMatrix() * viewMatrix;
+	const glm::mat4& viewMatrix = camera.ViewMatrix();
+	const glm::mat4& viewProjectionMatrix = camera.ProjectionMatrix() * viewMatrix;
 
 	glActiveTexture(GL_TEXTURE0);
 	texture->Bind();

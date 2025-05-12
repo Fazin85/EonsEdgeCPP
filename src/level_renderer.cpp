@@ -116,8 +116,8 @@ namespace Eon
 		chunk_shader->Bind();
 		chunk_shader->UniformFVec4("fog_color", level.SkyColor());
 		camera.CalculateViewMatrix(glm::vec3(0, 0, 0));
-		chunk_shader->UniformMatrix4("view", *camera.ViewMatrix());
-		chunk_shader->UniformMatrix4("projection", *camera.ProjectionMatrix());
+		chunk_shader->UniformMatrix4("view", camera.ViewMatrix());
+		chunk_shader->UniformMatrix4("projection", camera.ProjectionMatrix());
 		chunk_shader->UniformFVec3("camPos", cameraPosition);
 
 		camera.CalculateViewMatrix(cameraPosition);
@@ -126,20 +126,26 @@ namespace Eon
 
 		static std::vector<std::pair<ChunkRendererContainer*, float>> cutoutRenderers;
 		static std::vector<std::pair<ChunkRendererContainer*, float>> translucentRenderers;
+		static std::vector<BlockEntity*> blockEntitys;
 		cutoutRenderers.clear();
 		translucentRenderers.clear();
+		blockEntitys.clear();
 
-		std::array<int, 3> drawCalls = { 0 };
+		std::array<int, 4> drawCalls = { 0 };
 
 		for (const auto& [chunkPosition, chunkRenderer] : chunk_renderers)
 		{
 			float distance = glm::distance(playerChunkPosition, glm::vec3(chunkPosition.x, 0, chunkPosition.z));
+			const auto& chunk = chunkRenderer->GetChunk();
 
 			if (distance > static_cast<float>(GameSettings.render_distance * CHUNK_WIDTH) ||
-				!camera.GetFrustum().BoxInFrustum(chunkRenderer->GetChunk()->GetAABB()))
+				!camera.GetFrustum().BoxInFrustum(chunk->GetAABB()))
 			{
 				continue;
 			}
+
+			const auto& chunkBlockEntitys = chunk->GetBlockEntitys();
+			blockEntitys.insert(blockEntitys.end(), chunkBlockEntitys.begin(), chunkBlockEntitys.end());
 
 			auto cutoutRenderer = chunkRenderer->GetCutoutRenderer();
 			auto translucentRenderer = chunkRenderer->GetTranslucentRenderer();
@@ -158,6 +164,12 @@ namespace Eon
 
 			chunkRenderer->GetOpaqueRenderer().Render();
 			drawCalls[0]++;
+		}
+
+		for (const auto& blockEntity : blockEntitys)
+		{
+			blockEntity->Render(camera);
+			drawCalls[3]++;
 		}
 
 		SortRenderersByDistance(cutoutRenderers, cameraPosition);
@@ -187,7 +199,7 @@ namespace Eon
 		timer++;
 		if (timer % 200 == 0)
 		{
-			std::cout << "odc:" << drawCalls[0] << ", cdc:" << drawCalls[1] << ", tdc:" << drawCalls[2] << "\n";
+			std::cout << "odc:" << drawCalls[0] << ", cdc:" << drawCalls[1] << ", tdc:" << drawCalls[2] << ", bedc:" << drawCalls[3] << "\n";
 		}
 	}
 

@@ -55,6 +55,8 @@ namespace Eon
 		bool IsSectionEmpty(int sectionIndex);
 		void SetCanUnload(bool canUnload);
 		AABB& GetAABB();
+		std::vector<BlockEntity*> GetBlockEntitys() const;
+		void AddBlockEntity(std::unique_ptr<BlockEntity> blockEntity);
 
 	private:
 		const Block& GetBlockInternal(int x, int y, int z);
