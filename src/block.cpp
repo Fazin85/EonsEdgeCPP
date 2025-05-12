@@ -2,8 +2,9 @@
 
 namespace Eon
 {
-	Block::Block(uint8_t id, BlockType type, bool isCutout, bool translucent) : id(id), type(type), is_cutout(isCutout), translucent(translucent)
+	Block::Block(uint8_t id, BlockType type, std::optional<std::function<std::unique_ptr<BlockEntity>()>> createBlockEntity, bool isCutout, bool translucent) : id(id), type(type), create_block_entity(std::nullopt), is_cutout(isCutout), translucent(translucent)
 	{
+		create_block_entity = createBlockEntity;
 	}
 
 	bool Block::operator==(const Block& other) const
@@ -19,6 +20,17 @@ namespace Eon
 	BlockType Block::GetType() const
 	{
 		return type;
+	}
+
+	bool Block::IsBlockEntity() const
+	{
+		return create_block_entity.has_value();
+	}
+
+	std::unique_ptr<BlockEntity> Block::CreateBlockEntityInstance()
+	{
+		const auto& func = create_block_entity.value();
+		return func();
 	}
 
 	bool Block::IsCutout() const
@@ -41,6 +53,12 @@ namespace Eon
 		return *this;
 	}
 
+	BlockBuilder& BlockBuilder::SetBlockEntity(std::function<std::unique_ptr<BlockEntity>()> createBlockEntity)
+	{
+		create_block_entity = createBlockEntity;
+		return *this;
+	}
+
 	BlockBuilder& BlockBuilder::SetIsCutout()
 	{
 		is_cutout = true;
@@ -55,7 +73,7 @@ namespace Eon
 
 	Block BlockBuilder::Build() const
 	{
-		return Block(id, type, is_cutout, translucent);
+		return Block(id, type, create_block_entity, is_cutout, translucent);
 	}
 
 	BlockRegistry::BlockRegistry() : blocks()

@@ -1,10 +1,13 @@
 #pragma once
 
+#include "block_entity.h"
+
 #include <cstdint>
 #include <unordered_map>
 #include <array>
 #include <optional>
 #include <memory>
+#include <functional>
 
 namespace Eon
 {
@@ -15,18 +18,21 @@ namespace Eon
 	class Block
 	{
 	public:
-		Block(uint8_t id, BlockType type, bool isCutout, bool translucent);
+		Block(uint8_t id, BlockType type, std::optional<std::function<std::unique_ptr<BlockEntity>()>> createBlockEntity, bool isCutout, bool translucent);
 
 		bool operator==(const Block& other) const;
 
 		uint8_t GetID() const;
 		BlockType GetType() const;
+		bool IsBlockEntity() const;
+		std::unique_ptr<BlockEntity> CreateBlockEntityInstance();
 		bool IsCutout() const;
 		bool Translucent() const;
 
 	private:
 		uint8_t id;
 		BlockType type;
+		std::optional<std::function<std::unique_ptr<BlockEntity>()>> create_block_entity;
 		bool is_cutout;
 		bool translucent;
 	};
@@ -36,6 +42,7 @@ namespace Eon
 	public:
 		explicit BlockBuilder(BlockType type, uint8_t& id);
 		BlockBuilder& SetType(BlockType type);
+		BlockBuilder& SetBlockEntity(std::function<std::unique_ptr<BlockEntity>()> createBlockEntity);
 		BlockBuilder& SetIsCutout();
 		BlockBuilder& SetTranslucent();
 		Block Build() const;
@@ -43,6 +50,7 @@ namespace Eon
 	private:
 		uint8_t id;
 		BlockType type;
+		std::optional<std::function<std::unique_ptr<BlockEntity>()>> create_block_entity;
 		bool is_cutout;
 		bool translucent;
 	};
