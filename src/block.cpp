@@ -2,7 +2,7 @@
 
 namespace Eon
 {
-	Block::Block(uint8_t id, BlockType type, std::optional<std::function<std::unique_ptr<BlockEntity>()>> createBlockEntity, bool isCutout, bool translucent) : id(id), type(type), create_block_entity(std::nullopt), is_cutout(isCutout), translucent(translucent)
+	Block::Block(uint8_t id, BlockType type, const std::optional<std::function<std::unique_ptr<BlockEntity>(glm::ivec3)>>& createBlockEntity, bool isCutout, bool translucent) : id(id), type(type), create_block_entity(std::nullopt), is_cutout(isCutout), translucent(translucent)
 	{
 		create_block_entity = createBlockEntity;
 	}
@@ -27,10 +27,10 @@ namespace Eon
 		return create_block_entity.has_value();
 	}
 
-	std::unique_ptr<BlockEntity> Block::CreateBlockEntityInstance()
+	std::unique_ptr<BlockEntity> Block::CreateBlockEntityInstance(glm::ivec3 worldPosition)
 	{
-		const auto& func = create_block_entity.value();
-		return func();
+		const auto& createBlockEntity = create_block_entity.value();
+		return createBlockEntity(worldPosition);
 	}
 
 	bool Block::IsCutout() const
@@ -53,7 +53,7 @@ namespace Eon
 		return *this;
 	}
 
-	BlockBuilder& BlockBuilder::SetBlockEntity(std::function<std::unique_ptr<BlockEntity>()> createBlockEntity)
+	BlockBuilder& BlockBuilder::SetBlockEntity(const std::function<std::unique_ptr<BlockEntity>(glm::ivec3)>& createBlockEntity)
 	{
 		create_block_entity = createBlockEntity;
 		return *this;
