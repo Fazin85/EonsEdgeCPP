@@ -55,6 +55,16 @@ namespace Eon
 			}
 		}
 
+		static int counter = 0;
+		counter++;
+		if (counter == 100)
+		{
+			std::stringstream ss;
+			ss << "Chunk data blocks allocated: " << ChunkSection::chunk_data_pool.GetAllocatedBlocks() << "\n";
+			EON_INFO(ss.str());
+			counter = 0;
+		}
+
 		level->Update(ChunkPosition{ static_cast<int>(player->Position().x), static_cast<int>(player->Position().z) }, GameSettings.render_distance + 2);
 
 		player->Update(dt);

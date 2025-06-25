@@ -2,13 +2,20 @@
 
 #include "block.h"
 #include "chunk_info.h"
+#include "chunk_data_pool.h"
 
 #include <vector>
 
-namespace Eon {
-	class ChunkSection {
+namespace Eon
+{
+	class ChunkSection
+	{
 	public:
-		const Block& GetBlock(int x, int y, int z);
+		static ChunkDataPool chunk_data_pool;
+
+		~ChunkSection();
+
+		const Block& GetBlock(int x, int y, int z) const;
 		void SetBlock(int x, int y, int z, const Block& block);
 
 		void CalculateUniformity();
@@ -18,6 +25,7 @@ namespace Eon {
 		bool is_uniform = true;
 		uint8_t block;
 
-		std::vector<uint8_t> blocks;
+		uint8_t* blocks = nullptr;
+		int blocks_size = 0;
 	};
 }

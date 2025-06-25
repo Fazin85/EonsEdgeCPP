@@ -2,7 +2,17 @@
 
 namespace Eon
 {
-	const Block& ChunkSection::GetBlock(int x, int y, int z)
+	ChunkDataPool ChunkSection::chunk_data_pool;
+
+	ChunkSection::~ChunkSection()
+	{
+		if (blocks_size > 0 && blocks != nullptr)
+		{
+			chunk_data_pool.Deallocate(blocks);
+		}
+	}
+
+	const Block& ChunkSection::GetBlock(int x, int y, int z) const
 	{
 		if (is_uniform)
 		{
@@ -26,9 +36,10 @@ namespace Eon
 			return;
 		}
 
-		if (blocks.size() != CHUNK_WIDTH * 16 * CHUNK_WIDTH)
+		if (blocks_size != CHUNK_WIDTH * 16 * CHUNK_WIDTH && blocks == nullptr)
 		{
-			blocks.resize(CHUNK_WIDTH * 16 * CHUNK_WIDTH);
+			blocks = chunk_data_pool.Allocate();
+			blocks_size = CHUNK_WIDTH * 16 * CHUNK_WIDTH;
 		}
 
 		blocks[x + CHUNK_WIDTH * (y + 16 * z)] = b.GetID();
@@ -38,7 +49,7 @@ namespace Eon
 	{
 		is_uniform = true;
 
-		for (size_t i = 0; i < blocks.size(); i++)
+		for (size_t i = 0; i < blocks_size; i++)
 		{
 			if (i > 0 && blocks[i - 1] != blocks[i])
 			{
@@ -47,10 +58,13 @@ namespace Eon
 			}
 		}
 
-		if (is_uniform && !blocks.empty())
+		if (is_uniform && blocks_size > 0 && blocks != nullptr)
 		{
 			block = blocks[0];
-			std::vector<uint8_t>().swap(blocks);
+
+			chunk_data_pool.Deallocate(blocks);
+			blocks = nullptr;
+			blocks_size = 0;
 		}
 	}
 
