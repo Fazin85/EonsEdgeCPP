@@ -22,9 +22,9 @@ namespace Eon
 		std::optional<std::reference_wrapper<const Block>> IsUniform() const;
 
 	private:
+		
 		bool is_uniform = true;
-		uint8_t block;
-
+		uint8_t block = 0;
 		uint8_t* blocks = nullptr;
 		int blocks_size = 0;
 	};

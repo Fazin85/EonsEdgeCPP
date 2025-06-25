@@ -19,7 +19,7 @@ namespace Eon
 		int GetAllocatedBlocks() const;
 
 	private:
-		constexpr static size_t BLOCK_SIZE = 67108864;
+		constexpr static size_t BLOCK_SIZE = 67108864; //64 MB
 		constexpr static size_t ELEMENT_SIZE = CHUNK_WIDTH * 16 * CHUNK_WIDTH;
 		constexpr static size_t ELEMENT_COUNT = BLOCK_SIZE / ELEMENT_SIZE;
 
