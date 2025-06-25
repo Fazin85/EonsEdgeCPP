@@ -11,17 +11,14 @@
 #include "texture_array.h"
 #include "chunk_unloaded_event_listener.h"
 #include <array>
-#include <atomic>
-#include <concurrentqueue/concurrentqueue.h>
 #include <map>
 #include <memory>
 #include <unordered_map>
-#include <thread>
+#include <vector>
 
 namespace Eon
 {
 	class Level;
-
 	class LevelRenderer : public ChunkUnloadedEventListener
 	{
 	public:
@@ -33,23 +30,19 @@ namespace Eon
 		void Render(Camera& camera, glm::vec3 cameraPosition);
 		size_t ChunkRendererCount();
 		bool IsChunkBeingMeshed(ChunkPosition position);
-
 		void OnChunkUnloaded(std::shared_ptr<Chunk> chunk) override;
 
 	private:
 		void SortRenderersByDistance(std::vector<std::pair<ChunkRendererContainer*, float>>& renderers, glm::vec3 cameraPosition) const;
-		void MeshThread();
-		bool CanChunkBeMeshed(ChunkPosition position, const Frustum& frustum);
+		void SortChunksByDistance(std::vector<ChunkPosition>& chunks, glm::vec3 cameraPosition) const;
+		void ProcessSingleChunkMesh();
+		bool CanChunkBeMeshed(ChunkPosition position, const Frustum* frustum);
 		void MarkCanUnloadForMeshing(ChunkPosition position, bool canUnload);
 
 		std::unique_ptr<Shader> chunk_shader;
 		std::unique_ptr<TextureArray> chunk_texture;
-		std::vector<ChunkPosition> chunks_to_mesh_vector;
-		std::atomic_bool exit;
+		std::vector<ChunkPosition> chunks_to_mesh;
 		std::unique_ptr<ChunkRendererContainerProvider> chunk_renderer_container_provider;
-		moodycamel::ConcurrentQueue<ChunkPosition> chunks_to_mesh;
-		moodycamel::ConcurrentQueue<std::unique_ptr<ChunkRendererContainer>> meshes_to_setup;
-		std::vector<std::jthread> mesh_threads;
 		Level& level;
 		std::unordered_map<ChunkPosition, std::unique_ptr<ChunkRendererContainer>> chunk_renderers;
 	};

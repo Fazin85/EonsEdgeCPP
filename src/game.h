@@ -21,6 +21,5 @@ namespace Eon
 		bool stop;
 		std::unique_ptr<SceneManager> scene_manager;
 		std::unique_ptr<TextRenderer> text_renderer;
-		std::unique_ptr<ImGuiManager> imgui_manager;
 	};
 }

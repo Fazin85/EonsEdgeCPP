@@ -23,7 +23,6 @@ namespace Eon
 
 		bool BoxInFrustum(const AABB& box) const noexcept;
 
-	private:
 		std::array<Plane, 6> planes;
 	};
 }
