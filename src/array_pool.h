@@ -58,7 +58,6 @@
 #pragma once
 
 #include <map>
-#include <mutex>
 #include <memory>
 #include <vector>
 
@@ -70,7 +69,6 @@ namespace Eon
 	public:
 		std::shared_ptr<T[]> Allocate(size_t count)
 		{
-			std::scoped_lock<std::mutex> lock(mutex);
 			if (auto it = pool.lower_bound(count); it != pool.end())
 			{
 				auto result = it->second;
@@ -82,18 +80,15 @@ namespace Eon
 
 		void Deallocate(std::shared_ptr<T[]> ptr, size_t count)
 		{
-			std::scoped_lock<std::mutex> lock(mutex);
 			pool[count] = ptr;
 		}
 
 		size_t PooledCount() const
 		{
-			std::scoped_lock<std::mutex> lock(mutex);
 			return pool.size();
 		}
 
 	private:
-		mutable std::mutex mutex;
 		std::map<size_t, std::shared_ptr<T[]>> pool;
 	};
 
@@ -187,9 +182,13 @@ namespace Eon
 		static inline ArrayPool<glm::ivec3> ivec3_pool;
 
 	public:
+		//ONLY USE ON MAIN THREAD
 		static inline PoolAllocator<unsigned int> u32_allocator{ &u32_pool };
+		//ONLY USE ON MAIN THREAD
 		static inline PoolAllocator<unsigned char> u8_allocator{ &u8_pool };
+		//ONLY USE ON MAIN THREAD
 		static inline PoolAllocator<glm::ivec2> ivec2_allocator{ &ivec2_pool };
+		//ONLY USE ON MAIN THREAD
 		static inline PoolAllocator<glm::ivec3> ivec3_allocator{ &ivec3_pool };
 	};
 }
