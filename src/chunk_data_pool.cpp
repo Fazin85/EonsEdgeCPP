@@ -12,15 +12,13 @@ namespace Eon
 
 	uint8_t* ChunkDataPool::Allocate()
 	{
-		{
-			std::scoped_lock<std::mutex> lock(mutex);
+		std::scoped_lock<std::mutex> lock(mutex);
 
-			if (uint8_t* mem = FindFreeSlot(); mem)
-			{
-				std::memset(mem, 0, ELEMENT_SIZE);
-				allocated++;
-				return mem;
-			}
+		if (uint8_t* mem = FindFreeSlot(); mem)
+		{
+			std::memset(mem, 0, ELEMENT_SIZE);
+			allocated++;
+			return mem;
 		}
 
 		return nullptr;
