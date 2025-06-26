@@ -8,7 +8,11 @@
 
 namespace Eon
 {
-	ChunkRenderer::ChunkRenderer(ChunkMeshConstructionData& meshData) : vertex_position_data(), dir_light_data(), indices(), setup(false)
+	ChunkRenderer::ChunkRenderer(ChunkMeshConstructionData& meshData) :
+		vertex_position_data(PoolAllocators::u32_allocator),
+		dir_light_data(PoolAllocators::u32_allocator),
+		indices(PoolAllocators::u32_allocator),
+		setup(false)
 	{
 		indices = meshData.indices;
 		index_count = indices.size();
@@ -21,8 +25,8 @@ namespace Eon
 			dir_light_data[i] = ((meshData.light[i] << 24) | (meshData.directions[i] << 16) |
 				(static_cast<unsigned char>(meshData.uvs[i].x) << 8) | (static_cast<unsigned char>(meshData.uvs[i].y)));
 
-			unsigned short y16 = static_cast<unsigned short>(meshData.vertexPositions[i].y);
-			unsigned char* yy = reinterpret_cast<unsigned char*>(&y16);
+			const auto y16 = static_cast<const unsigned short>(meshData.vertexPositions[i].y);
+			const auto yy = reinterpret_cast<const unsigned char*>(&y16);
 
 			vertex_position_data[i] = ((static_cast<unsigned char>(meshData.vertexPositions[i].x) << 24) | (static_cast<unsigned char>(meshData.vertexPositions[i].z) << 16) | (yy[0] << 8) | (yy[1]));
 		}
@@ -64,7 +68,8 @@ namespace Eon
 		glBufferData(GL_ARRAY_BUFFER, vertex_position_data.size() * sizeof(unsigned int), vertex_position_data.data(),
 			GL_STATIC_DRAW);
 
-		std::vector<unsigned int>().swap(vertex_position_data);
+		vertex_position_data.clear();
+		vertex_position_data.shrink_to_fit();
 
 		glVertexAttribIPointer(0, 1, GL_UNSIGNED_INT, 0, nullptr);
 		glEnableVertexAttribArray(0);
@@ -75,7 +80,8 @@ namespace Eon
 		glBufferData(GL_ARRAY_BUFFER, dir_light_data.size() * sizeof(unsigned int), dir_light_data.data(),
 			GL_STATIC_DRAW);
 
-		std::vector<unsigned int>().swap(dir_light_data);
+		dir_light_data.clear();
+		dir_light_data.shrink_to_fit();
 
 		glVertexAttribIPointer(1, 1, GL_UNSIGNED_INT, 0, nullptr);
 		glEnableVertexAttribArray(1);
@@ -85,7 +91,8 @@ namespace Eon
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(),
 			GL_STATIC_DRAW);
 
-		std::vector<unsigned int>().swap(indices);
+		indices.clear();
+		indices.shrink_to_fit();
 
 		setup = true;
 	}

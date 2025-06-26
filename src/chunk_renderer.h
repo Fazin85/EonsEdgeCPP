@@ -7,6 +7,7 @@
 #include <optional>
 
 #include "chunk_mesh_construction_data.h"
+#include "array_pool.h"
 
 namespace Eon
 {
@@ -21,9 +22,9 @@ namespace Eon
 
 	private:
 		bool setup;
-		std::vector<unsigned int> vertex_position_data;
-		std::vector<unsigned int> dir_light_data;
-		std::vector<unsigned int> indices;
+		std::vector<unsigned int, PoolAllocator<unsigned int>> vertex_position_data;
+		std::vector<unsigned int, PoolAllocator<unsigned int>> dir_light_data;
+		std::vector<unsigned int, PoolAllocator<unsigned int>> indices;
 		size_t index_count;
 		unsigned int vao;
 		unsigned int ibo;

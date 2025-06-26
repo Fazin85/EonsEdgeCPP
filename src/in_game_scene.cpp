@@ -61,6 +61,10 @@ namespace Eon
 		{
 			std::stringstream ss;
 			ss << "Chunk data blocks allocated: " << ChunkSection::chunk_data_pool.GetAllocatedBlocks() << "\n";
+			ss << "ivec3 pooled values: " << PoolAllocators::ivec3_allocator.PooledCount() << "\n";
+			ss << "ivec2 pooled values: " << PoolAllocators::ivec2_allocator.PooledCount() << "\n";
+			ss << "u32 pooled values: " << PoolAllocators::u32_allocator.PooledCount() << "\n";
+			ss << "u8 pooled values: " << PoolAllocators::u8_allocator.PooledCount() << "\n";
 			EON_INFO(ss.str());
 			counter = 0;
 		}

@@ -51,6 +51,7 @@ namespace Eon
 
 	int ChunkDataPool::GetAllocatedBlocks() const
 	{
+		std::scoped_lock<std::mutex> lock(mutex);
 		return allocated;
 	}
 

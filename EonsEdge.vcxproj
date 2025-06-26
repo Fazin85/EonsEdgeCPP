@@ -189,6 +189,7 @@
     <ClInclude Include="src\block_entity_test.h" />
     <ClInclude Include="src\byte_buffer.h" />
     <ClInclude Include="src\chunk_data_pool.h" />
+    <ClInclude Include="src\array_pool.h" />
     <ClInclude Include="src\chunk_renderer_container_provider.h" />
     <ClInclude Include="src\abstract_level_generator.h" />
     <ClInclude Include="src\basic_terrain_generator.h" />
