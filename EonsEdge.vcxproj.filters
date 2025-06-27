@@ -147,6 +147,12 @@
     <ClCompile Include="src\mesh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\gl_error_check.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\array_pool.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\camera.h">
@@ -320,6 +326,9 @@
     <ClInclude Include="src\mesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\gl_error_check.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="vcpkg.json" />
@@ -337,6 +346,8 @@
     <None Include="content\models\tree.vox" />
     <None Include="content\shaders\Text.frag" />
     <None Include="content\shaders\Text.vert" />
+    <None Include="content\shaders\ptcn.frag" />
+    <None Include="content\shaders\ptcn.vert" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="C:\Users\GODDIDIDIIDID\Downloads\player.png">

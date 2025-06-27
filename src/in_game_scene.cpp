@@ -10,8 +10,8 @@ namespace Eon
 		float size = 1.0f,
 		const glm::vec3& color = glm::vec3(1.0f, 1.0f, 1.0f),
 		Texture* texture = nullptr,
-		PoolAllocator<glm::vec3>& vec3_allocator = PoolAllocators::vec3_allocator,
-		PoolAllocator<glm::vec2>& vec2_allocator = PoolAllocators::vec2_allocator)
+		const PoolAllocator<glm::vec3>& vec3_allocator = *PoolAllocators::GetInstance().vec3_allocator,
+		const PoolAllocator<glm::vec2>& vec2_allocator = *PoolAllocators::GetInstance().vec2_allocator)
 	{
 		float half_size = size * 0.5f;
 
@@ -200,8 +200,8 @@ namespace Eon
 			256.0f,
 			glm::vec3(1.0f),
 			t,
-			PoolAllocators::vec3_allocator,
-			PoolAllocators::vec2_allocator);
+			*PoolAllocators::GetInstance().vec3_allocator,
+			*PoolAllocators::GetInstance().vec2_allocator);
 
 		cube->Setup();
 
@@ -230,10 +230,10 @@ namespace Eon
 		{
 			std::stringstream ss;
 			ss << "Chunk data blocks allocated: " << ChunkSection::chunk_data_pool.GetAllocatedBlocks() << "\n";
-			ss << "ivec3 pooled values: " << PoolAllocators::ivec3_allocator.PooledCount() << "\n";
-			ss << "ivec2 pooled values: " << PoolAllocators::ivec2_allocator.PooledCount() << "\n";
-			ss << "u32 pooled values: " << PoolAllocators::u32_allocator.PooledCount() << "\n";
-			ss << "u8 pooled values: " << PoolAllocators::u8_allocator.PooledCount() << "\n";
+			ss << "ivec3 pooled values: " << PoolAllocators::GetInstance().ivec3_allocator->PooledCount() << "\n";
+			ss << "ivec2 pooled values: " << PoolAllocators::GetInstance().ivec2_allocator->PooledCount() << "\n";
+			ss << "u32 pooled values: " << PoolAllocators::GetInstance().u32_allocator->PooledCount() << "\n";
+			ss << "u8 pooled values: " << PoolAllocators::GetInstance().u8_allocator->PooledCount() << "\n";
 			EON_INFO(ss.str());
 			counter = 0;
 		}
@@ -251,9 +251,9 @@ namespace Eon
 
 		Mesh::RenderMeshes(player->GetCamera(), player->Position(), { cube.get() }, *ptcn_shader);
 
-		sprite->Render(player->GetCamera(), player->Position());
+		//sprite->Render(player->GetCamera(), player->Position());
 
-		skybox->Render(player->GetCamera());
+		//skybox->Render(player->GetCamera());
 	}
 
 	const char* InGameScene::GetName()

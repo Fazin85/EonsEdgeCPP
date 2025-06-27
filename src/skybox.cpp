@@ -2,6 +2,7 @@
 #include "glad/glad.h"
 #include "stb_image.h"
 #include "log.h"
+#include "gl_error_check.h"
 
 Eon::Skybox::Skybox(std::array<std::string, 6>& faceFileNames)
 {
@@ -10,28 +11,28 @@ Eon::Skybox::Skybox(std::array<std::string, 6>& faceFileNames)
 		shader = std::make_unique<Shader>("Skybox.vert", "Skybox.frag");
 	}
 
-	glGenVertexArrays(1, &vao);
-	glGenBuffers(1, &vbo);
-	glGenBuffers(1, &ebo);
-	glBindVertexArray(vao);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), &vertices, GL_STATIC_DRAW);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), &indices, GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
-	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	GL_CHECK(glGenVertexArrays(1, &vao));
+	GL_CHECK(glGenBuffers(1, &vbo));
+	GL_CHECK(glGenBuffers(1, &ebo));
+	GL_CHECK(glBindVertexArray(vao));
+	GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, vbo));
+	GL_CHECK(glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), &vertices, GL_STATIC_DRAW));
+	GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo));
+	GL_CHECK(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), &indices, GL_STATIC_DRAW));
+	GL_CHECK(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr));
+	GL_CHECK(glEnableVertexAttribArray(0));
+	GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
+	GL_CHECK(glBindVertexArray(0));
+	GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
 
-	glGenTextures(1, &texture);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, texture);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	GL_CHECK(glGenTextures(1, &texture));
+	GL_CHECK(glBindTexture(GL_TEXTURE_CUBE_MAP, texture));
+	GL_CHECK(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+	GL_CHECK(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
 
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+	GL_CHECK(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+	GL_CHECK(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+	GL_CHECK(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE));
 
 	for (unsigned int i = 0; i < faceFileNames.size(); i++)
 	{
@@ -43,7 +44,7 @@ Eon::Skybox::Skybox(std::array<std::string, 6>& faceFileNames)
 		if (data)
 		{
 			stbi_set_flip_vertically_on_load(false);
-			glTexImage2D
+			GL_CHECK(glTexImage2D
 			(
 				GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
 				0,
@@ -54,7 +55,7 @@ Eon::Skybox::Skybox(std::array<std::string, 6>& faceFileNames)
 				GL_RGB,
 				GL_UNSIGNED_BYTE,
 				data
-			);
+			));
 
 			stbi_image_free(data);
 			EON_INFO("Loaded image: " + faceFileNames[i]);
@@ -69,8 +70,8 @@ Eon::Skybox::Skybox(std::array<std::string, 6>& faceFileNames)
 
 void Eon::Skybox::Render(Camera& camera) const
 {
-	glDepthFunc(GL_LEQUAL);
-	glCullFace(GL_FRONT);
+	GL_CHECK(glDepthFunc(GL_LEQUAL));
+	GL_CHECK(glCullFace(GL_FRONT));
 
 	camera.CalculateViewMatrix(glm::vec3(0, 0, 0));
 
@@ -78,11 +79,11 @@ void Eon::Skybox::Render(Camera& camera) const
 	shader->UniformMatrix4NoTranspose("view", camera.ViewMatrix());
 	shader->UniformMatrix4NoTranspose("projection", camera.ProjectionMatrix());
 
-	glBindVertexArray(vao);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, texture);
-	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
-	glBindVertexArray(0);
+	GL_CHECK(glBindVertexArray(vao));
+	GL_CHECK(glActiveTexture(GL_TEXTURE0));
+	GL_CHECK(glBindTexture(GL_TEXTURE_CUBE_MAP, texture));
+	GL_CHECK(glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr));
+	GL_CHECK(glBindVertexArray(0));
 
-	glDepthFunc(GL_LESS);
+	GL_CHECK(glDepthFunc(GL_LESS));
 }

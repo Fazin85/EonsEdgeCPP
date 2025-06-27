@@ -1,5 +1,6 @@
 #include "mesh.h"
 #include "log.h"
+#include "gl_error_check.h"
 
 #include <stdexcept>
 
@@ -29,11 +30,11 @@ namespace Eon
 			return;
 		}
 
-		glDeleteVertexArrays(1, &vao);
-		glDeleteBuffers(1, &position_vbo);
-		glDeleteBuffers(1, &texture_coords_vbo);
-		glDeleteBuffers(1, &color_vbo);
-		glDeleteBuffers(1, &normal_vbo);
+		GL_CHECK(glDeleteVertexArrays(1, &vao));
+		GL_CHECK(glDeleteBuffers(1, &position_vbo));
+		GL_CHECK(glDeleteBuffers(1, &texture_coords_vbo));
+		GL_CHECK(glDeleteBuffers(1, &color_vbo));
+		GL_CHECK(glDeleteBuffers(1, &normal_vbo));
 	}
 
 	void PositionTextureColorNormalMesh::Setup()
@@ -44,15 +45,13 @@ namespace Eon
 			return;
 		}
 
-		glGenVertexArrays(1, &vao);
-		glBindVertexArray(vao);
-
 		GenVBO(&position_vbo, positions);
 		GenVBO(&texture_coords_vbo, texture_coords);
 		GenVBO(&color_vbo, colors);
 		GenVBO(&normal_vbo, normals);
 
-		BeginVAOSetup();
+		GL_CHECK(glGenVertexArrays(1, &vao));
+		GL_CHECK(glBindVertexArray(vao));
 
 		{
 			using enum AttributeLocation;
@@ -72,8 +71,8 @@ namespace Eon
 			return;
 		}
 
-		glBindVertexArray(vao);
-		glDrawArrays(GL_TRIANGLES, 0, vertex_count);
+		GL_CHECK(glBindVertexArray(vao));
+		GL_CHECK(glDrawArrays(GL_TRIANGLES, 0, vertex_count));
 	}
 
 	void Mesh::RenderMeshes(Camera& camera, glm::vec3 cameraPosition, const std::vector<Mesh*>& meshes, Shader& shader)
@@ -110,16 +109,11 @@ namespace Eon
 		return setup;
 	}
 
-	void Mesh::BeginVAOSetup() const
-	{
-		glBindVertexArray(vao);
-	}
-
 	void Mesh::SetupVBO(GLuint vbo, int location, int size, int type) const
 	{
-		glBindBuffer(GL_ARRAY_BUFFER, vbo);
-		glVertexAttribPointer(location, size, type, false, 0, nullptr);
-		glEnableVertexAttribArray(location);
+		GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, vbo));
+		GL_CHECK(glVertexAttribPointer(location, size, type, false, 0, nullptr));
+		GL_CHECK(glEnableVertexAttribArray(location));
 	}
 
 	GLsizei Mesh::CalculateVertexCount(const std::vector<size_t>& sizes) const
@@ -142,8 +136,8 @@ namespace Eon
 
 	void Mesh::EndSetup()
 	{
-		glBindVertexArray(0);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		GL_CHECK(glBindVertexArray(0));
+		GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
 
 		setup = true;
 	}

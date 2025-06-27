@@ -44,8 +44,6 @@ namespace Eon
 			data.shrink_to_fit();
 		}
 
-		void BeginVAOSetup() const;
-
 		void SetupVBO(GLuint vbo, int location, int size, int type) const;
 
 		GLsizei CalculateVertexCount(const std::vector<size_t>& sizes) const;

@@ -12,11 +12,11 @@ namespace Eon
 	{
 	public:
 		ChunkMeshConstructionData() :
-			vertexPositions(PoolAllocators::ivec3_allocator),
-			uvs(PoolAllocators::ivec2_allocator),
-			indices(PoolAllocators::u32_allocator),
-			directions(PoolAllocators::u8_allocator),
-			light(PoolAllocators::u8_allocator),
+			vertexPositions(*PoolAllocators::GetInstance().ivec3_allocator),
+			uvs(*PoolAllocators::GetInstance().ivec2_allocator),
+			indices(*PoolAllocators::GetInstance().u32_allocator),
+			directions(*PoolAllocators::GetInstance().u8_allocator),
+			light(*PoolAllocators::GetInstance().u8_allocator),
 			index_count(0),
 			face_count(0)
 		{

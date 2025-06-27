@@ -9,9 +9,9 @@
 namespace Eon
 {
 	ChunkRenderer::ChunkRenderer(ChunkMeshConstructionData& meshData) :
-		vertex_position_data(PoolAllocators::u32_allocator),
-		dir_light_data(PoolAllocators::u32_allocator),
-		indices(PoolAllocators::u32_allocator),
+		vertex_position_data(*PoolAllocators::GetInstance().u32_allocator),
+		dir_light_data(*PoolAllocators::GetInstance().u32_allocator),
+		indices(*PoolAllocators::GetInstance().u32_allocator),
 		setup(false)
 	{
 		indices = meshData.indices;

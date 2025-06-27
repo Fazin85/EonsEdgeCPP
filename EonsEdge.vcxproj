@@ -140,6 +140,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\array_pool.cpp" />
     <ClCompile Include="src\basic_terrain_generator.cpp" />
     <ClCompile Include="src\billboard_sprite.cpp" />
     <ClCompile Include="src\block.cpp" />
@@ -156,6 +157,7 @@
     <ClCompile Include="src\fast_noise.cpp" />
     <ClCompile Include="src\frustum.cpp" />
     <ClCompile Include="src\game.cpp" />
+    <ClCompile Include="src\gl_error_check.cpp" />
     <ClCompile Include="src\image.cpp" />
     <ClCompile Include="src\block_texture.cpp" />
     <ClCompile Include="src\camera.cpp" />
@@ -205,6 +207,7 @@
     <ClInclude Include="src\compress.h" />
     <ClInclude Include="src\default_chunk_renderer_container_provider.h" />
     <ClInclude Include="src\fast_noise.h" />
+    <ClInclude Include="src\gl_error_check.h" />
     <ClInclude Include="src\imgui_impl_opengl3.h" />
     <ClInclude Include="src\imgui_impl_opengl3_loader.h" />
     <ClInclude Include="src\imgui_manager.h" />
@@ -254,6 +257,8 @@
     <None Include="content\shaders\Chunk.vert" />
     <None Include="content\shaders\Plane.frag" />
     <None Include="content\shaders\Plane.vert" />
+    <None Include="content\shaders\ptcn.frag" />
+    <None Include="content\shaders\ptcn.vert" />
     <None Include="content\shaders\Skybox.frag" />
     <None Include="content\shaders\Skybox.vert" />
     <None Include="content\shaders\Text.frag" />

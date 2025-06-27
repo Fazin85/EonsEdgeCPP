@@ -8,6 +8,7 @@
 #include "scene_manager.h"
 #include "log.h"
 #include "in_game_scene.h"
+#include "gl_error_check.h"
 
 namespace Eon
 {
@@ -94,6 +95,8 @@ namespace Eon
 	void Game::Render()
 	{
 		scene_manager->GetCurrentScene()->Render();
+		GL_CHECK_ERRORS();
+
 
 		text_renderer->Begin();
 		text_renderer->RenderText("Hello World!", 120, 120, 1, { 1, 1, 1 });
