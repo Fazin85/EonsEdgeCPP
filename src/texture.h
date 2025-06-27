@@ -14,7 +14,7 @@ namespace Eon
 		~Texture();
 
 		void Bind() const;
-		void Unbind();
+		void Unbind() const;
 		glm::ivec2 Size() const;
 
 	private:

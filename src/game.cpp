@@ -80,7 +80,7 @@ namespace Eon
 			}
 			else if (event.type == sf::Event::Resized)
 			{
-				glViewport(0, 0, event.size.width, event.size.height);
+				GL_CHECK(glViewport(0, 0, event.size.width, event.size.height));
 			}
 		}
 

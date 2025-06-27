@@ -81,6 +81,20 @@ namespace Eon
 
 		GL_CHECK(glLinkProgram(id));
 
+		GLint linkStatus = 0;
+		GL_CHECK(glGetProgramiv(id, GL_LINK_STATUS, &linkStatus));
+		if (linkStatus == GL_FALSE)
+		{
+			GLint maxLength = 0;
+			GL_CHECK(glGetProgramiv(id, GL_INFO_LOG_LENGTH, &maxLength));
+			std::vector<GLchar> errorLog(maxLength);
+			GL_CHECK(glGetProgramInfoLog(id, maxLength, &maxLength, &errorLog[0]));
+			EON_ERROR("Shader linking failed: " + std::string(errorLog.data()));
+			GL_CHECK(glDeleteProgram(id));
+			id = 0;
+			return;
+		}
+
 		GL_CHECK(glDeleteShader(vertexShader));
 		GL_CHECK(glDeleteShader(fragmentShader));
 

@@ -3,6 +3,7 @@
 #include <glad/glad.h>
 
 #include "log.h"
+#include "gl_error_check.h"
 #include <array>
 #include <cmath>
 
@@ -44,10 +45,10 @@ namespace Eon
 			return;
 		}
 
-		glBindVertexArray(vao);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+		GL_CHECK(glBindVertexArray(vao));
+		GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo));
 
-		glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(index_count), GL_UNSIGNED_INT, nullptr);
+		GL_CHECK(glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(index_count), GL_UNSIGNED_INT, nullptr));
 	}
 
 	void ChunkRenderer::Setup()
@@ -60,36 +61,36 @@ namespace Eon
 
 		setup = false;
 
-		glGenVertexArrays(1, &vao);
-		glBindVertexArray(vao);
-		glGenBuffers(1, &vertex_position_vbo);
+		GL_CHECK(glGenVertexArrays(1, &vao));
+		GL_CHECK(glBindVertexArray(vao));
+		GL_CHECK(glGenBuffers(1, &vertex_position_vbo));
 
-		glBindBuffer(GL_ARRAY_BUFFER, vertex_position_vbo);
-		glBufferData(GL_ARRAY_BUFFER, vertex_position_data.size() * sizeof(unsigned int), vertex_position_data.data(),
-			GL_STATIC_DRAW);
+		GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, vertex_position_vbo));
+		GL_CHECK(glBufferData(GL_ARRAY_BUFFER, vertex_position_data.size() * sizeof(unsigned int), vertex_position_data.data(),
+			GL_STATIC_DRAW));
 
 		vertex_position_data.clear();
 		vertex_position_data.shrink_to_fit();
 
-		glVertexAttribIPointer(0, 1, GL_UNSIGNED_INT, 0, nullptr);
-		glEnableVertexAttribArray(0);
+		GL_CHECK(glVertexAttribIPointer(0, 1, GL_UNSIGNED_INT, 0, nullptr));
+		GL_CHECK(glEnableVertexAttribArray(0));
 
-		glGenBuffers(1, &dir_light_vbo);
+		GL_CHECK(glGenBuffers(1, &dir_light_vbo));
 
-		glBindBuffer(GL_ARRAY_BUFFER, dir_light_vbo);
-		glBufferData(GL_ARRAY_BUFFER, dir_light_data.size() * sizeof(unsigned int), dir_light_data.data(),
-			GL_STATIC_DRAW);
+		GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, dir_light_vbo));
+		GL_CHECK(glBufferData(GL_ARRAY_BUFFER, dir_light_data.size() * sizeof(unsigned int), dir_light_data.data(),
+			GL_STATIC_DRAW));
 
 		dir_light_data.clear();
 		dir_light_data.shrink_to_fit();
 
-		glVertexAttribIPointer(1, 1, GL_UNSIGNED_INT, 0, nullptr);
-		glEnableVertexAttribArray(1);
+		GL_CHECK(glVertexAttribIPointer(1, 1, GL_UNSIGNED_INT, 0, nullptr));
+		GL_CHECK(glEnableVertexAttribArray(1));
 
-		glGenBuffers(1, &ibo);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(),
-			GL_STATIC_DRAW);
+		GL_CHECK(glGenBuffers(1, &ibo));
+		GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo));
+		GL_CHECK(glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(),
+			GL_STATIC_DRAW));
 
 		indices.clear();
 		indices.shrink_to_fit();
@@ -101,11 +102,11 @@ namespace Eon
 	{
 		if (setup)
 		{
-			glDeleteVertexArrays(1, &vao);
-			glDeleteBuffers(1, &ibo);
+			GL_CHECK(glDeleteVertexArrays(1, &vao));
+			GL_CHECK(glDeleteBuffers(1, &ibo));
 
-			glDeleteBuffers(1, &vertex_position_vbo);
-			glDeleteBuffers(1, &dir_light_vbo);
+			GL_CHECK(glDeleteBuffers(1, &vertex_position_vbo));
+			GL_CHECK(glDeleteBuffers(1, &dir_light_vbo));
 		}
 	}
 }  // namespace Eon

@@ -36,7 +36,7 @@ namespace Eon
 		GL_CHECK(glBindTexture(GL_TEXTURE_2D, id));
 	}
 
-	void Texture::Unbind()
+	void Texture::Unbind() const
 	{
 		GL_CHECK(glBindTexture(GL_TEXTURE_2D, 0));
 	}

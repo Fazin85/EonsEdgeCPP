@@ -1,5 +1,7 @@
 #version 330 core
 
+out vec4 FragColor;
+
 uniform sampler2D textureSampler;
 
 in vec3 pos;
@@ -10,7 +12,7 @@ in vec3 normal;
 void main()
 {
 	vec4 tex = texture(textureSampler, texCoord);
-	tex *= color;
+	tex.rgb *= color;
 	
-	gl_FragColor = tex;
+	FragColor = tex;
 }
