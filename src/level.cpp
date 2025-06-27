@@ -25,28 +25,25 @@ namespace Eon
 		exit = true;
 	}
 
-	std::optional<std::shared_ptr<Chunk>> Level::GetChunk(ChunkPosition position)
+	std::shared_ptr<Chunk> Level::GetChunk(ChunkPosition position)
 	{
 		std::scoped_lock<std::mutex> lock(chunk_mutex);
-		std::optional<std::shared_ptr<Chunk>> result;
 
 		if (auto iter = chunks.find(position); iter != chunks.end())
 		{
 			return iter->second;
 		}
 
-		return std::nullopt;
+		return nullptr;
 	}
 
 	void Level::SetBlock(const Block& block, int x, int y, int z)
 	{
 		auto chunkPosition = ChunkPosition{ x, z };
 
-		auto chunk = GetChunk(chunkPosition);
-
-		if (chunk)
+		if (auto chunk = GetChunk(chunkPosition); chunk)
 		{
-			chunk.value()->SetBlock(x - chunkPosition.x, y, z - chunkPosition.z, block);
+			chunk->SetBlock(x - chunkPosition.x, y, z - chunkPosition.z, block);
 		}
 	}
 

@@ -170,6 +170,7 @@
     <ClCompile Include="src\level_renderer.h" />
     <ClCompile Include="src\log.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\mesh.cpp" />
     <ClCompile Include="src\noise_generator_improved.cpp" />
     <ClCompile Include="src\noise_generator_octaves.cpp" />
     <ClCompile Include="src\plane_mesh.cpp" />
@@ -208,6 +209,7 @@
     <ClInclude Include="src\imgui_impl_opengl3_loader.h" />
     <ClInclude Include="src\imgui_manager.h" />
     <ClInclude Include="src\in_game_scene.h" />
+    <ClInclude Include="src\mesh.h" />
     <ClInclude Include="src\noise_generator_improved.h" />
     <ClInclude Include="src\noise_generator_octaves.h" />
     <ClInclude Include="src\ogt_vox.h" />

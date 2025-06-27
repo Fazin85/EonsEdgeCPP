@@ -264,7 +264,7 @@ namespace Eon
 
 		if (frustum != nullptr)
 		{
-			flag = flag && frustum->BoxInFrustum(chunk.value()->GetAABB());
+			flag = flag && frustum->BoxInFrustum(chunk->GetAABB());
 		}
 
 		bool chunkExists1 = level.ChunkExistsAt(position.Offset(CHUNK_WIDTH, 0));
@@ -297,9 +297,9 @@ namespace Eon
 		{
 			auto chunk = level.GetChunk(chunkPosition);
 
-			if (chunk.has_value())
+			if (chunk)
 			{
-				chunk.value()->SetCanUnload(canUnload);
+				chunk->SetCanUnload(canUnload);
 			}
 			else
 			{

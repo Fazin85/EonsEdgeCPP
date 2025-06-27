@@ -26,7 +26,7 @@ namespace Eon
 	public:
 		explicit Level(std::unique_ptr<AbstractLevelGenerator> abstractLevelGenerator);
 		~Level();
-		std::optional<std::shared_ptr<Chunk>> GetChunk(ChunkPosition position);
+		std::shared_ptr<Chunk> GetChunk(ChunkPosition position);
 		void SetBlock(const Block& block, int x, int y, int z);
 		const Block& GetBlock(glm::ivec3 position);
 		glm::vec4& SkyColor();

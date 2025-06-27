@@ -25,8 +25,13 @@ namespace Eon
 		void UniformFVec2(const std::string& uniformName, glm::vec2 vec);
 		void UniformInt1(const std::string& uniformName, int value);
 
+		const std::string& GetVertexName() const;
+		const std::string& GetFragmentName() const;
+
 	private:
 		GLuint id;
 		std::unordered_map<std::string, GLint> uniform_cache;
+		const std::string vertexName;
+		const std::string fragmentName;
 	};
 }

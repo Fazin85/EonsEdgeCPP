@@ -6,6 +6,162 @@
 
 namespace Eon
 {
+	std::unique_ptr<PositionTextureColorNormalMesh> CreateCubeMesh(
+		float size = 1.0f,
+		const glm::vec3& color = glm::vec3(1.0f, 1.0f, 1.0f),
+		Texture* texture = nullptr,
+		PoolAllocator<glm::vec3>& vec3_allocator = PoolAllocators::vec3_allocator,
+		PoolAllocator<glm::vec2>& vec2_allocator = PoolAllocators::vec2_allocator)
+	{
+		float half_size = size * 0.5f;
+
+		// Create vertices for a cube (36 vertices - 6 faces * 2 triangles * 3 vertices)
+		std::vector<glm::vec3, PoolAllocator<glm::vec3>> positions(vec3_allocator);
+		std::vector<glm::vec2, PoolAllocator<glm::vec2>> texture_coords(vec2_allocator);
+		std::vector<glm::vec3, PoolAllocator<glm::vec3>> colors(vec3_allocator);
+		std::vector<glm::vec3, PoolAllocator<glm::vec3>> normals(vec3_allocator);
+
+		positions.reserve(36);
+		texture_coords.reserve(36);
+		colors.reserve(36);
+		normals.reserve(36);
+
+		// Front face
+		positions.insert(positions.end(), {
+			{-half_size, -half_size,  half_size}, // Bottom-left
+			{ half_size, -half_size,  half_size}, // Bottom-right
+			{ half_size,  half_size,  half_size}, // Top-right
+			{ half_size,  half_size,  half_size}, // Top-right
+			{-half_size,  half_size,  half_size}, // Top-left
+			{-half_size, -half_size,  half_size}  // Bottom-left
+			});
+
+		texture_coords.insert(texture_coords.end(), {
+			{0.0f, 0.0f}, {1.0f, 0.0f}, {1.0f, 1.0f},
+			{1.0f, 1.0f}, {0.0f, 1.0f}, {0.0f, 0.0f}
+			});
+
+		for (int i = 0; i < 6; ++i)
+		{
+			colors.push_back(color);
+			normals.push_back({ 0.0f, 0.0f, 1.0f }); // Front normal
+		}
+
+		// Back face
+		positions.insert(positions.end(), {
+			{ half_size, -half_size, -half_size}, // Bottom-left
+			{-half_size, -half_size, -half_size}, // Bottom-right
+			{-half_size,  half_size, -half_size}, // Top-right
+			{-half_size,  half_size, -half_size}, // Top-right
+			{ half_size,  half_size, -half_size}, // Top-left
+			{ half_size, -half_size, -half_size}  // Bottom-left
+			});
+
+		texture_coords.insert(texture_coords.end(), {
+			{0.0f, 0.0f}, {1.0f, 0.0f}, {1.0f, 1.0f},
+			{1.0f, 1.0f}, {0.0f, 1.0f}, {0.0f, 0.0f}
+			});
+
+		for (int i = 0; i < 6; ++i)
+		{
+			colors.push_back(color);
+			normals.push_back({ 0.0f, 0.0f, -1.0f }); // Back normal
+		}
+
+		// Left face
+		positions.insert(positions.end(), {
+			{-half_size, -half_size, -half_size}, // Bottom-left
+			{-half_size, -half_size,  half_size}, // Bottom-right
+			{-half_size,  half_size,  half_size}, // Top-right
+			{-half_size,  half_size,  half_size}, // Top-right
+			{-half_size,  half_size, -half_size}, // Top-left
+			{-half_size, -half_size, -half_size}  // Bottom-left
+			});
+
+		texture_coords.insert(texture_coords.end(), {
+			{0.0f, 0.0f}, {1.0f, 0.0f}, {1.0f, 1.0f},
+			{1.0f, 1.0f}, {0.0f, 1.0f}, {0.0f, 0.0f}
+			});
+
+		for (int i = 0; i < 6; ++i)
+		{
+			colors.push_back(color);
+			normals.push_back({ -1.0f, 0.0f, 0.0f }); // Left normal
+		}
+
+		// Right face
+		positions.insert(positions.end(), {
+			{ half_size, -half_size,  half_size}, // Bottom-left
+			{ half_size, -half_size, -half_size}, // Bottom-right
+			{ half_size,  half_size, -half_size}, // Top-right
+			{ half_size,  half_size, -half_size}, // Top-right
+			{ half_size,  half_size,  half_size}, // Top-left
+			{ half_size, -half_size,  half_size}  // Bottom-left
+			});
+
+		texture_coords.insert(texture_coords.end(), {
+			{0.0f, 0.0f}, {1.0f, 0.0f}, {1.0f, 1.0f},
+			{1.0f, 1.0f}, {0.0f, 1.0f}, {0.0f, 0.0f}
+			});
+
+		for (int i = 0; i < 6; ++i)
+		{
+			colors.push_back(color);
+			normals.push_back({ 1.0f, 0.0f, 0.0f }); // Right normal
+		}
+
+		// Top face
+		positions.insert(positions.end(), {
+			{-half_size,  half_size,  half_size}, // Bottom-left
+			{ half_size,  half_size,  half_size}, // Bottom-right
+			{ half_size,  half_size, -half_size}, // Top-right
+			{ half_size,  half_size, -half_size}, // Top-right
+			{-half_size,  half_size, -half_size}, // Top-left
+			{-half_size,  half_size,  half_size}  // Bottom-left
+			});
+
+		texture_coords.insert(texture_coords.end(), {
+			{0.0f, 0.0f}, {1.0f, 0.0f}, {1.0f, 1.0f},
+			{1.0f, 1.0f}, {0.0f, 1.0f}, {0.0f, 0.0f}
+			});
+
+		for (int i = 0; i < 6; ++i)
+		{
+			colors.push_back(color);
+			normals.push_back({ 0.0f, 1.0f, 0.0f }); // Top normal
+		}
+
+		// Bottom face
+		positions.insert(positions.end(), {
+			{-half_size, -half_size, -half_size}, // Bottom-left
+			{ half_size, -half_size, -half_size}, // Bottom-right
+			{ half_size, -half_size,  half_size}, // Top-right
+			{ half_size, -half_size,  half_size}, // Top-right
+			{-half_size, -half_size,  half_size}, // Top-left
+			{-half_size, -half_size, -half_size}  // Bottom-left
+			});
+
+		texture_coords.insert(texture_coords.end(), {
+			{0.0f, 0.0f}, {1.0f, 0.0f}, {1.0f, 1.0f},
+			{1.0f, 1.0f}, {0.0f, 1.0f}, {0.0f, 0.0f}
+			});
+
+		for (int i = 0; i < 6; ++i)
+		{
+			colors.push_back(color);
+			normals.push_back({ 0.0f, -1.0f, 0.0f }); // Bottom normal
+		}
+
+		// Create and return the mesh
+		return std::make_unique<PositionTextureColorNormalMesh>(
+			std::move(positions),
+			std::move(texture_coords),
+			std::move(colors),
+			std::move(normals),
+			texture
+		);
+	}
+
 	InGameScene::InGameScene()
 	{
 		glEnable(GL_DEPTH_TEST);
@@ -37,6 +193,19 @@ namespace Eon
 		};
 
 		skybox = std::make_unique<Skybox>(facesCubemap);
+
+		auto t = new Texture(image, false);
+
+		cube = CreateCubeMesh(
+			256.0f,
+			glm::vec3(1.0f),
+			t,
+			PoolAllocators::vec3_allocator,
+			PoolAllocators::vec2_allocator);
+
+		cube->Setup();
+
+		ptcn_shader = std::make_unique<Shader>("ptcn.vert", "ptcn.frag");
 	}
 
 	void InGameScene::Update(float dt)
@@ -50,7 +219,7 @@ namespace Eon
 			if (auto chunk = level->GetChunk(ChunkPosition()); chunk)
 			{
 				auto pos = glm::ivec3(0, 200, 0);
-				chunk->get()->AddBlockEntity(std::make_unique<BlockEntityTest>(pos));
+				chunk->AddBlockEntity(std::make_unique<BlockEntityTest>(pos));
 				done_thing = true;
 			}
 		}
@@ -79,6 +248,8 @@ namespace Eon
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		level_renderer->Render(player->GetCamera(), player->Position());
+
+		Mesh::RenderMeshes(player->GetCamera(), player->Position(), { cube.get() }, *ptcn_shader);
 
 		sprite->Render(player->GetCamera(), player->Position());
 

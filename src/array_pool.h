@@ -116,13 +116,15 @@ namespace Eon
 		template<typename U> friend class PoolAllocator;
 	};
 
-	struct PoolAllocators
+	class PoolAllocators
 	{
 	private:
 		static inline ArrayPool<unsigned int> u32_pool;
 		static inline ArrayPool<unsigned char> u8_pool;
 		static inline ArrayPool<glm::ivec2> ivec2_pool;
 		static inline ArrayPool<glm::ivec3> ivec3_pool;
+		static inline ArrayPool<glm::vec2> vec2_pool;
+		static inline ArrayPool<glm::vec3> vec3_pool;
 
 	public:
 		//ONLY USE ON MAIN THREAD
@@ -133,5 +135,9 @@ namespace Eon
 		static inline PoolAllocator<glm::ivec2> ivec2_allocator{ &ivec2_pool };
 		//ONLY USE ON MAIN THREAD
 		static inline PoolAllocator<glm::ivec3> ivec3_allocator{ &ivec3_pool };
+		//ONLY USE ON MAIN THREAD
+		static inline PoolAllocator<glm::vec2> vec2_allocator{ &vec2_pool };
+		//ONLY USE ON MAIN THREAD
+		static inline PoolAllocator<glm::vec3> vec3_allocator{ &vec3_pool };
 	};
 }
