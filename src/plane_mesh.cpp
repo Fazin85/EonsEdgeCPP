@@ -40,7 +40,7 @@ namespace Eon
 
 		shader->Bind();
 		shader->UniformInt1("texture0", 0);
-		shader->UniformMatrix4NoTranspose("model", model_matrix);
+		shader->UniformMatrix4("model", model_matrix);
 	}
 
 	PlaneMesh::~PlaneMesh()
@@ -59,9 +59,9 @@ namespace Eon
 
 		camera.CalculateViewMatrix(cameraPosition);
 
-		shader->UniformMatrix4NoTranspose("model", model_matrix);
-		shader->UniformMatrix4NoTranspose("view", camera.ViewMatrix());
-		shader->UniformMatrix4NoTranspose("projection", camera.ProjectionMatrix());
+		shader->UniformMatrix4("model", model_matrix);
+		shader->UniformMatrix4("view", camera.ViewMatrix());
+		shader->UniformMatrix4("projection", camera.ProjectionMatrix());
 
 		glBindVertexArray(vao);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);

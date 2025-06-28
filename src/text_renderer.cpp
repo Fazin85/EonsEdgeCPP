@@ -88,7 +88,7 @@ namespace Eon
 		glClear(GL_DEPTH_BUFFER_BIT);
 		shader.Bind();
 		const sf::Vector2u windowSize = Window::Get().getSize();
-		shader.UniformMatrix4NoTranspose("projection", glm::ortho(0.0f, static_cast<float>(windowSize.x), 0.0f, static_cast<float>(windowSize.y)));
+		shader.UniformMatrix4("projection", glm::ortho(0.0f, static_cast<float>(windowSize.x), 0.0f, static_cast<float>(windowSize.y)));
 		glDisable(GL_DEPTH_TEST);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

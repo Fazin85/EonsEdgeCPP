@@ -44,14 +44,11 @@ namespace Eon
 			GLint maxLength = 0;
 			GL_CHECK(glGetShaderiv(vertexShader, GL_INFO_LOG_LENGTH, &maxLength));
 
-			// The maxLength includes the NULL character
 			std::vector<GLchar> errorLog(maxLength);
 			GL_CHECK(glGetShaderInfoLog(vertexShader, maxLength, &maxLength, &errorLog[0]));
 			EON_INFO(errorLog.data());
 
-			// Provide the infolog in whatever manor you deem best.
-			// Exit with failure.
-			GL_CHECK(glDeleteShader(vertexShader)); // Don't leak the shader.
+			GL_CHECK(glDeleteShader(vertexShader));
 			return;
 		}
 
@@ -65,14 +62,11 @@ namespace Eon
 			GLint maxLength = 0;
 			GL_CHECK(glGetShaderiv(fragmentShader, GL_INFO_LOG_LENGTH, &maxLength));
 
-			// The maxLength includes the NULL character
 			std::vector<GLchar> errorLog(maxLength);
 			GL_CHECK(glGetShaderInfoLog(fragmentShader, maxLength, &maxLength, &errorLog[0]));
 			EON_INFO(errorLog.data());
 
-			// Provide the infolog in whatever manor you deem best.
-			// Exit with failure.
-			GL_CHECK(glDeleteShader(fragmentShader)); // Don't leak the shader.
+			GL_CHECK(glDeleteShader(fragmentShader));
 			return;
 		}
 
@@ -100,7 +94,7 @@ namespace Eon
 
 		GLint count;
 		constexpr GLsizei bufSize = 256;//increase this if we have really long uniform names in our shaders
-		GLchar name[bufSize] = { 0 };
+		std::vector<GLchar> name(bufSize);
 		GLint length;
 		GLint size;
 		GLenum type;
@@ -112,10 +106,10 @@ namespace Eon
 
 		for (GLuint i = 0; i < count; i++)
 		{
-			GL_CHECK(glGetActiveUniform(id, i, bufSize, &length, &size, &type, name));
+			GL_CHECK(glGetActiveUniform(id, i, bufSize, &length, &size, &type, name.data()));
 
-			int location = glGetUniformLocation(id, name);
-			uniform_cache.try_emplace(name, location);
+			int location = glGetUniformLocation(id, name.data());
+			uniform_cache.try_emplace(name.data(), location);
 		}
 
 		EON_INFO("Loaded vertex shader: " + vertexShaderName);
@@ -137,7 +131,7 @@ namespace Eon
 		GL_CHECK(glUseProgram(0));
 	}
 
-	void Shader::UniformMatrix4(const std::string& uniformName, const glm::mat4& matrix)
+	void Shader::UniformMatrix4Transpose(const std::string& uniformName, const glm::mat4& matrix)
 	{
 		if (auto location = uniform_cache.find(uniformName); location != uniform_cache.end())
 		{
@@ -145,7 +139,7 @@ namespace Eon
 		}
 	}
 
-	void Shader::UniformMatrix4NoTranspose(const std::string& uniformName, const glm::mat4& matrix)
+	void Shader::UniformMatrix4(const std::string& uniformName, const glm::mat4& matrix)
 	{
 		if (auto location = uniform_cache.find(uniformName); location != uniform_cache.end())
 		{

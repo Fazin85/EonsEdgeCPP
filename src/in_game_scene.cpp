@@ -251,9 +251,9 @@ namespace Eon
 
 		Mesh::RenderMeshes(player->GetCamera(), player->Position(), { cube.get() }, *ptcn_shader);
 
-		//sprite->Render(player->GetCamera(), player->Position());
+		sprite->Render(player->GetCamera(), player->Position());
 
-		//skybox->Render(player->GetCamera());
+		skybox->Render(player->GetCamera());
 	}
 
 	const char* InGameScene::GetName()

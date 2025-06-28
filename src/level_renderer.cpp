@@ -17,7 +17,7 @@ namespace Eon
 		chunk_shader->UniformFVec3("sunlight_dir", glm::vec3(-0.7f, -1.0f, -0.5f));
 		chunk_shader->UniformFVec3("light_color", glm::vec3(1, 1, 1));
 		chunk_shader->UniformFloat("ambient_light", 0.15f);
-		chunk_shader->UniformMatrix4("model", glm::mat4(1.0f));
+		chunk_shader->UniformMatrix4Transpose("model", glm::mat4(1.0f));
 		chunk_shader->UniformFloat("fog_near", (static_cast<float>(GameSettings.render_distance) * static_cast<float>(CHUNK_WIDTH) / 2) + CHUNK_WIDTH);
 		chunk_shader->UniformInt1("textureSampler", 0);
 
@@ -99,8 +99,8 @@ namespace Eon
 		chunk_shader->Bind();
 		chunk_shader->UniformFVec4("fog_color", level.SkyColor());
 		camera.CalculateViewMatrix(glm::vec3(0, 0, 0));
-		chunk_shader->UniformMatrix4("view", camera.ViewMatrix());
-		chunk_shader->UniformMatrix4("projection", camera.ProjectionMatrix());
+		chunk_shader->UniformMatrix4Transpose("view", camera.ViewMatrix());
+		chunk_shader->UniformMatrix4Transpose("projection", camera.ProjectionMatrix());
 		chunk_shader->UniformFVec3("camPos", cameraPosition);
 
 		camera.CalculateViewMatrix(cameraPosition);

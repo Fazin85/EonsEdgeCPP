@@ -78,8 +78,8 @@ namespace Eon
 		camera.CalculateViewMatrix(glm::vec3(0, 0, 0));
 
 		shader->Bind();
-		shader->UniformMatrix4NoTranspose("view", camera.ViewMatrix());
-		shader->UniformMatrix4NoTranspose("projection", camera.ProjectionMatrix());
+		shader->UniformMatrix4("view", camera.ViewMatrix());
+		shader->UniformMatrix4("projection", camera.ProjectionMatrix());
 
 		GL_CHECK(glBindVertexArray(vao));
 		GL_CHECK(glActiveTexture(GL_TEXTURE0));

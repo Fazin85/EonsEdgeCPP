@@ -80,8 +80,8 @@ namespace Eon
 		camera.CalculateViewMatrix(cameraPosition);
 
 		shader.Bind();
-		shader.UniformMatrix4NoTranspose("view", camera.ViewMatrix());
-		shader.UniformMatrix4NoTranspose("projection", camera.ProjectionMatrix());
+		shader.UniformMatrix4("view", camera.ViewMatrix());
+		shader.UniformMatrix4("projection", camera.ProjectionMatrix());
 
 		//TODO: sort the meshes based on their distance from the camera and their texture
 

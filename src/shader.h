@@ -16,8 +16,8 @@ namespace Eon
 		void Bind() const;
 		void Unbind() const;
 
+		void UniformMatrix4Transpose(const std::string& uniformName, const glm::mat4& matrix);
 		void UniformMatrix4(const std::string& uniformName, const glm::mat4& matrix);
-		void UniformMatrix4NoTranspose(const std::string& uniformName, const glm::mat4& matrix);
 		void UniformIVec3(const std::string& uniformName, const glm::ivec3& vec);
 		void UniformFVec3(const std::string& uniformName, const glm::vec3& vec);
 		void UniformFloat(const std::string& uniformName, const float v);

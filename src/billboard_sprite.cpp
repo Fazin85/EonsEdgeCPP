@@ -51,7 +51,7 @@ void Eon::BillboardSprite::Render(Camera& camera, glm::vec3 cameraPosition)
 	shader->UniformFVec3("BillboardPos", position);
 	shader->UniformFVec2("BillboardSize", size);
 
-	shader->UniformMatrix4NoTranspose("VP", viewProjectionMatrix);
+	shader->UniformMatrix4("VP", viewProjectionMatrix);
 
 	glBindVertexArray(vertex_array);
 	glEnableVertexAttribArray(0);
