@@ -3,13 +3,14 @@
 #include "default_chunk_renderer_container_provider.h"
 #include "settings.h"
 #include "block_entity_test.h"
+#include "asset_manager.h"
 
 namespace Eon
 {
 	std::unique_ptr<PositionTextureColorNormalMesh> CreateCubeMesh(
 		float size = 1.0f,
 		const glm::vec3& color = glm::vec3(1.0f, 1.0f, 1.0f),
-		Texture* texture = nullptr,
+		TextureID textureID = INVALID_ASSET_ID,
 		const PoolAllocator<glm::vec3>& vec3_allocator = *PoolAllocators::GetInstance().vec3_allocator,
 		const PoolAllocator<glm::vec2>& vec2_allocator = *PoolAllocators::GetInstance().vec2_allocator)
 	{
@@ -158,7 +159,7 @@ namespace Eon
 			std::move(texture_coords),
 			std::move(colors),
 			std::move(normals),
-			texture
+			textureID
 		);
 	}
 
@@ -181,7 +182,6 @@ namespace Eon
 
 		sf::Image image;
 		image.loadFromFile("content/images/test.png");
-		sprite = std::make_unique<BillboardSprite>(image);
 
 		std::array<std::string, 6> facesCubemap =
 		{
@@ -193,14 +193,14 @@ namespace Eon
 			"skybox/right.png"
 		};
 
+
 		skybox = std::make_unique<Skybox>(facesCubemap);
 
-		auto t = new Texture(image, false);
-
+		auto t = AssetManager::GetAsset<Texture>("texture.test");
 		cube = CreateCubeMesh(
 			256.0f,
 			glm::vec3(1.0f),
-			t,
+			t.GetID(),
 			*PoolAllocators::GetInstance().vec3_allocator,
 			*PoolAllocators::GetInstance().vec2_allocator);
 
@@ -220,7 +220,7 @@ namespace Eon
 		}
 
 		stitcher.DoStitch();
-		auto atlas = stitcher.StitchImages();
+		std::unique_ptr<sf::Image> atlas = stitcher.StitchImages();
 		atlas->saveToFile("content/images/texture_atlas.png");
 	}
 
@@ -266,8 +266,6 @@ namespace Eon
 		level_renderer->Render(player->GetCamera(), player->Position());
 
 		Mesh::RenderMeshes(player->GetCamera(), player->Position(), { cube.get() }, *ptcn_shader);
-
-		sprite->Render(player->GetCamera(), player->Position());
 
 		skybox->Render(player->GetCamera());
 	}

@@ -9,7 +9,8 @@ namespace Eon
 {
 	Shader::Shader(
 		const std::string& vertexShaderName,
-		const std::string& fragmentShaderName) :
+		const std::string& fragmentShaderName,
+		bool fullPath) :
 		vertexName(vertexShaderName),
 		fragmentName(fragmentShaderName)
 	{
@@ -18,8 +19,8 @@ namespace Eon
 		GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
 		GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 
-		std::string vertexSource = FileUtil::GetFileContents("content/shaders/" + vertexShaderName);
-		std::string fragmentSource = FileUtil::GetFileContents("content/shaders/" + fragmentShaderName);
+		std::string vertexSource = fullPath ? FileUtil::GetFileContents(vertexShaderName) : FileUtil::GetFileContents("content/shaders/" + vertexShaderName);
+		std::string fragmentSource = fullPath ? FileUtil::GetFileContents(fragmentShaderName) : FileUtil::GetFileContents("content/shaders/" + fragmentShaderName);
 
 		if (vertexSource == "")
 		{
@@ -46,6 +47,7 @@ namespace Eon
 
 			std::vector<GLchar> errorLog(maxLength);
 			GL_CHECK(glGetShaderInfoLog(vertexShader, maxLength, &maxLength, &errorLog[0]));
+			EON_INFO("Vertex shader compile error");
 			EON_INFO(errorLog.data());
 
 			GL_CHECK(glDeleteShader(vertexShader));
@@ -64,6 +66,7 @@ namespace Eon
 
 			std::vector<GLchar> errorLog(maxLength);
 			GL_CHECK(glGetShaderInfoLog(fragmentShader, maxLength, &maxLength, &errorLog[0]));
+			EON_INFO("Fragment shader compile error");
 			EON_INFO(errorLog.data());
 
 			GL_CHECK(glDeleteShader(fragmentShader));
@@ -119,6 +122,12 @@ namespace Eon
 	Shader::~Shader()
 	{
 		GL_CHECK(glDeleteProgram(id));
+	}
+
+	Shader::Shader(Shader&& other) noexcept : id(other.id), uniform_cache(other.uniform_cache), vertexName(other.vertexName), fragmentName(other.fragmentName)
+	{
+		other.id = 0;
+		other.uniform_cache.clear();
 	}
 
 	void Shader::Bind() const

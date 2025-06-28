@@ -9,6 +9,7 @@
 #include "camera.h"
 #include "shader.h"
 #include "texture.h"
+#include "asset_manager.h"
 
 namespace Eon
 {
@@ -53,7 +54,7 @@ namespace Eon
 		GLuint vao = 0;
 		GLsizei vertex_count = 0;
 		bool setup = false;
-		Texture* texture = nullptr;
+		TextureID texture_id = INVALID_ASSET_ID;
 	};
 
 	class PositionTextureColorNormalMesh : public Mesh
@@ -64,7 +65,7 @@ namespace Eon
 			std::vector<glm::vec2, PoolAllocator<glm::vec2>>&& texture_coords,
 			std::vector<glm::vec3, PoolAllocator<glm::vec3>>&& colors,
 			std::vector<glm::vec3, PoolAllocator<glm::vec3>>&& normals,
-			Texture* texture);
+			TextureID textureID);
 		~PositionTextureColorNormalMesh() final;
 
 		void Setup() override;

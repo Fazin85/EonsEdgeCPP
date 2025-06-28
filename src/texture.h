@@ -13,9 +13,12 @@ namespace Eon
 		Texture(const sf::Image& image, bool mipmaps);
 		~Texture();
 
-		void Bind() const;
+		Texture(Texture&& other) noexcept;
+
+		void Bind(int unit = 0) const;
 		void Unbind() const;
 		glm::ivec2 Size() const;
+		GLuint GetID() const;
 
 	private:
 		GLuint id;

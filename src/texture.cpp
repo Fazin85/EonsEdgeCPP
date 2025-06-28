@@ -31,8 +31,15 @@ namespace Eon
 		GL_CHECK(glDeleteTextures(1, &id));
 	}
 
-	void Texture::Bind() const
+	Texture::Texture(Texture&& other) noexcept : id(other.id), size(other.size)
 	{
+		other.id = 0;
+		other.size = { 0, 0 };
+	}
+
+	void Texture::Bind(int unit) const
+	{
+		GL_CHECK(glActiveTexture(GL_TEXTURE0 + unit));
 		GL_CHECK(glBindTexture(GL_TEXTURE_2D, id));
 	}
 
@@ -44,5 +51,10 @@ namespace Eon
 	glm::ivec2 Texture::Size() const
 	{
 		return size;
+	}
+
+	GLuint Texture::GetID() const
+	{
+		return id;
 	}
 }

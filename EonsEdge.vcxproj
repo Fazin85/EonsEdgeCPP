@@ -141,8 +141,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\array_pool.cpp" />
+    <ClCompile Include="src\asset_manager.cpp" />
     <ClCompile Include="src\basic_terrain_generator.cpp" />
-    <ClCompile Include="src\billboard_sprite.cpp" />
     <ClCompile Include="src\block.cpp" />
     <ClCompile Include="src\block_entity.cpp" />
     <ClCompile Include="src\block_entity_test.cpp" />
@@ -189,6 +189,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\aabb.h" />
+    <ClInclude Include="src\asset_manager.h" />
     <ClInclude Include="src\block_entity_test.h" />
     <ClInclude Include="src\byte_buffer.h" />
     <ClInclude Include="src\chunk_data_pool.h" />
@@ -196,7 +197,6 @@
     <ClInclude Include="src\chunk_renderer_container_provider.h" />
     <ClInclude Include="src\abstract_level_generator.h" />
     <ClInclude Include="src\basic_terrain_generator.h" />
-    <ClInclude Include="src\billboard_sprite.h" />
     <ClInclude Include="src\block_face_texture.h" />
     <ClInclude Include="src\bounding_box.h" />
     <ClInclude Include="src\chunk_primer.h" />

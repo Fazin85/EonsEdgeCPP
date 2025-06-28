@@ -11,7 +11,7 @@ namespace Eon
 		std::vector<glm::vec2, PoolAllocator<glm::vec2>>&& texture_coords,
 		std::vector<glm::vec3, PoolAllocator<glm::vec3>>&& colors,
 		std::vector<glm::vec3, PoolAllocator<glm::vec3>>&& normals,
-		Texture* texture) :
+		TextureID textureID) :
 		positions(std::move(positions)),
 		texture_coords(std::move(texture_coords)),
 		colors(std::move(colors)),
@@ -20,7 +20,7 @@ namespace Eon
 		std::vector<size_t> sizes = { this->positions.size(), this->texture_coords.size(), this->colors.size(), this->normals.size() };
 		vertex_count = CalculateVertexCount(sizes);
 
-		this->texture = texture;
+		this->texture_id = textureID;
 	}
 
 	PositionTextureColorNormalMesh::~PositionTextureColorNormalMesh()
@@ -85,17 +85,17 @@ namespace Eon
 
 		//TODO: sort the meshes based on their distance from the camera and their texture
 
-		const Texture* texture = nullptr;
+		TextureID textureId = INVALID_ASSET_ID;
 		for (const Mesh* mesh : meshes)
 		{
 			if (mesh)
 			{
-				if (texture != mesh->texture)
+				if (textureId != mesh->texture_id)
 				{
-					texture = mesh->texture;
-					if (texture)
+					textureId = mesh->texture_id;
+					if (textureId != INVALID_ASSET_ID)
 					{
-						texture->Bind();
+						AssetManager::GetAssetByID<Texture>(textureId)->Bind();
 					}
 				}
 

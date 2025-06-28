@@ -1,0 +1,2 @@
+shader:shader.ptcn:content/shaders/ptcn
+texture:texture.test:content/images/Test.png

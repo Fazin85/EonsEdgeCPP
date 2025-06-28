@@ -10,8 +10,10 @@ namespace Eon
 	class Shader
 	{
 	public:
-		Shader(const std::string& vertexShaderFilePath, const std::string& fragmentShaderFilePath);
+		Shader(const std::string& vertexShaderFilePath, const std::string& fragmentShaderFilePath, bool fullPath = false);
 		~Shader();
+
+		Shader(Shader&& other) noexcept;
 
 		void Bind() const;
 		void Unbind() const;
