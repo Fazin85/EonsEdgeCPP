@@ -8,6 +8,7 @@
 #include <any>
 #include "shader.h"
 #include "texture.h"
+#include "st_shared_ptr.h"
 
 namespace Eon
 {
@@ -34,7 +35,7 @@ namespace Eon
 
 			Asset(Asset& other) : asset(other.asset), id(other.id) {}
 
-			Asset(T&& asset, AssetID id) : asset(std::make_shared<T>(std::move(asset))), id(id) {}
+			Asset(T&& asset, AssetID id) : asset(make_shared_st<T>(std::move(asset))), id(id) {}
 
 			Asset(Asset&& other) noexcept : asset(other.asset), id(other.id)
 			{
@@ -61,7 +62,7 @@ namespace Eon
 
 			bool IsValid() const { return asset != nullptr && id != INVALID_ASSET_ID; }
 		private:
-			std::shared_ptr<T> asset = nullptr;
+			st_shared_ptr<T> asset = nullptr;
 			AssetID id = INVALID_ASSET_ID;
 		};
 

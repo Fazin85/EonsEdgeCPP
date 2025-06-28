@@ -239,6 +239,7 @@
     <ClInclude Include="src\settings.h" />
     <ClInclude Include="src\shader.h" />
     <ClInclude Include="src\stb_image.h" />
+    <ClInclude Include="src\st_shared_ptr.h" />
     <ClInclude Include="src\texture.h" />
     <ClInclude Include="src\texture_array.h" />
     <ClInclude Include="src\texture_atlas_stitcher.h" />
