@@ -179,7 +179,8 @@ namespace Eon
 
 		level->AddChunkUnloadedEventListener(*level_renderer);
 
-		Image image("Test.png");
+		sf::Image image;
+		image.loadFromFile("content/images/test.png");
 		sprite = std::make_unique<BillboardSprite>(image);
 
 		std::array<std::string, 6> facesCubemap =

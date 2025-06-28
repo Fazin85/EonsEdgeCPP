@@ -1,7 +1,7 @@
 #pragma once
 
+#include "SFML/Graphics.hpp"
 #include "camera.h"
-#include "image.h"
 #include "shader.h"
 #include "texture.h"
 #include <memory>
@@ -11,7 +11,7 @@ namespace Eon
 	class BillboardSprite
 	{
 	public:
-		BillboardSprite(Image& image);
+		BillboardSprite(sf::Image& image);
 		~BillboardSprite();
 		glm::vec3& Position();
 		glm::vec2& Size();

@@ -1,6 +1,6 @@
-#include "texture_array.h"
+#include <SFML/Graphics.hpp>
 #include <glad/glad.h>
-#include "stb_image.h"
+#include "texture_array.h"
 #include "log.h"
 
 namespace Eon
@@ -19,21 +19,16 @@ namespace Eon
 
 		for (size_t i = 0; i < imagefilePaths.size(); i++)
 		{
-			int x;
-			int y;
-			int channels;
 			std::string filePath = "content/images/" + imagefilePaths[i];
-			unsigned char* imageData = stbi_load(filePath.c_str(), &x, &y, &channels, STBI_rgb_alpha);
-
-			if (imageData == nullptr || channels != STBI_rgb_alpha || x != width || y != height)
+			sf::Image image;
+			image.loadFromFile(filePath);
+			if (!image.getPixelsPtr())
 			{
 				EON_ERROR("Failed to load image: " + imagefilePaths[i]);
 				return;
 			}
 
-			glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, static_cast<GLsizei>(i), width, height, 1, GL_RGBA, GL_UNSIGNED_BYTE, imageData);
-
-			stbi_image_free(imageData);
+			glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, static_cast<GLsizei>(i), image.getSize().x, image.getSize().y, 1, GL_RGBA, GL_UNSIGNED_BYTE, image.getPixelsPtr());
 		}
 
 		//glGenerateMipmap(GL_TEXTURE_2D_ARRAY);

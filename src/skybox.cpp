@@ -1,6 +1,6 @@
+#include <SFML/Graphics.hpp>
 #include "skybox.h"
 #include "glad/glad.h"
-#include "stb_image.h"
 #include "log.h"
 #include "gl_error_check.h"
 
@@ -36,36 +36,31 @@ namespace Eon
 		GL_CHECK(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
 		GL_CHECK(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE));
 
-		for (unsigned int i = 0; i < faceFileNames.size(); i++)
+		for (size_t i = 0; i < faceFileNames.size(); i++)
 		{
-			int width;
-			int height;
-			int nrChannels;
 			std::string fileName = "content/images/" + faceFileNames[i];
-			unsigned char* data = stbi_load(fileName.c_str(), &width, &height, &nrChannels, 0);
-			if (data)
+			sf::Image image;
+			image.loadFromFile(fileName);
+			if (image.getPixelsPtr())
 			{
-				stbi_set_flip_vertically_on_load(false);
 				GL_CHECK(glTexImage2D
 				(
 					GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
 					0,
-					GL_RGB,
-					width,
-					height,
+					GL_RGBA,
+					image.getSize().x,
+					image.getSize().y,
 					0,
-					GL_RGB,
+					GL_RGBA,
 					GL_UNSIGNED_BYTE,
-					data
+					image.getPixelsPtr()
 				));
 
-				stbi_image_free(data);
 				EON_INFO("Loaded image: " + faceFileNames[i]);
 			}
 			else
 			{
 				EON_ERROR("Failed to load image: " + faceFileNames[i]);
-				stbi_image_free(data);
 			}
 		}
 	}

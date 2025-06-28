@@ -1,6 +1,6 @@
 #include "billboard_sprite.h"
 
-Eon::BillboardSprite::BillboardSprite(Image& image) : position(0, 0, 0), size(1.0f, 1.0f)
+Eon::BillboardSprite::BillboardSprite(sf::Image& image) : position(0, 0, 0), size(1.0f, 1.0f)
 {
 	texture = std::make_unique<Texture>(image, true);
 

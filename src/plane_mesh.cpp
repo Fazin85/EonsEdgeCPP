@@ -4,7 +4,7 @@
 
 namespace Eon
 {
-	PlaneMesh::PlaneMesh(glm::vec3 position, glm::vec2 scale, Image& image) : model_matrix(1.0f)
+	PlaneMesh::PlaneMesh(glm::vec3 position, glm::vec2 scale, sf::Image& image) : model_matrix(1.0f)
 	{
 		if (shader == nullptr)
 		{

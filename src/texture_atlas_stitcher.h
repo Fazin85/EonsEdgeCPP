@@ -6,7 +6,7 @@
 #include <string>
 #include <functional>
 #include <memory>
-#include "image.h"
+#include <SFML/Graphics.hpp>
 #include "texture.h"
 
 namespace Eon
@@ -52,9 +52,9 @@ namespace Eon
 		class TextureHolder
 		{
 		public:
-			TextureHolder(const std::string& name, Image* image);
+			TextureHolder(const std::string& name, sf::Image* image);
 
-			Image* GetImage() const;
+			sf::Image* GetImage() const;
 			int GetWidth() const;
 			int GetHeight() const;
 			int GetAtlasX() const;
@@ -69,7 +69,7 @@ namespace Eon
 
 		private:
 			std::string name;
-			Image* image = nullptr;
+			sf::Image* image = nullptr;
 			int width = 0;
 			int height = 0;
 			int atlas_x = 0;
@@ -78,7 +78,7 @@ namespace Eon
 
 		~TextureAtlasStitcher();
 
-		void AddSprite(const std::string& name, Image& image);
+		void AddSprite(const std::string& name, sf::Image& image);
 		void DoStitch();
 
 	private:
@@ -88,7 +88,7 @@ namespace Eon
 		bool OverlapsExisting(const Slot& newSlot) const;
 		void InsertSorted(const Slot& slot);
 		int NextPowerOfTwo(int value) const;
-		Image* StitchImages();
+		sf::Image* StitchImages();
 		Texture& CreateAtlasTexture();
 
 		std::unordered_set<Slot> slots;

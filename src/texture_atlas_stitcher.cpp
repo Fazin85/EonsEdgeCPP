@@ -3,11 +3,11 @@
 
 namespace Eon
 {
-	TextureAtlasStitcher::TextureHolder::TextureHolder(const std::string& name, Image* image) : name(name), image(image)
+	TextureAtlasStitcher::TextureHolder::TextureHolder(const std::string& name, sf::Image* image) : name(name), image(image)
 	{
 	}
 
-	Image* TextureAtlasStitcher::TextureHolder::GetImage() const
+	sf::Image* TextureAtlasStitcher::TextureHolder::GetImage() const
 	{
 		return image;
 	}
@@ -79,7 +79,7 @@ namespace Eon
 			y + height > other.y;
 	}
 
-	void TextureAtlasStitcher::AddSprite(const std::string& name, Image& image)
+	void TextureAtlasStitcher::AddSprite(const std::string& name, sf::Image& image)
 	{
 		if (holders.contains(name))
 		{
@@ -89,8 +89,8 @@ namespace Eon
 
 		holders[name] = std::make_shared<TextureHolder>(name, &image);
 
-		int w = image.Width();
-		int h = image.Height();
+		int w = image.getSize().x;
+		int h = image.getSize().y;
 
 		max_width = std::max(max_width, w);
 		max_height = std::max(max_height, h);
@@ -182,8 +182,8 @@ namespace Eon
 
 	bool TextureAtlasStitcher::AllocateSlot(TextureHolder& holder)
 	{
-		int width = holder.GetImage()->Width();
-		int height = holder.GetImage()->Height();
+		int width = holder.GetImage()->getSize().x;
+		int height = holder.GetImage()->getSize().y;
 
 		for (int i = 0; i < slot_list.size(); i++)
 		{
@@ -278,9 +278,9 @@ namespace Eon
 		}
 		return power;
 	}
-	
-	Image* TextureAtlasStitcher::StitchImages()
+
+	sf::Image* TextureAtlasStitcher::StitchImages()
 	{
-		
+		return nullptr;
 	}
 }

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "image.h"
+#include <SFML/Graphics.hpp>
 #include <glad/glad.h>
 #include <glm/vec2.hpp>
 #include <string>
@@ -10,7 +10,7 @@ namespace Eon
 	class Texture
 	{
 	public:
-		Texture(Image& image, bool mipmaps);
+		Texture(const sf::Image& image, bool mipmaps);
 		~Texture();
 
 		void Bind() const;

@@ -3,7 +3,7 @@
 
 namespace Eon
 {
-	Texture::Texture(Image& image, bool mipmaps) : size(image.Width(), image.Height())
+	Texture::Texture(const sf::Image& image, bool mipmaps) : size(image.getSize().x, image.getSize().y)
 	{
 		GL_CHECK(glGenTextures(1, &id));
 
@@ -18,7 +18,7 @@ namespace Eon
 
 		GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
 
-		GL_CHECK(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image.Width(), image.Height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, image.Data()));
+		GL_CHECK(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size.x, size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, image.getPixelsPtr()));
 
 		if (mipmaps)
 		{
