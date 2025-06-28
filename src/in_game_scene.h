@@ -8,6 +8,7 @@
 #include "player.h"
 #include "skybox.h"
 #include "mesh.h"
+#include "texture_atlas_stitcher.h"
 
 namespace Eon
 {

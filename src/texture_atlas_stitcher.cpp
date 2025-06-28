@@ -3,11 +3,11 @@
 
 namespace Eon
 {
-	TextureAtlasStitcher::TextureHolder::TextureHolder(const std::string& name, sf::Image* image) : name(name), image(image)
+	TextureAtlasStitcher::TextureHolder::TextureHolder(const std::string& name, sf::Image& image) : name(name), image(image)
 	{
 	}
 
-	sf::Image* TextureAtlasStitcher::TextureHolder::GetImage() const
+	sf::Image& TextureAtlasStitcher::TextureHolder::GetImage() const
 	{
 		return image;
 	}
@@ -87,7 +87,7 @@ namespace Eon
 			return;
 		}
 
-		holders[name] = std::make_shared<TextureHolder>(name, &image);
+		holders[name] = std::make_shared<TextureHolder>(name, image);
 
 		int w = image.getSize().x;
 		int h = image.getSize().y;
@@ -108,8 +108,7 @@ namespace Eon
 		std::sort(holderList.begin(), holderList.end(), [](const std::shared_ptr<TextureHolder>& a, const std::shared_ptr<TextureHolder>& b)
 			{
 				int areaA = a->GetWidth() * a->GetHeight();
-				int areaB = b->GetWidth() * b->GetHeight();
-				if (areaA != areaB)
+				if (int areaB = b->GetWidth() * b->GetHeight(); areaA != areaB)
 				{
 					return areaB < areaA;
 				}
@@ -150,7 +149,7 @@ namespace Eon
 
 				slots.clear();
 				slot_list.clear();
-				for (std::shared_ptr<TextureHolder>& holder : holderList)
+				for (const std::shared_ptr<TextureHolder>& holder : holderList)
 				{
 					holder->SetAtlasX(0);
 					holder->SetAtlasY(0);
@@ -164,13 +163,13 @@ namespace Eon
 		}
 	}
 
-	bool TextureAtlasStitcher::TryStitch(std::vector<std::shared_ptr<TextureHolder>>& holderList)
+	bool TextureAtlasStitcher::TryStitch(const std::vector<std::shared_ptr<TextureHolder>>& holderList)
 	{
 		Slot rootSlot(0, 0, current_width, current_height);
 		slots.insert(rootSlot);
 		slot_list.push_back(rootSlot);
 
-		for (std::shared_ptr<TextureHolder>& holder : holderList)
+		for (const std::shared_ptr<TextureHolder>& holder : holderList)
 		{
 			if (!AllocateSlot(*holder))
 			{
@@ -182,8 +181,8 @@ namespace Eon
 
 	bool TextureAtlasStitcher::AllocateSlot(TextureHolder& holder)
 	{
-		int width = holder.GetImage()->getSize().x;
-		int height = holder.GetImage()->getSize().y;
+		int width = holder.GetImage().getSize().x;
+		int height = holder.GetImage().getSize().y;
 
 		for (int i = 0; i < slot_list.size(); i++)
 		{
@@ -279,8 +278,28 @@ namespace Eon
 		return power;
 	}
 
-	sf::Image* TextureAtlasStitcher::StitchImages()
+	std::unique_ptr<sf::Image> TextureAtlasStitcher::StitchImages()
 	{
-		return nullptr;
+		auto atlas = std::make_unique<sf::Image>();
+		atlas->create(current_width, current_height, sf::Color::Transparent);
+
+		for (const auto& [unused, holder] : holders)
+		{
+			if (!holder->GetImage().getPixelsPtr())
+			{
+				EON_WARN("Texture does not exist.");
+				continue;
+			}
+
+			atlas->copy(holder->GetImage(), holder->GetAtlasX(), holder->GetAtlasY());
+		}
+
+		return atlas;
+	}
+
+	std::unique_ptr<Texture> TextureAtlasStitcher::CreateAtlasTexture()
+	{
+		std::unique_ptr<sf::Image> atlas = StitchImages();
+		return std::make_unique<Texture>(*atlas, false);
 	}
 }

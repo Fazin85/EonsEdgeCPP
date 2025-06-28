@@ -52,9 +52,9 @@ namespace Eon
 		class TextureHolder
 		{
 		public:
-			TextureHolder(const std::string& name, sf::Image* image);
+			TextureHolder(const std::string& name, sf::Image& image);
 
-			sf::Image* GetImage() const;
+			sf::Image& GetImage() const;
 			int GetWidth() const;
 			int GetHeight() const;
 			int GetAtlasX() const;
@@ -69,27 +69,25 @@ namespace Eon
 
 		private:
 			std::string name;
-			sf::Image* image = nullptr;
+			sf::Image& image;
 			int width = 0;
 			int height = 0;
 			int atlas_x = 0;
 			int atlas_y = 0;
 		};
 
-		~TextureAtlasStitcher();
-
 		void AddSprite(const std::string& name, sf::Image& image);
 		void DoStitch();
+		std::unique_ptr<sf::Image> StitchImages();
+		std::unique_ptr<Texture> CreateAtlasTexture();
 
 	private:
-		bool TryStitch(std::vector<std::shared_ptr<TextureHolder>>& holderList);
+		bool TryStitch(const std::vector<std::shared_ptr<TextureHolder>>& holderList);
 		bool AllocateSlot(TextureHolder& holder);
 		void SplitSlot(const Slot& slot, int usedWidth, int usedHeight);
 		bool OverlapsExisting(const Slot& newSlot) const;
 		void InsertSorted(const Slot& slot);
 		int NextPowerOfTwo(int value) const;
-		sf::Image* StitchImages();
-		Texture& CreateAtlasTexture();
 
 		std::unordered_set<Slot> slots;
 		std::vector<Slot> slot_list;

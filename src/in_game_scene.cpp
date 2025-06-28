@@ -207,6 +207,21 @@ namespace Eon
 		cube->Setup();
 
 		ptcn_shader = std::make_unique<Shader>("ptcn.vert", "ptcn.frag");
+
+		TextureAtlasStitcher stitcher;
+
+		std::vector<std::string> fileNames = { "content/images/DirtBlock.png", "content/images/LeafBlock.png", "content/images/StoneBlock.png", "content/images/SandBlock.png" };
+
+		for (const auto& fileName : fileNames)
+		{
+			sf::Image* i = new sf::Image();
+			i->loadFromFile(fileName);
+			stitcher.AddSprite(fileName, *i);
+		}
+
+		stitcher.DoStitch();
+		auto atlas = stitcher.StitchImages();
+		atlas->saveToFile("content/images/texture_atlas.png");
 	}
 
 	void InGameScene::Update(float dt)
@@ -214,14 +229,14 @@ namespace Eon
 		player->GetCamera().CalculateViewMatrix(player->Position());
 		level_renderer->Update(player->GetCamera().GetFrustum(), player->Position());
 
-		static bool done_thing = false;
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::G) && !done_thing)
+		static bool doneThing = false;
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::G) && !doneThing)
 		{
 			if (auto chunk = level->GetChunk(ChunkPosition()); chunk)
 			{
 				auto pos = glm::ivec3(0, 200, 0);
 				chunk->AddBlockEntity(std::make_unique<BlockEntityTest>(pos));
-				done_thing = true;
+				doneThing = true;
 			}
 		}
 
