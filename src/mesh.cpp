@@ -85,7 +85,7 @@ namespace Eon
 
 		//TODO: sort the meshes based on their distance from the camera and their texture
 
-		TextureID textureId = INVALID_ASSET_ID;
+		TextureID textureId;
 		for (const Mesh* mesh : meshes)
 		{
 			if (mesh)
@@ -93,9 +93,9 @@ namespace Eon
 				if (textureId != mesh->texture_id)
 				{
 					textureId = mesh->texture_id;
-					if (textureId != INVALID_ASSET_ID)
+					if (textureId.IsValid())
 					{
-						AssetManager::GetAssetByID<Texture>(textureId)->Bind();
+						textureId.Get<Texture>()->Bind();
 					}
 				}
 

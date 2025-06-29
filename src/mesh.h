@@ -54,7 +54,7 @@ namespace Eon
 		GLuint vao = 0;
 		GLsizei vertex_count = 0;
 		bool setup = false;
-		TextureID texture_id = INVALID_ASSET_ID;
+		TextureID texture_id;
 	};
 
 	class PositionTextureColorNormalMesh : public Mesh

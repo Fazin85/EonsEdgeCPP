@@ -10,7 +10,7 @@ namespace Eon
 	std::unique_ptr<PositionTextureColorNormalMesh> CreateCubeMesh(
 		float size = 1.0f,
 		const glm::vec3& color = glm::vec3(1.0f, 1.0f, 1.0f),
-		TextureID textureID = INVALID_ASSET_ID,
+		TextureID textureID = AssetID::INVALID_ASSET_ID,
 		const PoolAllocator<glm::vec3>& vec3_allocator = *PoolAllocators::GetInstance().vec3_allocator,
 		const PoolAllocator<glm::vec2>& vec2_allocator = *PoolAllocators::GetInstance().vec2_allocator)
 	{

@@ -9,6 +9,8 @@
 
 namespace Eon
 {
+	const AssetID AssetID::INVALID_ASSET_ID = { AssetID::INVALID_ID };
+
 	AssetManager& AssetManager::GetInstance()
 	{
 		static AssetManager instance;
@@ -67,7 +69,7 @@ namespace Eon
 				}
 
 				Texture texture(image, false);
-				Asset asset(std::move(texture), next_texture_id++);
+				Asset asset(std::move(texture), { next_texture_id++ });
 
 				textures_by_namespace.try_emplace(entry.name, asset);
 				textures_by_id.emplace_back(asset);
@@ -79,7 +81,10 @@ namespace Eon
 
 				Shader shader(vertexShader, fragmentShader, true);
 
-				shaders_by_namespace.try_emplace(entry.name, std::move(shader), next_shader_id++);
+				Asset asset(std::move(shader), { next_shader_id++ });
+
+				shaders_by_namespace.try_emplace(entry.name, asset);
+				shaders_by_id.emplace_back(asset);
 			}
 		}
 	}
