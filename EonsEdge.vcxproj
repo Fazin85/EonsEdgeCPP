@@ -155,6 +155,7 @@
     <ClCompile Include="src\compress.cpp" />
     <ClCompile Include="src\default_chunk_renderer_container_provider.cpp" />
     <ClCompile Include="src\fast_noise.cpp" />
+    <ClCompile Include="src\framebuffer.cpp" />
     <ClCompile Include="src\frustum.cpp" />
     <ClCompile Include="src\game.cpp" />
     <ClCompile Include="src\gl_error_check.cpp" />
@@ -176,6 +177,12 @@
     <ClCompile Include="src\noise_generator_octaves.cpp" />
     <ClCompile Include="src\plane_mesh.cpp" />
     <ClCompile Include="src\player.cpp" />
+    <ClCompile Include="src\renderer\batched_render_pass.cpp" />
+    <ClCompile Include="src\renderer\default\default_render_pipeline.cpp" />
+    <ClCompile Include="src\renderer\default\opaque_render_pass.cpp" />
+    <ClCompile Include="src\renderer\material.cpp" />
+    <ClCompile Include="src\renderer\render_pass.cpp" />
+    <ClCompile Include="src\renderer\render_state.cpp" />
     <ClCompile Include="src\scene_manager.cpp" />
     <ClCompile Include="src\scope_timer.cpp" />
     <ClCompile Include="src\shader.cpp" />
@@ -189,6 +196,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\aabb.h" />
+    <ClInclude Include="src\assert.h" />
     <ClInclude Include="src\asset_manager.h" />
     <ClInclude Include="src\block_entity_test.h" />
     <ClInclude Include="src\byte_buffer.h" />
@@ -207,6 +215,7 @@
     <ClInclude Include="src\compress.h" />
     <ClInclude Include="src\default_chunk_renderer_container_provider.h" />
     <ClInclude Include="src\fast_noise.h" />
+    <ClInclude Include="src\framebuffer.h" />
     <ClInclude Include="src\gl_error_check.h" />
     <ClInclude Include="src\imgui_impl_opengl3.h" />
     <ClInclude Include="src\imgui_impl_opengl3_loader.h" />
@@ -217,6 +226,14 @@
     <ClInclude Include="src\noise_generator_octaves.h" />
     <ClInclude Include="src\ogt_vox.h" />
     <ClInclude Include="src\plane_mesh.h" />
+    <ClInclude Include="src\renderer\batched_render_pass.h" />
+    <ClInclude Include="src\renderer\default\default_render_pipeline.h" />
+    <ClInclude Include="src\renderer\default\opaque_render_pass.h" />
+    <ClInclude Include="src\renderer\material.h" />
+    <ClInclude Include="src\renderer\render_command.h" />
+    <ClInclude Include="src\renderer\render_pass.h" />
+    <ClInclude Include="src\renderer\render_pipeline.h" />
+    <ClInclude Include="src\renderer\render_state.h" />
     <ClInclude Include="src\scene.h" />
     <ClInclude Include="src\scene_manager.h" />
     <ClInclude Include="src\scope_timer.h" />

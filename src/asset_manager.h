@@ -30,7 +30,7 @@ namespace Eon
 		int operator*() const { return id; }
 
 		template<typename T>
-		Asset<T> Get()
+		Asset<T> Get() const
 		{
 			return AssetManager::GetAssetByID<T>(*this);
 		}
@@ -176,5 +176,17 @@ namespace Eon
 		std::vector<Asset<Texture>> textures_by_id;
 		int next_shader_id = 0;
 		int next_texture_id = 0;
+	};
+}
+
+namespace std
+{
+	template<>
+	struct hash<Eon::AssetID>
+	{
+		size_t operator()(const Eon::AssetID& asset_id) const noexcept
+		{
+			return std::hash<int>{}(*asset_id);
+		}
 	};
 }

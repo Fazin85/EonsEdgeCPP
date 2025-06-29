@@ -727,9 +727,9 @@
         }
         void grow_to_fit_index(size_t index) {
             if (index >= count)
-                resize(index + 1);
+                Resize(index + 1);
         }
-        void resize(size_t new_count) {
+        void Resize(size_t new_count) {
             if (new_count > capacity)
             {
                 size_t new_capacity = capacity ? (capacity * 3) >> 1 : 2;   // grow by 50% each time, otherwise start at 2 elements.
@@ -786,7 +786,7 @@
                 if (data[i] == value)
                     return i;
                 if (data[i] >= value) {
-                    resize(count+1);
+                    Resize(count+1);
                     for (size_t j = count-1; j > i; j--)
                         data[j] = data[j-1];
                     data[i] = value;
@@ -1566,7 +1566,7 @@
                     if (num_child_nodes) {
                         size_t prior_size = child_ids.size();
                         ogt_assert(prior_size > 0, "prior_size sanity test failed"); // should be guaranteed by the sentinel we reserved at the very beginning.
-                        child_ids.resize(prior_size + num_child_nodes);
+                        child_ids.Resize(prior_size + num_child_nodes);
                         for (uint32_t i = 0; i < num_child_nodes; ++i) {
                             _vox_file_read_uint32(fp, &child_ids[prior_size + i]);
                         }
@@ -1894,7 +1894,7 @@
                         ogt_vox_instance* instance = &instances[i];
                         // populate frame_indices with those that are used by the instance or any parent group of the instance.
                         {
-                            frame_indices.resize(0);
+                            frame_indices.Resize(0);
                             // first populate frame_indices with the keyframes on the instance itself
                             uint32_t start_index = 0;
                             const ogt_vox_keyframe_transform* instance_keyframes = misc_data.get_ptr<ogt_vox_keyframe_transform>((size_t)instance->transform_anim.keyframes);
@@ -1949,7 +1949,7 @@
                     instance->group_index = 0;
                 }
                 // add just a single parent group.
-                groups.resize(0);
+                groups.Resize(0);
                 ogt_vox_group root_group;
                 root_group.name                         = 0;
                 root_group.transform                    = ogt_vox_transform_get_identity();
@@ -2107,7 +2107,7 @@
                         model_remap[i] = UINT32_MAX;
                     }
                 }
-                model_ptrs.resize(num_output_models);
+                model_ptrs.Resize(num_output_models);
 
                 // remap all instances to point to the compacted model index
                 for (uint32_t i = 0; i < instances.size(); i++) {

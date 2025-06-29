@@ -222,6 +222,14 @@ namespace Eon
 		stitcher.DoStitch();
 		std::unique_ptr<sf::Image> atlas = stitcher.StitchImages();
 		atlas->saveToFile("content/images/texture_atlas.png");
+
+		Framebuffer::FramebufferSpec spec;
+		spec.width = Window::Get().getSize().x;
+		spec.height = Window::Get().getSize().y;
+		spec.colorAttachments = { {} };
+		spec.hasDepthAttachment = true;
+
+		framebuffer = std::make_unique<Framebuffer>(spec);
 	}
 
 	void InGameScene::Update(float dt)
@@ -261,6 +269,7 @@ namespace Eon
 
 	void InGameScene::Render()
 	{
+		framebuffer->Bind();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		level_renderer->Render(player->GetCamera(), player->Position());
@@ -268,6 +277,8 @@ namespace Eon
 		Mesh::RenderMeshes(player->GetCamera(), player->Position(), { cube.get() }, *ptcn_shader);
 
 		skybox->Render(player->GetCamera());
+		framebuffer->Unbind();
+		framebuffer->BlitToScreen();
 	}
 
 	const char* InGameScene::GetName()

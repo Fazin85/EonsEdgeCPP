@@ -8,6 +8,7 @@
 #include "skybox.h"
 #include "mesh.h"
 #include "texture_atlas_stitcher.h"
+#include "framebuffer.h"
 
 namespace Eon
 {
@@ -28,6 +29,7 @@ namespace Eon
 		std::unique_ptr<Skybox> skybox;
 		std::unique_ptr<PositionTextureColorNormalMesh> cube;
 		std::unique_ptr<Shader> ptcn_shader;
+		std::unique_ptr<Framebuffer> framebuffer;
 	};
 }
 
