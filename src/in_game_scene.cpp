@@ -4,7 +4,7 @@
 #include "settings.h"
 #include "block_entity_test.h"
 #include "asset_manager.h"
-#include "renderer/render_command_mesh.h"
+#include "renderer/mesh_render_command.h"
 #include "glm/gtc/matrix_transform.hpp"
 
 namespace Eon
@@ -286,9 +286,10 @@ namespace Eon
 		render_pipeline->SetGlobalUniform("view", player->GetCamera().ViewMatrix());
 		render_pipeline->SetGlobalUniform("projection", player->GetCamera().ProjectionMatrix());
 
+		//TODO: add a MeshRenderCommand pool
 		Material mat{ AssetManager::GetAsset<Texture>("texture.test").GetID(), AssetManager::GetAsset<Shader>("shader.ptcn").GetID(), TransparencyType::Opaque };
-		auto command = std::make_unique<RenderCommandMesh>(*cube, glm::identity<glm::mat4>(), 0.0f, mat);
-		auto command2 = std::make_unique<RenderCommandMesh>(*cube, glm::translate(glm::identity<glm::mat4>(), glm::vec3(256, 0, 0)), 0.0f, mat);
+		auto command = std::make_unique<MeshRenderCommand>(*cube, glm::identity<glm::mat4>(), 0.0f, mat);
+		auto command2 = std::make_unique<MeshRenderCommand>(*cube, glm::translate(glm::identity<glm::mat4>(), glm::vec3(256, 0, 0)), 0.0f, mat);
 
 		render_pipeline->Submit(std::move(command));
 		render_pipeline->Submit(std::move(command2));

@@ -5,10 +5,10 @@
 
 namespace Eon
 {
-	class RenderCommandMesh : public RenderCommand
+	class MeshRenderCommand : public RenderCommand
 	{
 	public:
-		RenderCommandMesh(Mesh& mesh, const glm::mat4& transform, float depth, Material material);
+		MeshRenderCommand(Mesh& mesh, const glm::mat4& transform, float depth, Material material);
 
 		void Execute(RenderState& renderState) override;
 		float GetDepth() const override;

@@ -181,7 +181,7 @@
     <ClCompile Include="src\renderer\default\default_render_pipeline.cpp" />
     <ClCompile Include="src\renderer\default\opaque_render_pass.cpp" />
     <ClCompile Include="src\renderer\material.cpp" />
-    <ClCompile Include="src\renderer\render_command_mesh.cpp" />
+    <ClCompile Include="src\renderer\mesh_render_command.cpp" />
     <ClCompile Include="src\renderer\render_pass.cpp" />
     <ClCompile Include="src\renderer\render_pipeline.cpp" />
     <ClCompile Include="src\renderer\render_state.cpp" />
@@ -233,7 +233,7 @@
     <ClInclude Include="src\renderer\default\opaque_render_pass.h" />
     <ClInclude Include="src\renderer\material.h" />
     <ClInclude Include="src\renderer\render_command.h" />
-    <ClInclude Include="src\renderer\render_command_mesh.h" />
+    <ClInclude Include="src\renderer\mesh_render_command.h" />
     <ClInclude Include="src\renderer\render_pass.h" />
     <ClInclude Include="src\renderer\render_pipeline.h" />
     <ClInclude Include="src\renderer\render_state.h" />

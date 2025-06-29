@@ -1,9 +1,9 @@
-#include "render_command_mesh.h"
+#include "mesh_render_command.h"
 #include "../assert.h"
 
 namespace Eon
 {
-	RenderCommandMesh::RenderCommandMesh(Mesh& mesh, const glm::mat4& transform, float depth, Material material) :
+	MeshRenderCommand::MeshRenderCommand(Mesh& mesh, const glm::mat4& transform, float depth, Material material) :
 		mesh(mesh),
 		transform(transform),
 		depth(depth),
@@ -11,7 +11,7 @@ namespace Eon
 	{
 	}
 
-	void RenderCommandMesh::Execute(RenderState& renderState)
+	void MeshRenderCommand::Execute(RenderState& renderState)
 	{
 		EON_ASSERT(renderState.shader, "No shader bound");
 
@@ -19,12 +19,12 @@ namespace Eon
 		mesh.Render();
 	}
 
-	float RenderCommandMesh::GetDepth() const
+	float MeshRenderCommand::GetDepth() const
 	{
 		return depth;
 	}
 
-	Material RenderCommandMesh::GetMaterial() const
+	Material MeshRenderCommand::GetMaterial() const
 	{
 		return material;
 	}
