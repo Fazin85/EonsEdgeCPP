@@ -45,6 +45,7 @@ namespace Eon
 
 			shader->Bind();
 			pipeline.ApplyGlobalUniforms(*shader);
+			pipeline.GetRenderStats().shader_binds++;
 			renderState.shader = &*shader;
 			last_bound_shader = shaderId;
 		}
@@ -59,6 +60,7 @@ namespace Eon
 			EON_ASSERT(texture.IsValid(), "Invalid texture");
 
 			texture->Bind();
+			pipeline.GetRenderStats().texture_binds++;
 			last_bound_texture = textureId;
 		}
 	}

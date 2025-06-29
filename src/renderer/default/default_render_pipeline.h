@@ -20,7 +20,7 @@ namespace Eon
 
 		void ApplyGlobalUniforms(Shader& shader) override;
 
-		RenderStats GetRenderStats() const override;
+		RenderStats& GetRenderStats()override;
 
 	private:
 		std::vector<std::unique_ptr<RenderPass>> render_passes;

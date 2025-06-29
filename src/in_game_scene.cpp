@@ -5,6 +5,7 @@
 #include "block_entity_test.h"
 #include "asset_manager.h"
 #include "renderer/render_command_mesh.h"
+#include "glm/gtc/matrix_transform.hpp"
 
 namespace Eon
 {
@@ -261,6 +262,8 @@ namespace Eon
 			ss << "ivec2 pooled values: " << PoolAllocators::GetInstance().ivec2_allocator->PooledCount() << "\n";
 			ss << "u32 pooled values: " << PoolAllocators::GetInstance().u32_allocator->PooledCount() << "\n";
 			ss << "u8 pooled values: " << PoolAllocators::GetInstance().u8_allocator->PooledCount() << "\n";
+			ss << "texture binds: " << render_pipeline->GetRenderStats().texture_binds << "\n";
+			ss << "shader binds: " << render_pipeline->GetRenderStats().shader_binds << "\n";
 			EON_INFO(ss.str());
 			counter = 0;
 		}
@@ -284,8 +287,11 @@ namespace Eon
 		render_pipeline->SetGlobalUniform("projection", player->GetCamera().ProjectionMatrix());
 
 		Material mat{ AssetManager::GetAsset<Texture>("texture.test").GetID(), AssetManager::GetAsset<Shader>("shader.ptcn").GetID(), TransparencyType::Opaque };
-		auto command = std::make_unique<RenderCommandMesh>(*cube, glm::mat4(), 0.0f, mat);
+		auto command = std::make_unique<RenderCommandMesh>(*cube, glm::identity<glm::mat4>(), 0.0f, mat);
+		auto command2 = std::make_unique<RenderCommandMesh>(*cube, glm::translate(glm::identity<glm::mat4>(), glm::vec3(256, 0, 0)), 0.0f, mat);
+
 		render_pipeline->Submit(std::move(command));
+		render_pipeline->Submit(std::move(command2));
 
 		render_pipeline->EndFrame();
 

@@ -10,6 +10,7 @@ namespace Eon
 
 	void DefaultRenderPipeline::BeginFrame()
 	{
+		render_stats.Reset();
 	}
 
 	void DefaultRenderPipeline::Submit(std::unique_ptr<RenderCommand> renderCommand)
@@ -60,8 +61,8 @@ namespace Eon
 		}
 	}
 
-	RenderPipeline::RenderStats DefaultRenderPipeline::GetRenderStats() const
+	RenderPipeline::RenderStats& DefaultRenderPipeline::GetRenderStats()
 	{
-		return RenderStats();
+		return render_stats;
 	}
 }

@@ -11,7 +11,11 @@ namespace Eon
 		struct RenderStats
 		{
 			int draw_calls = 0;
+			int shader_binds = 0;
+			int texture_binds = 0;
 			int time_ms = 0;
+
+			void Reset();
 		};
 
 		virtual ~RenderPipeline() = default;
@@ -26,6 +30,6 @@ namespace Eon
 		virtual void SetGlobalUniform(const std::string& name, const glm::vec3& value) = 0;
 		virtual void SetGlobalUniform(const std::string& name, float value) = 0;
 
-		virtual RenderStats GetRenderStats() const = 0;
+		virtual RenderStats& GetRenderStats() = 0;
 	};
 }
