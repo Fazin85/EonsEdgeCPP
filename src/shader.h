@@ -26,6 +26,7 @@ namespace Eon
 		void UniformFVec4(const std::string& uniformName, glm::vec4 vec);
 		void UniformFVec2(const std::string& uniformName, glm::vec2 vec);
 		void UniformInt1(const std::string& uniformName, int value);
+		void UniformDouble(const std::string& uniformName, double value);
 
 		const std::string& GetVertexName() const;
 		const std::string& GetFragmentName() const;

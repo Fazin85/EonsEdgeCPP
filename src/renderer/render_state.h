@@ -1,11 +1,13 @@
 #pragma once
 
 #include <glad/glad.h>
+#include "../asset_manager.h"
 
 namespace Eon
 {
 	struct RenderState
 	{
+		Shader* shader = nullptr;
 		GLenum depth_function = GL_LESS;
 		bool depth_test = true;
 		bool blend = false;

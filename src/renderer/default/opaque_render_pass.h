@@ -7,9 +7,9 @@ namespace Eon
 	class OpaqueRenderPass : public BatchedRenderPass
 	{
 	public:
-		OpaqueRenderPass();
+		OpaqueRenderPass(RenderPipeline& pipeline);
 
 		void Begin(RenderState& renderState) override;
-		void Execute(RenderState& renderState, Camera& camera, glm::vec3 cameraPosition) override;
+		void Execute(RenderState& renderState) override;
 	};
 }

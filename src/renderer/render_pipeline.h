@@ -1,6 +1,7 @@
 #pragma once
 
-#include "render_pass.h"
+#include "render_command.h"
+#include "../camera.h"
 
 namespace Eon
 {
@@ -15,9 +16,15 @@ namespace Eon
 
 		virtual ~RenderPipeline() = default;
 
-		virtual void BeginFrame(Camera& camera, const glm::vec3& cameraPosition) = 0;
-		virtual void Submit(std::unique_ptr<RenderCommand>& renderCommand) = 0;
+		virtual void BeginFrame() = 0;
+		virtual void Submit(std::unique_ptr<RenderCommand> renderCommand) = 0;
 		virtual void EndFrame() = 0;
+
+		virtual void ApplyGlobalUniforms(Shader& shader) = 0;
+
+		virtual void SetGlobalUniform(const std::string& name, const glm::mat4& value) = 0;
+		virtual void SetGlobalUniform(const std::string& name, const glm::vec3& value) = 0;
+		virtual void SetGlobalUniform(const std::string& name, float value) = 0;
 
 		virtual RenderStats GetRenderStats() const = 0;
 	};

@@ -79,12 +79,12 @@ namespace Eon
 			glCullFace(cull_face_mode);
 		}
 
-
 		lastState = *this;
 	}
 
 	void RenderState::Reset()
 	{
+		shader = nullptr;
 		depth_function = GL_LESS;
 		depth_test = true;
 		blend = false;

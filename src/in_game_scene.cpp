@@ -4,6 +4,7 @@
 #include "settings.h"
 #include "block_entity_test.h"
 #include "asset_manager.h"
+#include "renderer/render_command_mesh.h"
 
 namespace Eon
 {
@@ -230,6 +231,8 @@ namespace Eon
 		spec.hasDepthAttachment = true;
 
 		framebuffer = std::make_unique<Framebuffer>(spec);
+
+		render_pipeline = std::make_unique<DefaultRenderPipeline>();
 	}
 
 	void InGameScene::Update(float dt)
@@ -274,7 +277,17 @@ namespace Eon
 
 		level_renderer->Render(player->GetCamera(), player->Position());
 
-		Mesh::RenderMeshes(player->GetCamera(), player->Position(), { cube.get() }, *ptcn_shader);
+		//Mesh::RenderMeshes(player->GetCamera(), player->Position(), { cube.get() }, *ptcn_shader);
+
+		render_pipeline->BeginFrame();
+		render_pipeline->SetGlobalUniform("view", player->GetCamera().ViewMatrix());
+		render_pipeline->SetGlobalUniform("projection", player->GetCamera().ProjectionMatrix());
+
+		Material mat{ AssetManager::GetAsset<Texture>("texture.test").GetID(), AssetManager::GetAsset<Shader>("shader.ptcn").GetID(), TransparencyType::Opaque };
+		auto command = std::make_unique<RenderCommandMesh>(*cube, glm::mat4(), 0.0f, mat);
+		render_pipeline->Submit(std::move(command));
+
+		render_pipeline->EndFrame();
 
 		skybox->Render(player->GetCamera());
 		framebuffer->Unbind();

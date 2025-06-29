@@ -202,6 +202,14 @@ namespace Eon
 		}
 	}
 
+	void Shader::UniformDouble(const std::string& uniformName, double value)
+	{
+		if (auto location = uniform_cache.find(uniformName); location != uniform_cache.end())
+		{
+			GL_CHECK(glUniform1dv(location->second, 1, &value));
+		}
+	}
+
 	const std::string& Shader::GetVertexName() const
 	{
 		return vertexName;

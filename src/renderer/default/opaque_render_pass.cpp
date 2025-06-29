@@ -2,16 +2,16 @@
 
 namespace Eon
 {
-	OpaqueRenderPass::OpaqueRenderPass() : BatchedRenderPass("StandardOpaque") {}
+	OpaqueRenderPass::OpaqueRenderPass(RenderPipeline& pipeline) : BatchedRenderPass(pipeline, "StandardOpaque") {}
 
 	void OpaqueRenderPass::Begin(RenderState& renderState)
 	{
 	}
 
-	void OpaqueRenderPass::Execute(RenderState& renderState, Camera& camera, glm::vec3 cameraPosition)
+	void OpaqueRenderPass::Execute(RenderState& renderState)
 	{
 		renderState.Apply();
 
-		BatchedRenderPass::Execute(renderState, camera, cameraPosition);
+		BatchedRenderPass::Execute(renderState);
 	}
 }

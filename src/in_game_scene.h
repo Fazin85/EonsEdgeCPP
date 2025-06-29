@@ -9,6 +9,7 @@
 #include "mesh.h"
 #include "texture_atlas_stitcher.h"
 #include "framebuffer.h"
+#include "renderer/default/default_render_pipeline.h"
 
 namespace Eon
 {
@@ -30,6 +31,7 @@ namespace Eon
 		std::unique_ptr<PositionTextureColorNormalMesh> cube;
 		std::unique_ptr<Shader> ptcn_shader;
 		std::unique_ptr<Framebuffer> framebuffer;
+		std::unique_ptr<DefaultRenderPipeline> render_pipeline;
 	};
 }
 
