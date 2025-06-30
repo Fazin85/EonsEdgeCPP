@@ -209,8 +209,6 @@ namespace Eon
 
 		cube->Setup();
 
-		ptcn_shader = std::make_unique<Shader>("ptcn.vert", "ptcn.frag");
-
 		TextureAtlasStitcher stitcher;
 
 		std::vector<std::string> fileNames = { "content/images/DirtBlock.png", "content/images/LeafBlock.png", "content/images/StoneBlock.png", "content/images/SandBlock.png" };
@@ -229,10 +227,20 @@ namespace Eon
 		Framebuffer::FramebufferSpec spec;
 		spec.width = Window::Get().getSize().x;
 		spec.height = Window::Get().getSize().y;
-		spec.colorAttachments = { {} };
+
+		spec.colorAttachments = {
+			// Albedo
+			{ GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE },
+			// Normal 
+			{ GL_RGB32F, GL_RGB, GL_FLOAT, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE },
+			// Position + Depth
+			{ GL_RGBA32F, GL_RGBA, GL_FLOAT, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE },
+		};
+
+		// Add depth buffer
 		spec.hasDepthAttachment = true;
 
-		framebuffer = std::make_unique<Framebuffer>(spec);
+		gBuffer = std::make_unique<Framebuffer>(spec);
 
 		render_pipeline = std::make_unique<DefaultRenderPipeline>();
 		command_pool = std::make_unique<RenderCommandPool>();
@@ -277,7 +285,7 @@ namespace Eon
 
 	void InGameScene::Render()
 	{
-		framebuffer->Bind();
+		gBuffer->Bind();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		level_renderer->Render(player->GetCamera(), player->Position());
@@ -297,8 +305,8 @@ namespace Eon
 		command_pool->Reset();
 
 		skybox->Render(player->GetCamera());
-		framebuffer->Unbind();
-		framebuffer->BlitToScreen();
+		gBuffer->Unbind();
+		gBuffer->BlitToScreen();
 	}
 
 	const char* InGameScene::GetName()

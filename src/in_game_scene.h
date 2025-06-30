@@ -25,15 +25,14 @@ namespace Eon
 		const char* GetName() override;
 
 	private:
+		std::unique_ptr<RenderCommandPool> command_pool;
 		std::unique_ptr<Player> player;
 		std::unique_ptr<Level> level;
 		std::unique_ptr<LevelRenderer> level_renderer;
 		std::unique_ptr<Skybox> skybox;
 		std::unique_ptr<PositionTextureColorNormalMesh> cube;
-		std::unique_ptr<Shader> ptcn_shader;
-		std::unique_ptr<Framebuffer> framebuffer;
-		std::unique_ptr<RenderCommandPool> command_pool;
-		std::unique_ptr<DefaultRenderPipeline> render_pipeline;
+		std::unique_ptr<Framebuffer> gBuffer;
+		std::unique_ptr<RenderPipeline> render_pipeline;
 	};
 }
 

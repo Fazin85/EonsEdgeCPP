@@ -41,6 +41,12 @@ namespace Eon
 
 			Update(dt);
 
+			if (scene_manager->SceneChangedThisUpdate())
+			{
+				scene_manager->SetSceneChangedThisUpdate(false);
+				continue;
+			}
+
 			Render();
 
 			Window::Get().display();

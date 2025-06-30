@@ -128,6 +128,7 @@ namespace Eon
 	{
 		GL_CHECK(glBindFramebuffer(GL_READ_FRAMEBUFFER, m_framebufferID));
 		GL_CHECK(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, target.m_framebufferID));
+
 		GL_CHECK(glBlitFramebuffer(0, 0, m_spec.width, m_spec.height,
 			0, 0, target.m_spec.width, target.m_spec.height,
 			mask, filter));

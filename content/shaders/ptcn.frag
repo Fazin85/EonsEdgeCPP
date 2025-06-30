@@ -1,6 +1,8 @@
 #version 330 core
 
-out vec4 FragColor;
+layout(location = 0) out vec4 gAlbedo;
+layout(location = 1) out vec3 gNormal;
+layout(location = 2) out vec4 gPosition; // w is depth
 
 uniform sampler2D textureSampler;
 
@@ -14,5 +16,7 @@ void main()
 	vec4 tex = texture(textureSampler, texCoord);
 	tex.rgb *= color;
 	
-	FragColor = tex;
+	gAlbedo = tex;
+	gNormal = normal;
+	gPosition = vec4(pos, gl_FragCoord.z);
 }

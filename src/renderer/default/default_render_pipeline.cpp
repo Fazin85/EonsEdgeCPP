@@ -54,7 +54,7 @@ namespace Eon
 		render_stats.texture_binds++;
 	}
 
-	void DefaultRenderPipeline::ApplyGlobalUniforms(Shader& shader)
+	void DefaultRenderPipeline::ApplyGlobalUniforms(Shader& shader) const
 	{
 		for (const auto& [name, value] : global_mat4_uniforms)
 		{

@@ -16,7 +16,7 @@ uniform mat4 projection;
 
 void main() 
 {	
-	pos = aPos;
+	pos = (model * vec4(aPos, 1.0f)).xyz;
 	texCoord = aTexCoord;
 	color = aColor;
 	normal = aNormal;

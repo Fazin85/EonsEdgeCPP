@@ -21,7 +21,7 @@ namespace Eon
 
 		std::string vertexSource = fullPath ? FileUtil::GetFileContents(vertexShaderName) : FileUtil::GetFileContents("content/shaders/" + vertexShaderName);
 		std::string fragmentSource = fullPath ? FileUtil::GetFileContents(fragmentShaderName) : FileUtil::GetFileContents("content/shaders/" + fragmentShaderName);
-
+		
 		if (vertexSource == "")
 		{
 			EON_ERROR("Failed to load vertex shader: " + vertexShaderName);
