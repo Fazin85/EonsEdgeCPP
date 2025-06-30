@@ -1,7 +1,7 @@
 #pragma once
 
 #include "render_command.h"
-#include "../mesh.h"
+#include "../../mesh.h"
 
 namespace Eon
 {

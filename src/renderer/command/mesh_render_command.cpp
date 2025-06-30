@@ -1,5 +1,5 @@
 #include "mesh_render_command.h"
-#include "../assert.h"
+#include "../../assert.h"
 
 namespace Eon
 {
@@ -13,9 +13,9 @@ namespace Eon
 
 	void MeshRenderCommand::Execute(RenderState& renderState)
 	{
-		EON_ASSERT(renderState.shader, "No shader bound");
+		EON_ASSERT(renderState.GetShader(), "No shader bound");
 
-		renderState.shader->UniformMatrix4("model", transform);
+		renderState.GetShader()->UniformMatrix4("model", transform);
 		mesh.Render();
 	}
 
@@ -28,5 +28,4 @@ namespace Eon
 	{
 		return material;
 	}
-
 }

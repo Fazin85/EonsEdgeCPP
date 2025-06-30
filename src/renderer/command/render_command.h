@@ -1,7 +1,7 @@
 #pragma once
 
-#include "render_state.h"
-#include "material.h"
+#include "../render_state.h"
+#include "../material.h"
 
 namespace Eon
 {

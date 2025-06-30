@@ -178,10 +178,11 @@
     <ClCompile Include="src\plane_mesh.cpp" />
     <ClCompile Include="src\player.cpp" />
     <ClCompile Include="src\renderer\batched_render_pass.cpp" />
+    <ClCompile Include="src\renderer\command\render_command_variant.cpp" />
     <ClCompile Include="src\renderer\default\default_render_pipeline.cpp" />
     <ClCompile Include="src\renderer\default\opaque_render_pass.cpp" />
     <ClCompile Include="src\renderer\material.cpp" />
-    <ClCompile Include="src\renderer\mesh_render_command.cpp" />
+    <ClCompile Include="src\renderer\command\mesh_render_command.cpp" />
     <ClCompile Include="src\renderer\render_pass.cpp" />
     <ClCompile Include="src\renderer\render_pipeline.cpp" />
     <ClCompile Include="src\renderer\render_state.cpp" />
@@ -229,11 +230,12 @@
     <ClInclude Include="src\ogt_vox.h" />
     <ClInclude Include="src\plane_mesh.h" />
     <ClInclude Include="src\renderer\batched_render_pass.h" />
+    <ClInclude Include="src\renderer\command\render_command_variant.h" />
     <ClInclude Include="src\renderer\default\default_render_pipeline.h" />
     <ClInclude Include="src\renderer\default\opaque_render_pass.h" />
     <ClInclude Include="src\renderer\material.h" />
-    <ClInclude Include="src\renderer\render_command.h" />
-    <ClInclude Include="src\renderer\mesh_render_command.h" />
+    <ClInclude Include="src\renderer\command\render_command.h" />
+    <ClInclude Include="src\renderer\command\mesh_render_command.h" />
     <ClInclude Include="src\renderer\render_pass.h" />
     <ClInclude Include="src\renderer\render_pipeline.h" />
     <ClInclude Include="src\renderer\render_state.h" />
@@ -304,6 +306,9 @@
     <Image Include="content\images\Test.png" />
     <Image Include="content\images\top.jpg" />
     <Image Include="content\images\WaterBlock.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="content\manifest.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -4,8 +4,9 @@
 #include "settings.h"
 #include "block_entity_test.h"
 #include "asset_manager.h"
-#include "renderer/mesh_render_command.h"
-#include "glm/gtc/matrix_transform.hpp"
+#include "renderer/command/mesh_render_command.h"
+#include <glm/gtc/matrix_transform.hpp>
+#include <variant>
 
 namespace Eon
 {
@@ -288,11 +289,11 @@ namespace Eon
 
 		//TODO: add a MeshRenderCommand pool
 		Material mat{ AssetManager::GetAsset<Texture>("texture.test").GetID(), AssetManager::GetAsset<Shader>("shader.ptcn").GetID(), TransparencyType::Opaque };
-		auto command = std::make_unique<MeshRenderCommand>(*cube, glm::identity<glm::mat4>(), 0.0f, mat);
-		auto command2 = std::make_unique<MeshRenderCommand>(*cube, glm::translate(glm::identity<glm::mat4>(), glm::vec3(256, 0, 0)), 0.0f, mat);
+		auto command = RenderCommandVariant(std::in_place_type<MeshRenderCommand>, *cube, glm::identity<glm::mat4>(), 0.0f, mat);
+		auto command2 = RenderCommandVariant(std::in_place_type<MeshRenderCommand>, *cube, glm::translate(glm::identity<glm::mat4>(), glm::vec3(256, 0, 0)), 0.0f, mat);
 
-		render_pipeline->Submit(std::move(command));
-		render_pipeline->Submit(std::move(command2));
+		render_pipeline->Submit(command);
+		render_pipeline->Submit(command2);
 
 		render_pipeline->EndFrame();
 

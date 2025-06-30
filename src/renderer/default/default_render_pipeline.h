@@ -11,18 +11,21 @@ namespace Eon
 		DefaultRenderPipeline();
 
 		void BeginFrame() override;
-		void Submit(std::unique_ptr<RenderCommand> renderCommand) override;
+		void Submit(RenderCommandVariant& renderCommand) override;
 		void EndFrame() override;
 
 		void SetGlobalUniform(const std::string& name, const glm::mat4& value) override;
 		void SetGlobalUniform(const std::string& name, const glm::vec3& value) override;
 		void SetGlobalUniform(const std::string& name, float value) override;
 
-		void ApplyGlobalUniforms(Shader& shader) override;
+		void OnShaderBound(Shader& shader) override;
+		void OnTextureBound(Texture& texture) override;
 
 		RenderStats& GetRenderStats()override;
 
 	private:
+		void ApplyGlobalUniforms(Shader& shader);
+
 		std::vector<std::unique_ptr<RenderPass>> render_passes;
 		RenderStats render_stats;
 		RenderState render_state;

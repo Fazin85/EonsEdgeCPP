@@ -13,7 +13,7 @@ namespace Eon
 		render_stats.Reset();
 	}
 
-	void DefaultRenderPipeline::Submit(std::unique_ptr<RenderCommand> renderCommand)
+	void DefaultRenderPipeline::Submit(RenderCommandVariant& renderCommand)
 	{
 		render_passes[0]->Submit(renderCommand);
 	}
@@ -41,6 +41,17 @@ namespace Eon
 	void DefaultRenderPipeline::SetGlobalUniform(const std::string& name, float value)
 	{
 		global_float_uniforms[name] = value;
+	}
+
+	void DefaultRenderPipeline::OnShaderBound(Shader& shader)
+	{
+		ApplyGlobalUniforms(shader);
+		render_stats.shader_binds++;
+	}
+
+	void DefaultRenderPipeline::OnTextureBound(Texture& texture)
+	{
+		render_stats.texture_binds++;
 	}
 
 	void DefaultRenderPipeline::ApplyGlobalUniforms(Shader& shader)

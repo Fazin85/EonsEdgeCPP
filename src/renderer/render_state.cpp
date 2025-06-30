@@ -1,10 +1,143 @@
 #include "render_state.h"
+#include "../log.h"
 
 namespace Eon
 {
+	bool RenderState::SetShader(ShaderID shader)
+	{
+		if (shader != this->shader)
+		{
+			this->shader = shader;
+			modified = true;
+			return true;
+		}
+		return false;
+	}
+
+	bool RenderState::SetTexture(TextureID texture, int unit)
+	{
+		if (texture != bound_textures[unit])
+		{
+			bound_textures[unit] = texture;
+			modified = true;
+			return true;
+		}
+		return false;
+	}
+
+	Shader* RenderState::GetShader() const
+	{
+		return shader.IsValid() ? shader.Get<Shader>().Get() : nullptr;
+	}
+
+	Texture* RenderState::GetTexture(int unit) const
+	{
+		return bound_textures[unit].IsValid() ? bound_textures[unit].Get<Texture>().Get() : nullptr;
+	}
+
+	void RenderState::SetDepthFunc(GLenum depthFunction)
+	{
+		if (depthFunction != depth_function)
+		{
+			depth_function = depthFunction;
+			modified = true;
+		}
+	}
+
+	void RenderState::SetDepthTest(bool depthTest)
+	{
+		if (depthTest != this->depth_test)
+		{
+			this->depth_test = depthTest;
+			modified = true;
+		}
+	}
+
+	void RenderState::SetBlend(bool blend)
+	{
+		if (blend != this->blend)
+		{
+			this->blend = blend;
+			modified = true;
+		}
+	}
+
+	void RenderState::SetBlendFunc(GLenum blendSrc, GLenum blendDst)
+	{
+		if (blendSrc != blend_src)
+		{
+			blend_src = blendSrc;
+			modified = true;
+		}
+
+		if (blendDst != blend_dst)
+		{
+			blend_dst = blendDst;
+			modified = true;
+		}
+	}
+
+	void RenderState::SetCullFace(bool cullFace)
+	{
+		if (cullFace != cull_face)
+		{
+			cull_face = cullFace;
+			modified = true;
+		}
+	}
+
+	void RenderState::SetCullFaceMode(GLenum cullFaceMode)
+	{
+		if (cullFaceMode != cull_face_mode)
+		{
+			cull_face_mode = cullFaceMode;
+			modified = true;
+		}
+	}
+
+	GLenum RenderState::GetDepthFunc() const
+	{
+		return depth_function;
+	}
+
+	bool RenderState::GetDepthTest() const
+	{
+		return depth_test;
+	}
+
+	bool RenderState::GetBlend() const
+	{
+		return blend;
+	}
+
+	GLenum RenderState::GetBlendSrc() const
+	{
+		return blend_src;
+	}
+
+	GLenum RenderState::GetBlendDst() const
+	{
+		return blend_dst;
+	}
+
+	bool RenderState::GetCullFace() const
+	{
+		return cull_face;
+	}
+
+	GLenum RenderState::GetCullFaceMode() const
+	{
+		return cull_face_mode;
+	}
+
 	void RenderState::Apply() const
 	{
 		static RenderState lastState;
+
+		if (!modified)
+		{
+			return;
+		}
 
 		if (static bool firstCall = true; firstCall)
 		{
@@ -79,18 +212,36 @@ namespace Eon
 			glCullFace(cull_face_mode);
 		}
 
+		if (shader != lastState.shader && shader.IsValid())
+		{
+			shader.Get<Shader>()->Bind();
+		}
+
+		for (int i = 0; i < bound_textures.size(); i++)
+		{
+			if (bound_textures[i] != lastState.bound_textures[i] && bound_textures[i].IsValid())
+			{
+				bound_textures[i].Get<Texture>()->Bind();
+			}
+		}
+
 		lastState = *this;
 	}
 
 	void RenderState::Reset()
 	{
-		shader = nullptr;
-		depth_function = GL_LESS;
-		depth_test = true;
-		blend = false;
-		blend_src = GL_SRC_ALPHA;
-		blend_dst = GL_ONE_MINUS_SRC_ALPHA;
-		cull_face = true;
-		cull_face_mode = GL_BACK;
+		SetShader(AssetID::INVALID_ASSET_ID);
+
+		for (int i = 0; i < bound_textures.size(); i++)
+		{
+			SetTexture(AssetID::INVALID_ASSET_ID, i);
+		}
+
+		SetDepthFunc(GL_LESS);
+		SetDepthTest(true);
+		SetBlend(false);
+		SetBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		SetCullFace(true);
+		SetCullFaceMode(GL_BACK);
 	}
 }
