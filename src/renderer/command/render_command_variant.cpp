@@ -6,7 +6,14 @@ namespace Eon
 	{
 		return std::visit([](auto& cmd) -> RenderCommand&
 			{
-				return cmd;
+				if constexpr (std::is_same_v<std::decay_t<decltype(cmd)>, std::monostate>)
+				{
+					throw std::runtime_error("Empty RenderCommandVariant");
+				}
+				else
+				{
+					return cmd;
+				}
 			}, variant);
 	}
 }

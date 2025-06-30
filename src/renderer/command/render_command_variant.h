@@ -5,7 +5,7 @@
 
 namespace Eon
 {
-	using RenderCommandVariant = std::variant<MeshRenderCommand>;
+	using RenderCommandVariant = std::variant<std::monostate, MeshRenderCommand>;
 
 	RenderCommand& GetRenderCommand(RenderCommandVariant& variant);
 }

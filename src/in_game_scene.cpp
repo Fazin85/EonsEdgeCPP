@@ -235,6 +235,7 @@ namespace Eon
 		framebuffer = std::make_unique<Framebuffer>(spec);
 
 		render_pipeline = std::make_unique<DefaultRenderPipeline>();
+		command_pool = std::make_unique<RenderCommandPool>();
 	}
 
 	void InGameScene::Update(float dt)
@@ -281,21 +282,19 @@ namespace Eon
 
 		level_renderer->Render(player->GetCamera(), player->Position());
 
-		//Mesh::RenderMeshes(player->GetCamera(), player->Position(), { cube.get() }, *ptcn_shader);
-
 		render_pipeline->BeginFrame();
 		render_pipeline->SetGlobalUniform("view", player->GetCamera().ViewMatrix());
 		render_pipeline->SetGlobalUniform("projection", player->GetCamera().ProjectionMatrix());
 
-		//TODO: add a MeshRenderCommand pool
 		Material mat{ AssetManager::GetAsset<Texture>("texture.test").GetID(), AssetManager::GetAsset<Shader>("shader.ptcn").GetID(), TransparencyType::Opaque };
-		auto command = RenderCommandVariant(std::in_place_type<MeshRenderCommand>, *cube, glm::identity<glm::mat4>(), 0.0f, mat);
-		auto command2 = RenderCommandVariant(std::in_place_type<MeshRenderCommand>, *cube, glm::translate(glm::identity<glm::mat4>(), glm::vec3(256, 0, 0)), 0.0f, mat);
+
+		auto& command = command_pool->CreateCommand<MeshRenderCommand>(*cube, glm::identity<glm::mat4>(), 0.0f, mat);
+		auto& command2 = command_pool->CreateCommand<MeshRenderCommand>(*cube, glm::translate(glm::identity<glm::mat4>(), glm::vec3(256, 0, 0)), 0.0f, mat);
 
 		render_pipeline->Submit(command);
 		render_pipeline->Submit(command2);
-
 		render_pipeline->EndFrame();
+		command_pool->Reset();
 
 		skybox->Render(player->GetCamera());
 		framebuffer->Unbind();

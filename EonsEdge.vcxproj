@@ -236,6 +236,7 @@
     <ClInclude Include="src\renderer\material.h" />
     <ClInclude Include="src\renderer\command\render_command.h" />
     <ClInclude Include="src\renderer\command\mesh_render_command.h" />
+    <ClInclude Include="src\renderer\render_command_pool.h" />
     <ClInclude Include="src\renderer\render_pass.h" />
     <ClInclude Include="src\renderer\render_pipeline.h" />
     <ClInclude Include="src\renderer\render_state.h" />
