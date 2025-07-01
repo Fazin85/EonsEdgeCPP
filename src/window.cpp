@@ -13,6 +13,7 @@ namespace Eon
 		settings.depthBits = 24;
 		settings.majorVersion = 3;
 		settings.minorVersion = 3;
+		settings.attributeFlags = sf::ContextSettings::Debug;
 
 		Window::fullscreen = fullscreen;
 

@@ -1,4 +1,3 @@
-#include "block_texture.h"
 #include "compress.h"
 #include "level_renderer.h"
 #include "log.h"
@@ -6,13 +5,16 @@
 #include <lz4.h>
 #include <zlib.h>
 #include "asset_manager.h"
+#include "texture_atlas_stitcher.h"
+#include "block_texture_provider.h"
+#include <glm/gtc/matrix_transform.hpp>
 
 namespace Eon
 {
 	LevelRenderer::LevelRenderer(Level& level, std::unique_ptr<ChunkRendererContainerProvider> chunkRendererContainerProvider)
-		: level(level), chunk_renderer_container_provider(std::move(chunkRendererContainerProvider))
+		: chunk_renderer_container_provider(std::move(chunkRendererContainerProvider)), level(level)
 	{
-		auto chunk_shader = AssetManager::GetAsset<Shader>("shader.chunk");
+		/*auto chunk_shader = AssetManager::GetAsset<Shader>("shader.chunk");
 
 		chunk_shader->Bind();
 		chunk_shader->UniformFVec3("sunlight_dir", glm::vec3(-0.7f, -1.0f, -0.5f));
@@ -24,6 +26,9 @@ namespace Eon
 
 		int fogFar = GameSettings.fog ? GameSettings.render_distance * CHUNK_WIDTH : 100000;
 		chunk_shader->UniformFloat("fog_far", static_cast<float>(fogFar));
+
+		TextureAtlasStitcher stitcher;
+		stitcher.AddSprite("Error.png");
 
 		std::vector<std::string> imageNames;
 		imageNames.emplace_back("Error.png");
@@ -38,7 +43,7 @@ namespace Eon
 		imageNames.emplace_back("LeafBlock.png");
 		imageNames.emplace_back("GravelBlock.png");
 
-		chunk_texture = std::make_unique<TextureArray>(imageNames, 16, 16);
+		chunk_texture = std::make_unique<TextureArray>(imageNames, 16, 16);*/
 	}
 
 	LevelRenderer::~LevelRenderer()
@@ -87,15 +92,23 @@ namespace Eon
 		SortChunksByDistance(chunks_to_mesh, cameraPosition);
 	}
 
-	void LevelRenderer::Render(Camera& camera, glm::vec3 cameraPosition)
+	void LevelRenderer::Render(RenderPipeline& renderPipeline, RenderCommandPool& commandPool)
 	{
-		glClearColor(level.SkyColor().r, level.SkyColor().g, level.SkyColor().b, level.SkyColor().a);
+		//glClearColor(level.SkyColor().r, level.SkyColor().g, level.SkyColor().b, level.SkyColor().a);
 
-		glCullFace(GL_BACK);
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		//glCullFace(GL_BACK);
+		//glEnable(GL_BLEND);
+		//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		Material chunkMaterial{ AssetManager::GetAsset<Texture>("texture.test").GetID(), AssetManager::GetAsset<Shader>("shader.ptcn").GetID(), TransparencyType::Opaque };
 
-		chunk_texture->Bind();
+		for (const auto& [chunkPosition, chunkRenderer] : chunk_renderers)
+		{
+			glm::mat4 model = glm::translate(glm::identity<glm::mat4>(), glm::vec3(chunkPosition.x, 0, chunkPosition.z));
+
+			auto& command = commandPool.CreateCommand<MeshRenderCommand>(chunkRenderer->GetOpaqueRenderer(), model, 0.0f, chunkMaterial);
+			renderPipeline.Submit(command);
+		}
+		/*chunk_texture->Bind();
 
 		auto chunk_shader = AssetManager::GetAsset<Shader>("shader.chunk");
 
@@ -185,8 +198,12 @@ namespace Eon
 		timer++;
 		if (timer % 200 == 0)
 		{
-			std::cout << "odc:" << drawCalls[0] << ", cdc:" << drawCalls[1] << ", tdc:" << drawCalls[2] << ", bedc:" << drawCalls[3] << "\n";
-		}
+			EON_INFO(
+				"odc: " + std::to_string(drawCalls[0]) +
+				", cdc: " + std::to_string(drawCalls[1]) +
+				", tdc: " + std::to_string(drawCalls[2]) +
+				", bedc: " + std::to_string(drawCalls[3]));
+		}*/
 	}
 
 	size_t LevelRenderer::ChunkRendererCount()

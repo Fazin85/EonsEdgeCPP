@@ -80,7 +80,9 @@ namespace Eon
 		void DoStitch();
 		std::unique_ptr<sf::Image> StitchImages();
 		std::unique_ptr<Texture> CreateAtlasTexture();
-
+		std::shared_ptr<TextureHolder> GetHolder(const std::string& name);
+		glm::ivec2 GetCurrentSize() const;
+			
 	private:
 		bool TryStitch(const std::vector<std::shared_ptr<TextureHolder>>& holderList);
 		bool AllocateSlot(TextureHolder& holder);

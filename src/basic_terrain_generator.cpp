@@ -50,8 +50,8 @@ namespace Eon
 		}
 
 		const auto& air = BlockRegistry::GetBlockByID(0);
-		const auto& stone = BlockRegistry::GetBlockByType(BlockType::STONE);
-		const auto& water = BlockRegistry::GetBlockByType(BlockType::WATER);
+		const auto& stone = BlockRegistry::GetBlockByType("Stone");
+		const auto& water = BlockRegistry::GetBlockByType("Water");
 
 		for (int x = 0; x < CHUNK_WIDTH; x++)
 		{

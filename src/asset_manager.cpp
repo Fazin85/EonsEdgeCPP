@@ -69,7 +69,7 @@ namespace Eon
 				}
 
 				Texture texture(image, false);
-				Asset asset(std::move(texture), { next_texture_id++ });
+				Asset asset(make_shared_st<Texture>(texture), { next_texture_id++ });
 
 				textures_by_namespace.try_emplace(entry.Name(), asset);
 				textures_by_id.emplace_back(asset);
@@ -81,10 +81,24 @@ namespace Eon
 
 				Shader shader(vertexShader, fragmentShader, true);
 
-				Asset asset(std::move(shader), { next_shader_id++ });
+				Asset asset(make_shared_st<Shader>(shader), { next_shader_id++ });
 
 				shaders_by_namespace.try_emplace(entry.Name(), asset);
 				shaders_by_id.emplace_back(asset);
+			}
+			else if (entry.type == "image")
+			{
+				sf::Image image;
+				image.loadFromFile(entry.FilePath());
+				if (!image.getPixelsPtr())
+				{
+					throw std::runtime_error("Failed to load image: " + entry.FilePath());
+				}
+
+				Asset asset(make_shared_st<sf::Image>(image), { next_image_id++ });
+
+				images_by_namespace.try_emplace(entry.Name(), asset);
+				images_by_id.emplace_back(asset);
 			}
 		}
 	}

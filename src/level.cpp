@@ -17,7 +17,6 @@ namespace Eon
 		chunk_mutex{},
 		chunk_gen_thread(&Level::ChunkGenThread, this)
 	{
-		tree_model = std::make_unique<VoxelModel>("tree.vox");
 	}
 
 	Level::~Level()

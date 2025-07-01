@@ -5,6 +5,7 @@
 #include "block_entity_test.h"
 #include "asset_manager.h"
 #include "renderer/command/mesh_render_command.h"
+#include "default_block_texture_provider.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include <variant>
 
@@ -179,7 +180,9 @@ namespace Eon
 
 		level->SkyColor() = glm::vec4(153.0f / 255.0f, 204.0f / 255.0f, 1.0f, 1.0f);
 
-		level_renderer = std::make_unique<LevelRenderer>(*level, std::make_unique<DefaultChunkRendererContainerProvider>(*level));
+		TextureAtlasStitcher stitcher;
+		DefaultBlockTextureProvider* textureProvider = new DefaultBlockTextureProvider(stitcher);
+		level_renderer = std::make_unique<LevelRenderer>(*level, std::make_unique<DefaultChunkRendererContainerProvider>(*level, *textureProvider));
 
 		level->AddChunkUnloadedEventListener(*level_renderer);
 
@@ -208,21 +211,6 @@ namespace Eon
 			*PoolAllocators::GetInstance().vec2_allocator);
 
 		cube->Setup();
-
-		TextureAtlasStitcher stitcher;
-
-		std::vector<std::string> fileNames = { "content/images/DirtBlock.png", "content/images/LeafBlock.png", "content/images/StoneBlock.png", "content/images/SandBlock.png" };
-
-		for (const auto& fileName : fileNames)
-		{
-			sf::Image* i = new sf::Image();
-			i->loadFromFile(fileName);
-			stitcher.AddSprite(fileName, *i);
-		}
-
-		stitcher.DoStitch();
-		std::unique_ptr<sf::Image> atlas = stitcher.StitchImages();
-		atlas->saveToFile("content/images/texture_atlas.png");
 
 		Framebuffer::FramebufferSpec spec;
 		spec.width = Window::Get().getSize().x;
@@ -278,7 +266,7 @@ namespace Eon
 			counter = 0;
 		}
 
-		level->Update(ChunkPosition{ static_cast<int>(player->Position().x), static_cast<int>(player->Position().z) }, GameSettings.render_distance + 2);
+		//level->Update(ChunkPosition{ static_cast<int>(player->Position().x), static_cast<int>(player->Position().z) }, GameSettings.render_distance + 2);
 
 		player->Update(dt);
 	}
@@ -288,11 +276,11 @@ namespace Eon
 		gBuffer->Bind();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		level_renderer->Render(player->GetCamera(), player->Position());
-
 		render_pipeline->BeginFrame();
 		render_pipeline->SetGlobalUniform("view", player->GetCamera().ViewMatrix());
 		render_pipeline->SetGlobalUniform("projection", player->GetCamera().ProjectionMatrix());
+
+		//level_renderer->Render(*render_pipeline, *command_pool);
 
 		Material mat{ AssetManager::GetAsset<Texture>("texture.test").GetID(), AssetManager::GetAsset<Shader>("shader.ptcn").GetID(), TransparencyType::Opaque };
 

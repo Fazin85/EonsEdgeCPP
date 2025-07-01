@@ -14,7 +14,7 @@ namespace Eon
 	class Material
 	{
 	public:
-		explicit Material(TextureID texture, ShaderID shader, TransparencyType);
+		explicit Material(TextureID texture, ShaderID shader, TransparencyType type);
 
 		void SetTexture(TextureID texture);
 		void SetShader(ShaderID shader);

@@ -3,13 +3,14 @@
 #include "block_face_texture.h"
 #include "camera.h"
 #include "chunk.h"
-#include "chunk_renderer.h"
 #include "directions.h"
 #include "level.h"
 #include "chunk_renderer_container_provider.h"
 #include "shader.h"
 #include "texture_array.h"
 #include "chunk_unloaded_event_listener.h"
+#include "renderer/render_pipeline.h"
+#include "renderer/render_command_pool.h"
 #include <array>
 #include <map>
 #include <memory>
@@ -19,6 +20,9 @@
 namespace Eon
 {
 	class Level;
+	class RenderPipeline;
+	class BlockTextureProvider;
+
 	class LevelRenderer : public ChunkUnloadedEventListener
 	{
 	public:
@@ -27,7 +31,7 @@ namespace Eon
 		void MeshChunk(ChunkPosition chunkPosition);
 		void RemoveMesh(ChunkPosition chunkPosition);
 		void Update(const Frustum& frustum, glm::vec3 cameraPosition);
-		void Render(Camera& camera, glm::vec3 cameraPosition);
+		void Render(RenderPipeline& renderPipeline, RenderCommandPool& commandPool);
 		size_t ChunkRendererCount();
 		bool IsChunkBeingMeshed(ChunkPosition position);
 		void OnChunkUnloaded(std::shared_ptr<Chunk> chunk) override;
@@ -39,7 +43,6 @@ namespace Eon
 		bool CanChunkBeMeshed(ChunkPosition position, const Frustum* frustum);
 		void MarkCanUnloadForMeshing(ChunkPosition position, bool canUnload);
 
-		std::unique_ptr<TextureArray> chunk_texture;
 		std::vector<ChunkPosition> chunks_to_mesh;
 		std::unique_ptr<ChunkRendererContainerProvider> chunk_renderer_container_provider;
 		Level& level;

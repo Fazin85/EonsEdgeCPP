@@ -10,5 +10,18 @@ shader:shader.text:content/shaders/vertex/Text.vert:content/shaders/fragment/Tex
 #skybox
 shader:shader.skybox:content/shaders/vertex/Skybox.vert:content/shaders/fragment/Skybox.frag
 
+#block textures
+image:block.error:content/images/Error.png
+image:block.stone:content/images/StoneBlock.png
+image:block.grass.top:content/images/GrassBlockTop.png
+image:block.grass.side:content/images/GrassBlockSide.png
+image:block.dirt:content/images/DirtBlock.png
+image:block.water:content/images/WaterBlock.png
+image:block.log.top:content/images/OakLogTop.png
+image:block.log.side:content/images/OakLogSide.png
+image:block.leaf:content/images/LeafBlock.png
+image:block.gravel:content/images/GravelBlock.png
+
+
 
 texture:texture.test:content/images/Test.png

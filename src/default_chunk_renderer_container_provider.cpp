@@ -1,9 +1,11 @@
 #include "default_chunk_renderer_container_provider.h"
 #include "log.h"
+#include "mesh.h"
+#include "block_texture_provider.h"
 
 namespace Eon
 {
-	DefaultChunkRendererContainerProvider::DefaultChunkRendererContainerProvider(Level& level) : level(level)
+	DefaultChunkRendererContainerProvider::DefaultChunkRendererContainerProvider(Level& level, BlockTextureProvider& uvProvider) : level(level), uvProvider(uvProvider)
 	{
 	}
 
@@ -36,128 +38,63 @@ namespace Eon
 					glm::ivec3 position(x, y, z);
 					const Block& block = chunk->GetBlock(x, y, z);
 
-					if (block.GetType() == BlockType::AIR)
+					if (block.GetID() == 0)
 					{
 						continue;
 					}
 
+					const Block& topBlock = y < CHUNK_HEIGHT - 1 ? chunk->GetBlock(x, y + 1, z) : BlockRegistry::GetBlockByID(0);
+					const Block& bottomBlock = y > 0 ? chunk->GetBlock(x, y - 1, z) : BlockRegistry::GetBlockByID(1);
+					const Block& leftBlock = x > 0 ? chunk->GetBlock(x - 1, y, z) : level.GetBlock(chunkPosition + glm::ivec3(x - 1, y, z));
+					const Block& rightBlock = x < CHUNK_WIDTH - 1 ? chunk->GetBlock(x + 1, y, z) : level.GetBlock(chunkPosition + glm::ivec3(x + 1, y, z));
+					const Block& frontBlock = z > 0 ? chunk->GetBlock(x, y, z + 1) : level.GetBlock(chunkPosition + glm::ivec3(x, y, z + 1));
+					const Block& backBlock = z < CHUNK_WIDTH - 1 ? chunk->GetBlock(x, y, z - 1) : level.GetBlock(chunkPosition + glm::ivec3(x, y, z - 1));
+
 					auto& currentMeshData = GetMeshData(block, opaqueMeshData, cutoutMeshData, translucentMeshData);
 
-					Directions dir = Directions::Left;
+					BlockRenderContext renderContext
+					{
+						position,
+						block,
+						topBlock,
+						bottomBlock,
+						leftBlock,
+						rightBlock,
+						frontBlock,
+						backBlock,
+						currentMeshData,
+						uvProvider
+					};
 
-					if (x > 0)
-					{
-						auto& sideBlock = chunk->GetBlock(x - 1, y, z);
-						if (sideBlock.IsCutout() || (!block.Translucent() && sideBlock.Translucent()))
-						{
-							AddFace(currentMeshData, position, block, dir);
-						}
-					}
-					else
-					{
-						auto& sideBlock = level.GetBlock(chunkPosition + glm::ivec3(x - 1, y, z));
-						if (sideBlock.IsCutout() || (!block.Translucent() && sideBlock.Translucent()))
-						{
-							AddFace(currentMeshData, position, block, dir);
-						}
-					}
-
-					dir = Directions::Right;
-					if (x < CHUNK_WIDTH - 1)
-					{
-						auto& sideBlock = chunk->GetBlock(x + 1, y, z);
-						if (sideBlock.IsCutout() || (!block.Translucent() && sideBlock.Translucent()))
-						{
-							AddFace(currentMeshData, position, block, dir);
-						}
-					}
-					else
-					{
-						auto& sideBlock = level.GetBlock(chunkPosition + glm::ivec3(x + 1, y, z));
-						if (sideBlock.IsCutout() || (!block.Translucent() && sideBlock.Translucent()))
-						{
-							AddFace(currentMeshData, position, block, dir);
-						}
-					}
-
-					dir = Directions::Top;
-					if (y < CHUNK_HEIGHT - 1)
-					{
-						auto& sideBlock = chunk->GetBlock(x, y + 1, z);
-						if (sideBlock.IsCutout() || (!block.Translucent() && sideBlock.Translucent()))
-						{
-							AddFace(currentMeshData, position, block, dir);
-						}
-					}
-					else
-					{
-						AddFace(currentMeshData, position, block, dir);
-					}
-
-					dir = Directions::Bottom;
-					if (y > 0)
-					{
-						auto& sideBlock = chunk->GetBlock(x, y - 1, z);
-						if (sideBlock.IsCutout() || (!block.Translucent() && sideBlock.Translucent()))
-						{
-							AddFace(currentMeshData, position, block, dir);
-						}
-					}
-
-					dir = Directions::Front;
-					if (z < CHUNK_WIDTH - 1)
-					{
-						auto& sideBlock = chunk->GetBlock(x, y, z + 1);
-						if (sideBlock.IsCutout() || (!block.Translucent() && sideBlock.Translucent()))
-						{
-							AddFace(currentMeshData, position, block, dir);
-						}
-					}
-					else
-					{
-						auto& sideBlock = level.GetBlock(chunkPosition + glm::ivec3(x, y, z + 1));
-						if (sideBlock.IsCutout() || (!block.Translucent() && sideBlock.Translucent()))
-						{
-							AddFace(currentMeshData, position, block, dir);
-						}
-					}
-
-					dir = Directions::Back;
-					if (z > 0)
-					{
-						auto& sideBlock = chunk->GetBlock(x, y, z - 1);
-						if (sideBlock.IsCutout() || (!block.Translucent() && sideBlock.Translucent()))
-						{
-							AddFace(currentMeshData, position, block, dir);
-						}
-					}
-					else
-					{
-						auto& sideBlock = level.GetBlock(chunkPosition + glm::ivec3(x, y, z - 1));
-
-						if (sideBlock.IsCutout() || (!block.Translucent() && sideBlock.Translucent()))
-						{
-							AddFace(currentMeshData, position, block, dir);
-						}
-					}
+					block.Render(renderContext);
 				}
 			}
 		}
 
-		auto opaqueChunkRenderer = std::make_unique<ChunkRenderer>(opaqueMeshData);
+		auto opaqueChunkRenderer = CreateMesh(opaqueMeshData);
 		auto chunkRendererContainer = std::make_unique<ChunkRendererContainer>(chunk, std::move(opaqueChunkRenderer));
 
 		if (!cutoutMeshData.vertexPositions.empty())
 		{
-			chunkRendererContainer->SetCutoutRenderer(std::make_unique<ChunkRenderer>(cutoutMeshData));
+			chunkRendererContainer->SetCutoutRenderer(CreateMesh(cutoutMeshData));
 		}
 
 		if (!translucentMeshData.vertexPositions.empty())
 		{
-			chunkRendererContainer->SetTranslucentRenderer(std::make_unique<ChunkRenderer>(translucentMeshData));
+			chunkRendererContainer->SetTranslucentRenderer(CreateMesh(translucentMeshData));
 		}
 
 		return chunkRendererContainer;
+	}
+
+	std::unique_ptr<Mesh> DefaultChunkRendererContainerProvider::CreateMesh(ChunkMeshConstructionData& meshData)
+	{
+		return std::make_unique<PositionTextureColorNormalMesh>(
+			std::move(meshData.vertexPositions),
+			std::move(meshData.uvs),
+			std::move(meshData.colors),
+			std::move(meshData.normals),
+			AssetID::INVALID_ASSET_ID);
 	}
 
 	int DefaultChunkRendererContainerProvider::CalculateLowestPoint(const ChunkPosition& position, int middleLowest)
@@ -203,125 +140,5 @@ namespace Eon
 		}
 
 		return opaqueMeshData;
-	}
-
-	void DefaultChunkRendererContainerProvider::AddFace(ChunkMeshConstructionData& meshData, const glm::ivec3& blockPosition, const Block& block, Directions direction) const
-	{
-		auto faceData = GetFaceDataFromDirection(direction);
-
-		std::vector<glm::vec3> faceVertices;
-		std::vector<glm::vec2> faceUVs;
-
-		int index = 0;
-		for (int i = 0; i < 4; i++)
-		{
-			int x = faceData[index++] + blockPosition.x;
-			int y = faceData[index++] + blockPosition.y;
-			int z = faceData[index++] + blockPosition.z;
-
-			faceVertices.emplace_back(x, y, z);
-			faceUVs.emplace_back(i, GetTextureId(block.GetType(), direction));
-		}
-
-		// Add first triangle (0, 1, 2)
-		for (int i : {0, 1, 2})
-		{
-			meshData.vertexPositions.push_back(faceVertices[i]);
-			meshData.directions.push_back(static_cast<unsigned char>(direction));
-			meshData.light.push_back(15);
-			meshData.uvs.push_back(faceUVs[i]);
-		}
-
-		// Add second triangle (0, 2, 3)  
-		for (int i : {0, 2, 3})
-		{
-			meshData.vertexPositions.push_back(faceVertices[i]);
-			meshData.directions.push_back(static_cast<unsigned char>(direction));
-			meshData.light.push_back(15);
-			meshData.uvs.push_back(faceUVs[i]);
-		}
-	}
-
-	std::array<unsigned char, 12> DefaultChunkRendererContainerProvider::GetFaceDataFromDirection(Directions dir) const
-	{
-		switch (dir)
-		{
-		case Directions::Front:
-			return std::array<unsigned char, 12>({ 0, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1 });
-		case Directions::Back:
-			return std::array<unsigned char, 12>({ 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0 });
-		case Directions::Left:
-			return std::array<unsigned char, 12>({ 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0 });
-		case Directions::Right:
-			return std::array<unsigned char, 12>({ 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 1, 1 });
-		case Directions::Top:
-			return std::array<unsigned char, 12>({ 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0 });
-		case Directions::Bottom:
-			return std::array<unsigned char, 12>({ 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1 });
-		}
-
-		return {};
-	}
-
-	BlockFaceTexture DefaultChunkRendererContainerProvider::GetTextureId(BlockType blockType, Directions faceDirection) const
-	{
-		switch (blockType)
-		{
-		case Eon::BlockType::AIR:
-			return BlockFaceTexture::ERR;
-		case Eon::BlockType::STONE:
-			return BlockFaceTexture::STONE;
-		case Eon::BlockType::GRASS:
-			switch (faceDirection)
-			{
-			case Eon::Directions::Front:
-				return BlockFaceTexture::GRASSIDE;
-			case Eon::Directions::Back:
-				return BlockFaceTexture::GRASSIDE;
-			case Eon::Directions::Left:
-				return BlockFaceTexture::GRASSIDE;
-			case Eon::Directions::Right:
-				return BlockFaceTexture::GRASSIDE;
-			case Eon::Directions::Top:
-				return BlockFaceTexture::GRASSTOP;
-			case Eon::Directions::Bottom:
-				return BlockFaceTexture::DIRT;
-			}
-			break;
-		case Eon::BlockType::DIRT:
-			return BlockFaceTexture::DIRT;
-		case Eon::BlockType::WATER:
-			return BlockFaceTexture::WATER;
-		case Eon::BlockType::SAND:
-			return BlockFaceTexture::SAND;
-		case Eon::BlockType::OAK_LOG:
-			switch (faceDirection)
-			{
-			case Eon::Directions::Front:
-				return BlockFaceTexture::OAKLOGSIDE;
-				break;
-			case Eon::Directions::Back:
-				return BlockFaceTexture::OAKLOGSIDE;
-
-			case Eon::Directions::Left:
-				return BlockFaceTexture::OAKLOGSIDE;
-
-			case Eon::Directions::Right:
-				return BlockFaceTexture::OAKLOGSIDE;
-
-			case Eon::Directions::Top:
-				return BlockFaceTexture::OAKLOGTOP;
-
-			case Eon::Directions::Bottom:
-				return BlockFaceTexture::OAKLOGTOP;
-			}
-			break;
-		case Eon::BlockType::LEAF:
-			return Eon::BlockFaceTexture::LEAF;
-		case Eon::BlockType::GRAVEL:
-			return Eon::BlockFaceTexture::GRAVEL;
-		}
-
-		return Eon::BlockFaceTexture::ERR;
 	}
 }

@@ -1,30 +1,32 @@
 #pragma once
 
-#include "chunk_renderer.h"
+//#include "chunk_renderer.h"
 #include "chunk.h"
 
 namespace Eon
 {
+	class Mesh;
+
 	class ChunkRendererContainer
 	{
 	public:
-		ChunkRendererContainer(std::shared_ptr<Chunk> chunk, std::unique_ptr<ChunkRenderer> opaqueRenderer);
+		ChunkRendererContainer(std::shared_ptr<Chunk> chunk, std::unique_ptr<Mesh> opaqueRenderer);
 
 		std::shared_ptr<Chunk> GetChunk();
 
 		void Setup();
 
-		ChunkRenderer& GetOpaqueRenderer();
-		std::optional<std::reference_wrapper<ChunkRenderer>> GetCutoutRenderer();
-		std::optional<std::reference_wrapper<ChunkRenderer>> GetTranslucentRenderer();
+		Mesh& GetOpaqueRenderer();
+		std::optional<std::reference_wrapper<Mesh>> GetCutoutRenderer();
+		std::optional<std::reference_wrapper<Mesh>> GetTranslucentRenderer();
 
-		void SetCutoutRenderer(std::unique_ptr<ChunkRenderer> cutoutRenderer);
-		void SetTranslucentRenderer(std::unique_ptr<ChunkRenderer> translucentRenderer);
+		void SetCutoutRenderer(std::unique_ptr<Mesh> cutoutRenderer);
+		void SetTranslucentRenderer(std::unique_ptr<Mesh> translucentRenderer);
 
 	private:
 		std::shared_ptr<Chunk> chunk;
-		std::unique_ptr<ChunkRenderer> opaque_renderer;
-		std::optional<std::unique_ptr<ChunkRenderer>> cutout_renderer;
-		std::optional<std::unique_ptr<ChunkRenderer>> translucent_renderer;
+		std::unique_ptr<Mesh> opaque_renderer;
+		std::optional<std::unique_ptr<Mesh>> cutout_renderer;
+		std::optional<std::unique_ptr<Mesh>> translucent_renderer;
 	};
 }

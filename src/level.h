@@ -4,7 +4,6 @@
 #include "bounding_box.h"
 #include "chunk.h"
 #include "chunk_position.h"
-#include "voxel_model.h"
 #include "abstract_level_generator.h"
 #include "chunk_unloaded_event_listener.h"
 #include "frustum.h"
@@ -49,7 +48,6 @@ namespace Eon
 		glm::vec4 sky_color;
 		std::unique_ptr<AbstractLevelGenerator> abstract_level_generator;
 		std::jthread chunk_gen_thread;
-		std::unique_ptr<VoxelModel> tree_model;
 		std::mutex chunk_mutex;
 		std::atomic_bool exit;
 		std::vector<ChunkUnloadedEventListener*> chunk_unloaded_event_listeners;

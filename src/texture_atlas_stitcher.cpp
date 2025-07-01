@@ -302,4 +302,14 @@ namespace Eon
 		std::unique_ptr<sf::Image> atlas = StitchImages();
 		return std::make_unique<Texture>(*atlas, false);
 	}
+
+	std::shared_ptr<TextureAtlasStitcher::TextureHolder> TextureAtlasStitcher::GetHolder(const std::string& name)
+	{
+		return holders.at(name);
+	}
+
+	glm::ivec2 TextureAtlasStitcher::GetCurrentSize() const
+	{
+		return { current_width, current_height };
+	}
 }

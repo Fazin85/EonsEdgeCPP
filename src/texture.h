@@ -11,6 +11,7 @@ namespace Eon
 	{
 	public:
 		Texture(const sf::Image& image, bool mipmaps);
+		Texture(const Texture& other) = default;
 		~Texture();
 
 		Texture(Texture&& other) noexcept;

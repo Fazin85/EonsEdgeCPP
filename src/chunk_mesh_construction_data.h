@@ -12,16 +12,16 @@ namespace Eon
 	{
 	public:
 		ChunkMeshConstructionData() :
-			vertexPositions(*PoolAllocators::GetInstance().ivec3_allocator),
-			uvs(*PoolAllocators::GetInstance().ivec2_allocator),
-			directions(*PoolAllocators::GetInstance().u8_allocator),
-			light(*PoolAllocators::GetInstance().u8_allocator)
+			vertexPositions(*PoolAllocators::GetInstance().vec3_allocator),
+			uvs(*PoolAllocators::GetInstance().vec2_allocator),
+			colors(*PoolAllocators::GetInstance().vec3_allocator),
+			normals(*PoolAllocators::GetInstance().vec3_allocator)
 		{
 		}
 
-		std::vector<glm::ivec3, PoolAllocator<glm::ivec3>> vertexPositions;
-		std::vector<glm::ivec2, PoolAllocator<glm::ivec2>> uvs;
-		std::vector<unsigned char, PoolAllocator<unsigned char>> directions;
-		std::vector<unsigned char, PoolAllocator<unsigned char>> light;
+		std::vector<glm::vec3, PoolAllocator<glm::vec3>> vertexPositions;
+		std::vector<glm::vec2, PoolAllocator<glm::vec2>> uvs;
+		std::vector<glm::vec3, PoolAllocator<glm::vec3>> colors;
+		std::vector<glm::vec3, PoolAllocator<glm::vec3>> normals;
 	};
 }
