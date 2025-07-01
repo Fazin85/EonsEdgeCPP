@@ -232,7 +232,7 @@ namespace Eon
 			// Albedo
 			{ GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE },
 			// Normal 
-			{ GL_RGB32F, GL_RGB, GL_FLOAT, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE },
+			{ GL_RGBA32F, GL_RGBA, GL_FLOAT, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE },
 			// Position + Depth
 			{ GL_RGBA32F, GL_RGBA, GL_FLOAT, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE },
 		};
@@ -309,7 +309,7 @@ namespace Eon
 		gBuffer->BlitToScreen();
 	}
 
-	const char* InGameScene::GetName()
+	std::string InGameScene::GetName() const
 	{
 		return "InGame";
 	}

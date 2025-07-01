@@ -2,6 +2,7 @@
 #include "log.h"
 #include "shader.h"
 #include "gl_error_check.h"
+#include "shader_preprocessor.h"
 #include <iostream>
 #include <vector>
 
@@ -19,9 +20,12 @@ namespace Eon
 		GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
 		GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 
-		std::string vertexSource = fullPath ? FileUtil::GetFileContents(vertexShaderName) : FileUtil::GetFileContents("content/shaders/" + vertexShaderName);
-		std::string fragmentSource = fullPath ? FileUtil::GetFileContents(fragmentShaderName) : FileUtil::GetFileContents("content/shaders/" + fragmentShaderName);
-		
+		ShaderPreprocessor vertexShaderPreprocessor;
+		ShaderPreprocessor fragmentShaderPreprocessor;
+
+		std::string vertexSource = fullPath ? vertexShaderPreprocessor.Process(vertexShaderName) : vertexShaderPreprocessor.Process("content/shaders/" + vertexShaderName);
+		std::string fragmentSource = fullPath ? fragmentShaderPreprocessor.Process(fragmentShaderName) : fragmentShaderPreprocessor.Process("content/shaders/" + fragmentShaderName);
+
 		if (vertexSource == "")
 		{
 			EON_ERROR("Failed to load vertex shader: " + vertexShaderName);

@@ -183,6 +183,9 @@
     <ClCompile Include="src\renderer\command\render_command_variant.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\shader_preprocessor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\camera.h">
@@ -401,25 +404,28 @@
     <ClInclude Include="src\renderer\render_command_pool.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\shader_preprocessor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="vcpkg.json" />
     <None Include="vcpkg-configuration.json" />
     <None Include=".gitignore" />
     <None Include=".gitattributes" />
-    <None Include="content\shaders\Billboard.frag" />
-    <None Include="content\shaders\Billboard.vert" />
-    <None Include="content\shaders\Chunk.frag" />
-    <None Include="content\shaders\Chunk.vert" />
-    <None Include="content\shaders\Plane.frag" />
-    <None Include="content\shaders\Plane.vert" />
-    <None Include="content\shaders\Skybox.frag" />
-    <None Include="content\shaders\Skybox.vert" />
     <None Include="content\models\tree.vox" />
-    <None Include="content\shaders\Text.frag" />
-    <None Include="content\shaders\Text.vert" />
-    <None Include="content\shaders\ptcn.frag" />
-    <None Include="content\shaders\ptcn.vert" />
+    <None Include="content\shaders\vertex\Billboard.vert" />
+    <None Include="content\shaders\vertex\Chunk.vert" />
+    <None Include="content\shaders\vertex\Plane.vert" />
+    <None Include="content\shaders\vertex\ptcn.vert" />
+    <None Include="content\shaders\vertex\Skybox.vert" />
+    <None Include="content\shaders\vertex\Text.vert" />
+    <None Include="content\shaders\fragment\Billboard.frag" />
+    <None Include="content\shaders\fragment\Chunk.frag" />
+    <None Include="content\shaders\fragment\Plane.frag" />
+    <None Include="content\shaders\fragment\ptcn.frag" />
+    <None Include="content\shaders\fragment\Skybox.frag" />
+    <None Include="content\shaders\fragment\Text.frag" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="C:\Users\GODDIDIDIIDID\Downloads\player.png">

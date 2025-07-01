@@ -39,7 +39,6 @@ namespace Eon
 		bool CanChunkBeMeshed(ChunkPosition position, const Frustum* frustum);
 		void MarkCanUnloadForMeshing(ChunkPosition position, bool canUnload);
 
-		std::unique_ptr<Shader> chunk_shader;
 		std::unique_ptr<TextureArray> chunk_texture;
 		std::vector<ChunkPosition> chunks_to_mesh;
 		std::unique_ptr<ChunkRendererContainerProvider> chunk_renderer_container_provider;

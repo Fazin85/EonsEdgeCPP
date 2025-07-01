@@ -1,7 +1,7 @@
 #pragma once
 
 #include "shader.h"
-
+#include "asset_manager.h"
 #include <string>
 
 namespace Eon
@@ -12,7 +12,7 @@ namespace Eon
 		explicit TextRenderer(const std::string& fontFileName);
 		~TextRenderer();
 
-		void Begin();
+		void Begin() const;
 		void RenderText(const std::string& text, float x, float y, float scale, glm::vec3 color);
 		void End() const;
 
@@ -27,7 +27,7 @@ namespace Eon
 		
 		unsigned int vao;
 		unsigned int vbo;
-		Shader shader;
+		ShaderID shader;
 		std::unordered_map<char, Character> characters;
 	};
 }

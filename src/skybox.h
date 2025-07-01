@@ -18,7 +18,6 @@ namespace Eon
 		unsigned int vbo;
 		unsigned int ebo;
 		unsigned int texture;
-		static inline std::unique_ptr<Shader> shader = nullptr;
 
 		static inline float vertices[]
 		{

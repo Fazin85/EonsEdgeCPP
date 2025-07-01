@@ -22,7 +22,7 @@ namespace Eon
 		void Update(float dt) override;
 		void Render() override;
 
-		const char* GetName() override;
+		std::string GetName() const override;
 
 	private:
 		std::unique_ptr<RenderCommandPool> command_pool;

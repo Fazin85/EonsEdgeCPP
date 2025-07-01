@@ -5,13 +5,14 @@
 #include "settings.h"
 #include <lz4.h>
 #include <zlib.h>
+#include "asset_manager.h"
 
 namespace Eon
 {
 	LevelRenderer::LevelRenderer(Level& level, std::unique_ptr<ChunkRendererContainerProvider> chunkRendererContainerProvider)
 		: level(level), chunk_renderer_container_provider(std::move(chunkRendererContainerProvider))
 	{
-		chunk_shader = std::make_unique<Shader>("Chunk.vert", "Chunk.frag");
+		auto chunk_shader = AssetManager::GetAsset<Shader>("shader.chunk");
 
 		chunk_shader->Bind();
 		chunk_shader->UniformFVec3("sunlight_dir", glm::vec3(-0.7f, -1.0f, -0.5f));
@@ -95,6 +96,8 @@ namespace Eon
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 		chunk_texture->Bind();
+
+		auto chunk_shader = AssetManager::GetAsset<Shader>("shader.chunk");
 
 		chunk_shader->Bind();
 		chunk_shader->UniformFVec4("fog_color", level.SkyColor());

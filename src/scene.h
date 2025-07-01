@@ -2,7 +2,6 @@
 
 #include <string>
 
-
 namespace Eon
 {
 	class Scene
@@ -10,7 +9,7 @@ namespace Eon
 	public:
 		virtual ~Scene() = default;
 
-		virtual const char* GetName() = 0;
+		virtual std::string GetName() const = 0;
 		virtual void Update(float dt) = 0;
 		virtual void Render() = 0;
 	};

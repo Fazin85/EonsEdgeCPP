@@ -1,2 +1,14 @@
-shader:shader.ptcn:content/shaders/ptcn
+#ptcn
+shader:shader.ptcn:content/shaders/vertex/ptcn.vert:content/shaders/fragment/ptcn.frag
+
+#chunk
+shader:shader.chunk:content/shaders/vertex/Chunk.vert:content/shaders/fragment/Chunk.frag
+
+#text
+shader:shader.text:content/shaders/vertex/Text.vert:content/shaders/fragment/Text.frag
+
+#skybox
+shader:shader.skybox:content/shaders/vertex/Skybox.vert:content/shaders/fragment/Skybox.frag
+
+
 texture:texture.test:content/images/Test.png

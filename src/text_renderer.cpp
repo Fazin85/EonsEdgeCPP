@@ -9,8 +9,10 @@
 
 namespace Eon
 {
-	TextRenderer::TextRenderer(const std::string& fontFileName) : shader("Text.vert", "Text.frag")
+	TextRenderer::TextRenderer(const std::string& fontFileName)
 	{
+		shader = AssetManager::GetAsset<Shader>("shader.text").GetID();
+
 		FT_Library ft;
 		if (FT_Init_FreeType(&ft))
 			EON_ERROR("Could not init FreeType Library");
@@ -83,12 +85,14 @@ namespace Eon
 		glDeleteBuffers(1, &vbo);
 	}
 
-	void TextRenderer::Begin()
+	void TextRenderer::Begin() const
 	{
 		glClear(GL_DEPTH_BUFFER_BIT);
-		shader.Bind();
+
+		shader.Get<Shader>()->Bind();
 		const sf::Vector2u windowSize = Window::Get().getSize();
-		shader.UniformMatrix4("projection", glm::ortho(0.0f, static_cast<float>(windowSize.x), 0.0f, static_cast<float>(windowSize.y)));
+		shader.Get<Shader>()->UniformMatrix4("projection", glm::ortho(0.0f, static_cast<float>(windowSize.x), 0.0f, static_cast<float>(windowSize.y)));
+
 		glDisable(GL_DEPTH_TEST);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -97,7 +101,7 @@ namespace Eon
 
 	void TextRenderer::RenderText(const std::string& text, float x, float y, float scale, glm::vec3 color)
 	{
-		shader.UniformFVec3("textColor", { color.x, color.y, color.z });
+		shader.Get<Shader>()->UniformFVec3("textColor", { color.x, color.y, color.z });
 		glActiveTexture(GL_TEXTURE0);
 		glBindVertexArray(vao);
 
@@ -137,7 +141,7 @@ namespace Eon
 
 	void TextRenderer::End() const
 	{
-		shader.Unbind();
+		shader.Get<Shader>()->Unbind();
 		glEnable(GL_DEPTH_TEST);
 		glDisable(GL_BLEND);
 	}

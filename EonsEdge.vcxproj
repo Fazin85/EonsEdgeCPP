@@ -189,6 +189,7 @@
     <ClCompile Include="src\scene_manager.cpp" />
     <ClCompile Include="src\scope_timer.cpp" />
     <ClCompile Include="src\shader.cpp" />
+    <ClCompile Include="src\shader_preprocessor.cpp" />
     <ClCompile Include="src\skybox.cpp" />
     <ClCompile Include="src\texture.cpp" />
     <ClCompile Include="src\texture_array.cpp" />
@@ -243,6 +244,7 @@
     <ClInclude Include="src\scene.h" />
     <ClInclude Include="src\scene_manager.h" />
     <ClInclude Include="src\scope_timer.h" />
+    <ClInclude Include="src\shader_preprocessor.h" />
     <ClInclude Include="src\skybox.h" />
     <ClInclude Include="src\fps.h" />
     <ClInclude Include="src\frustum.h" />
@@ -275,18 +277,18 @@
     <None Include=".gitattributes" />
     <None Include=".gitignore" />
     <None Include="content\models\tree.vox" />
-    <None Include="content\shaders\Billboard.frag" />
-    <None Include="content\shaders\Billboard.vert" />
-    <None Include="content\shaders\Chunk.frag" />
-    <None Include="content\shaders\Chunk.vert" />
-    <None Include="content\shaders\Plane.frag" />
-    <None Include="content\shaders\Plane.vert" />
-    <None Include="content\shaders\ptcn.frag" />
-    <None Include="content\shaders\ptcn.vert" />
-    <None Include="content\shaders\Skybox.frag" />
-    <None Include="content\shaders\Skybox.vert" />
-    <None Include="content\shaders\Text.frag" />
-    <None Include="content\shaders\Text.vert" />
+    <None Include="content\shaders\fragment\Billboard.frag" />
+    <None Include="content\shaders\fragment\Chunk.frag" />
+    <None Include="content\shaders\fragment\Plane.frag" />
+    <None Include="content\shaders\fragment\ptcn.frag" />
+    <None Include="content\shaders\fragment\Skybox.frag" />
+    <None Include="content\shaders\fragment\Text.frag" />
+    <None Include="content\shaders\vertex\Billboard.vert" />
+    <None Include="content\shaders\vertex\Chunk.vert" />
+    <None Include="content\shaders\vertex\Plane.vert" />
+    <None Include="content\shaders\vertex\ptcn.vert" />
+    <None Include="content\shaders\vertex\Skybox.vert" />
+    <None Include="content\shaders\vertex\Text.vert" />
     <None Include="vcpkg-configuration.json" />
     <None Include="vcpkg.json" />
   </ItemGroup>

@@ -90,9 +90,18 @@ namespace Eon
 	public:
 		struct AssetEntry
 		{
-			std::string name;           // Namespaced name like "characters.player.idle"
-			std::string type;           // Asset type: "texture", "sound", "model", etc.
-			std::string filepath;       // Path to the asset file
+			std::string type;
+			std::vector<std::string> values;
+
+			const std::string& Name() const
+			{
+				return values[0];
+			}
+
+			const std::string& FilePath() const
+			{
+				return values[1];
+			}
 		};
 
 		template <typename T>
@@ -169,7 +178,10 @@ namespace Eon
 	private:
 		static AssetManager& GetInstance();
 		void LoadAssets(const std::string& manifestPath);
+		std::vector<std::string> Split(const std::string& str, char delimiter) const;
 
+		std::unordered_map<std::string, std::string> vertex_shaders_by_namespace;
+		std::unordered_map<std::string, std::string> fragment_shaders_by_namespace;
 		std::unordered_map<std::string, Asset<Shader>> shaders_by_namespace;
 		std::unordered_map<std::string, Asset<Texture>> textures_by_namespace;
 		std::vector<Asset<Shader>> shaders_by_id;

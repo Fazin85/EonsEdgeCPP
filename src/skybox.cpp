@@ -3,16 +3,12 @@
 #include "glad/glad.h"
 #include "log.h"
 #include "gl_error_check.h"
+#include "asset_manager.h"
 
 namespace Eon
 {
 	Skybox::Skybox(std::array<std::string, 6>& faceFileNames)
 	{
-		if (shader == nullptr)
-		{
-			shader = std::make_unique<Shader>("Skybox.vert", "Skybox.frag");
-		}
-
 		GL_CHECK(glGenVertexArrays(1, &vao));
 		GL_CHECK(glGenBuffers(1, &vbo));
 		GL_CHECK(glGenBuffers(1, &ebo));
@@ -71,6 +67,8 @@ namespace Eon
 		GL_CHECK(glCullFace(GL_FRONT));
 
 		camera.CalculateViewMatrix(glm::vec3(0, 0, 0));
+
+		auto shader = AssetManager::GetAsset<Shader>("shader.skybox");
 
 		shader->Bind();
 		shader->UniformMatrix4("view", camera.ViewMatrix());
