@@ -18,7 +18,6 @@ namespace Eon {
 
 		void AddFace(ChunkMeshConstructionData& meshData, const glm::ivec3& blockPosition, const Block& block, Directions direction) const;
 		std::array<unsigned char, 12> GetFaceDataFromDirection(Directions dir) const;
-		void AddIndices(ChunkMeshConstructionData& meshData) const;
 		BlockFaceTexture GetTextureId(BlockType blockType, Directions faceDirection) const;
 
 		Level& level;

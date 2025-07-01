@@ -42,7 +42,6 @@ namespace Eon
 					}
 
 					auto& currentMeshData = GetMeshData(block, opaqueMeshData, cutoutMeshData, translucentMeshData);
-					//currentMeshData.face_count = 0;
 
 					Directions dir = Directions::Left;
 
@@ -141,11 +140,6 @@ namespace Eon
 							AddFace(currentMeshData, position, block, dir);
 						}
 					}
-
-					/*if (currentMeshData.face_count > 0)
-					{
-						AddIndices(currentMeshData);
-					}*/
 				}
 			}
 		}
@@ -213,22 +207,6 @@ namespace Eon
 
 	void DefaultChunkRendererContainerProvider::AddFace(ChunkMeshConstructionData& meshData, const glm::ivec3& blockPosition, const Block& block, Directions direction) const
 	{
-		/*auto faceData = GetFaceDataFromDirection(direction);
-
-		int index = 0;
-		for (int i = 0; i < 4; i++)
-		{
-			int x = faceData[index++] + blockPosition.x;
-			int y = faceData[index++] + blockPosition.y;
-			int z = faceData[index++] + blockPosition.z;
-
-			meshData.vertexPositions.emplace_back(x, y, z);
-			meshData.directions.push_back(static_cast<unsigned char>(direction));
-			meshData.light.push_back(15);
-			meshData.uvs.push_back({ i, GetTextureId(block.GetType(), direction) });
-		}
-
-		meshData.face_count++;*/
 		auto faceData = GetFaceDataFromDirection(direction);
 
 		std::vector<glm::vec3> faceVertices;
@@ -283,21 +261,6 @@ namespace Eon
 		}
 
 		return {};
-	}
-
-	void DefaultChunkRendererContainerProvider::AddIndices(ChunkMeshConstructionData& meshData) const
-	{
-		/*for (int i = 0; i < meshData.face_count; i++)
-		{
-			meshData.indices.push_back(meshData.index_count);
-			meshData.indices.push_back(meshData.index_count + 1);
-			meshData.indices.push_back(meshData.index_count + 2);
-			meshData.indices.push_back(meshData.index_count + 2);
-			meshData.indices.push_back(meshData.index_count + 3);
-			meshData.indices.push_back(meshData.index_count);
-
-			meshData.index_count += 4;
-		}*/
 	}
 
 	BlockFaceTexture DefaultChunkRendererContainerProvider::GetTextureId(BlockType blockType, Directions faceDirection) const
