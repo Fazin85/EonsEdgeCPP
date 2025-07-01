@@ -24,8 +24,7 @@ namespace Eon
 		bool setup;
 		std::vector<unsigned int, PoolAllocator<unsigned int>> vertex_position_data;
 		std::vector<unsigned int, PoolAllocator<unsigned int>> dir_light_data;
-		std::vector<unsigned int, PoolAllocator<unsigned int>> indices;
-		size_t index_count;
+		int vertex_count;
 		unsigned int vao;
 		unsigned int ibo;
 		unsigned int vertex_position_vbo;

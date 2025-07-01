@@ -12,11 +12,9 @@ namespace Eon
 	ChunkRenderer::ChunkRenderer(ChunkMeshConstructionData& meshData) :
 		vertex_position_data(*PoolAllocators::GetInstance().u32_allocator),
 		dir_light_data(*PoolAllocators::GetInstance().u32_allocator),
-		indices(*PoolAllocators::GetInstance().u32_allocator),
 		setup(false)
 	{
-		indices = meshData.indices;
-		index_count = indices.size();
+		vertex_count = meshData.vertexPositions.size();
 
 		vertex_position_data.resize(meshData.vertexPositions.size());
 		dir_light_data.resize(meshData.vertexPositions.size());
@@ -46,9 +44,7 @@ namespace Eon
 		}
 
 		GL_CHECK(glBindVertexArray(vao));
-		GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo));
-
-		GL_CHECK(glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(index_count), GL_UNSIGNED_INT, nullptr));
+		GL_CHECK(glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(vertex_count)));
 	}
 
 	void ChunkRenderer::Setup()
@@ -87,14 +83,6 @@ namespace Eon
 		GL_CHECK(glVertexAttribIPointer(1, 1, GL_UNSIGNED_INT, 0, nullptr));
 		GL_CHECK(glEnableVertexAttribArray(1));
 
-		GL_CHECK(glGenBuffers(1, &ibo));
-		GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo));
-		GL_CHECK(glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(),
-			GL_STATIC_DRAW));
-
-		indices.clear();
-		indices.shrink_to_fit();
-
 		setup = true;
 	}
 
@@ -103,7 +91,6 @@ namespace Eon
 		if (setup)
 		{
 			GL_CHECK(glDeleteVertexArrays(1, &vao));
-			GL_CHECK(glDeleteBuffers(1, &ibo));
 
 			GL_CHECK(glDeleteBuffers(1, &vertex_position_vbo));
 			GL_CHECK(glDeleteBuffers(1, &dir_light_vbo));
