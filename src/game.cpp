@@ -9,54 +9,11 @@
 #include "log.h"
 #include "in_game_scene.h"
 #include "gl_error_check.h"
+#include "opengl_debug.h"
 #include <iostream>
 
 namespace Eon
 {
-	void APIENTRY openglCallbackFunction(GLenum source,
-		GLenum type,
-		GLuint id,
-		GLenum severity,
-		GLsizei length,
-		const GLchar* message,
-		const void* userParam)
-	{
-		std::string sourceStr = [source]()
-			{
-				switch (source)
-				{
-				case GL_DEBUG_SOURCE_API: return "API";
-				case GL_DEBUG_SOURCE_WINDOW_SYSTEM: return "WINDOW SYSTEM";
-				case GL_DEBUG_SOURCE_SHADER_COMPILER: return "SHADER COMPILER";
-				case GL_DEBUG_SOURCE_THIRD_PARTY: return "THIRD PARTY";
-				case GL_DEBUG_SOURCE_APPLICATION: return "APPLICATION";
-				case GL_DEBUG_SOURCE_OTHER: return "OTHER";
-				default: return "UNKNOWN";
-				}
-			}();
-
-		std::string typeStr = [type]()
-			{
-				switch (type)
-				{
-				case GL_DEBUG_TYPE_ERROR: return "ERROR";
-				case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: return "DEPRECATED";
-				case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR: return "UNDEFINED";
-				case GL_DEBUG_TYPE_PORTABILITY: return "PORTABILITY";
-				case GL_DEBUG_TYPE_PERFORMANCE: return "PERFORMANCE";
-				case GL_DEBUG_TYPE_OTHER: return "OTHER";
-				default: return "UNKNOWN";
-				}
-			}();
-
-		std::cout << "OpenGL [" << typeStr << "] " << sourceStr << ": " << message << std::endl;
-
-		if (type == GL_DEBUG_TYPE_ERROR)
-		{
-			__debugbreak(); // Break on errors
-		}
-	}
-
 	int Game::Run()
 	{
 		exit_code = 0;
@@ -71,7 +28,7 @@ namespace Eon
 #ifdef _DEBUG
 		glEnable(GL_DEBUG_OUTPUT);
 		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-		glDebugMessageCallback(openglCallbackFunction, nullptr);
+		glDebugMessageCallback(OpenGLDebugMessageCallback, nullptr);
 		glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION,
 			0, nullptr, GL_FALSE);
 #endif

@@ -180,6 +180,9 @@
     <ClCompile Include="src\default_block_texture_provider.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\opengl_debug.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\camera.h">
@@ -396,6 +399,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\default_block_texture_provider.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\opengl_debug.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
