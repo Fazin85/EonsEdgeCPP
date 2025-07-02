@@ -266,7 +266,7 @@ namespace Eon
 			counter = 0;
 		}
 
-		//level->Update(ChunkPosition{ static_cast<int>(player->Position().x), static_cast<int>(player->Position().z) }, GameSettings.render_distance + 2);
+		level->Update(ChunkPosition{ static_cast<int>(player->Position().x), static_cast<int>(player->Position().z) }, GameSettings.render_distance + 2);
 
 		player->Update(dt);
 	}
@@ -280,7 +280,7 @@ namespace Eon
 		render_pipeline->SetGlobalUniform("view", player->GetCamera().ViewMatrix());
 		render_pipeline->SetGlobalUniform("projection", player->GetCamera().ProjectionMatrix());
 
-		//level_renderer->Render(*render_pipeline, *command_pool);
+		level_renderer->Render(*render_pipeline, *command_pool);
 
 		Material mat{ AssetManager::GetAsset<Texture>("texture.test").GetID(), AssetManager::GetAsset<Shader>("shader.ptcn").GetID(), TransparencyType::Opaque };
 

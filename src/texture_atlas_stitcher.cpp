@@ -3,7 +3,7 @@
 
 namespace Eon
 {
-	TextureAtlasStitcher::TextureHolder::TextureHolder(const std::string& name, sf::Image& image) : name(name), image(image)
+	TextureAtlasStitcher::TextureHolder::TextureHolder(const std::string& name, sf::Image& image) : name(name), image(image), width(image.getSize().x), height(image.getSize().y)
 	{
 	}
 

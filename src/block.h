@@ -100,6 +100,7 @@ namespace Eon
 		static const Block& GetBlockByType(const std::string& type);
 		static const Block& GetBlockByID(uint8_t id);
 		static const std::array<std::shared_ptr<Block>, 256>& GetBlocks();
+		static size_t LoadedBlockCount();
 
 	private:
 		BlockRegistry();

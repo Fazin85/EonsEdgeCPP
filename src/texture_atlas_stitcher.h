@@ -70,8 +70,8 @@ namespace Eon
 		private:
 			std::string name;
 			sf::Image& image;
-			int width = 0;
-			int height = 0;
+			const int width;
+			const int height;
 			int atlas_x = 0;
 			int atlas_y = 0;
 		};

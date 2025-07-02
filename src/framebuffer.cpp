@@ -140,8 +140,6 @@ namespace Eon
 		GL_CHECK(glBindFramebuffer(GL_READ_FRAMEBUFFER, m_framebufferID));
 		GL_CHECK(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0));
 
-		glReadBuffer(GL_COLOR_ATTACHMENT1);
-
 		if (screenWidth == 0) screenWidth = m_spec.width;
 		if (screenHeight == 0) screenHeight = m_spec.height;
 

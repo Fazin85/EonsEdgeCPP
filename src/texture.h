@@ -11,10 +11,12 @@ namespace Eon
 	{
 	public:
 		Texture(const sf::Image& image, bool mipmaps);
-		Texture(const Texture& other) = default;
 		~Texture();
 
 		Texture(Texture&& other) noexcept;
+
+		Texture(const Texture&) = delete;
+		Texture& operator=(const Texture&) = delete;
 
 		void Bind(int unit = 0) const;
 		void Unbind() const;

@@ -14,7 +14,9 @@ namespace Eon
 		~Shader();
 
 		Shader(Shader&& other) noexcept;
-		Shader(const Shader& other) = default;
+		
+		Shader(const Shader&) = delete;
+		Shader& operator=(const Shader&) = delete;
 
 		void Bind() const;
 		void Unbind() const;

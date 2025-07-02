@@ -1,12 +1,14 @@
 #include "default_block_texture_provider.h"
 #include "block.h"
+#include "log.h"
 #include <format>
 
 namespace Eon
 {
 	DefaultBlockTextureProvider::DefaultBlockTextureProvider(TextureAtlasStitcher& stitcher)
 	{
-		const std::array<std::shared_ptr<Block>, 256>& blocks = BlockRegistry::GetBlocks();
+		const std::array<std::shared_ptr<Block>, 256>& blockArray = BlockRegistry::GetBlocks();
+		auto blocks = std::vector(blockArray.begin(), blockArray.begin() + BlockRegistry::LoadedBlockCount());
 
 		uvs.resize(blocks.size());
 
@@ -16,7 +18,7 @@ namespace Eon
 		}
 
 		int textureId = 0;
-		for (auto& block : blocks)
+		for (const auto& block : blocks)
 		{
 			auto textures = block->GetTextures();
 			for (const auto& texture : textures)

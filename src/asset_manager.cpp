@@ -68,8 +68,8 @@ namespace Eon
 					throw std::runtime_error("Failed to load texture: " + entry.FilePath());
 				}
 
-				Texture texture(image, false);
-				Asset asset(make_shared_st<Texture>(texture), { next_texture_id++ });
+				auto texturePtr = make_shared_st<Texture>(image, false);
+				Asset asset(texturePtr, { next_texture_id++ });
 
 				textures_by_namespace.try_emplace(entry.Name(), asset);
 				textures_by_id.emplace_back(asset);
@@ -79,9 +79,8 @@ namespace Eon
 				std::string vertexShader = entry.values[1];
 				std::string fragmentShader = entry.values[2];
 
-				Shader shader(vertexShader, fragmentShader, true);
-
-				Asset asset(make_shared_st<Shader>(shader), { next_shader_id++ });
+				auto shaderPtr = make_shared_st<Shader>(vertexShader, fragmentShader, true);
+				Asset asset(shaderPtr, { next_shader_id++ });
 
 				shaders_by_namespace.try_emplace(entry.Name(), asset);
 				shaders_by_id.emplace_back(asset);

@@ -1,5 +1,6 @@
 #include "block.h"
 #include "block_texture_provider.h"
+#include "assert.h"
 
 namespace Eon
 {
@@ -184,6 +185,11 @@ namespace Eon
 		return GetInstance().blocks;
 	}
 
+	size_t BlockRegistry::LoadedBlockCount()
+	{
+		return GetInstance().block_map.size();
+	}
+
 	void BlockRegistry::RegisterBlock(Block block)
 	{
 		auto ptr = std::make_shared<Block>(block);
@@ -216,6 +222,8 @@ namespace Eon
 	{
 		auto uvValue = [](glm::vec4 uvs, int index) constexpr
 			{
+				EON_ASSERT(index >= 0 && index < 4, "Invalid index");
+				
 				switch (index)
 				{
 				case 0:
@@ -231,7 +239,8 @@ namespace Eon
 			};
 
 		auto faceData = GetFaceDataFromDirection(direction);
-		glm::vec4 uvs = renderContext.uvProvider.GetUVs(renderContext.centerBlock, static_cast<int>(direction));
+		//glm::vec4 uvs = renderContext.uvProvider.GetUVs(renderContext.centerBlock, static_cast<int>(direction));
+		glm::vec4 uvs = renderContext.uvProvider.GetUVs(renderContext.centerBlock, 0);
 
 		std::array<glm::vec3, 4> faceVertices{};
 		std::array<glm::vec2, 4> faceUVs{};
