@@ -18,9 +18,11 @@ namespace Eon
 	class BlockRegistry;
 	class Block;
 	class BlockTextureProvider;
+	class Chunk;
 
 	struct BlockRenderContext
 	{
+		Chunk& chunk;
 		const glm::ivec3 blockPosition;
 		const Block& centerBlock;
 		const Block& topBlock;
@@ -34,7 +36,10 @@ namespace Eon
 	};
 
 	std::array<unsigned char, 12> GetFaceDataFromDirection(Directions dir);
+	std::array<glm::ivec3, 4> GetAOOffsets(Directions dir);
 	void AddFace(BlockRenderContext& renderContext, Directions direction);
+	int GetAmbientOcclusion(const Block& corner, const Block& side1, const Block& side2);
+	void CalculateAO(Chunk& chunk, int x, int y, int z, std::array<glm::ivec3, 4>& offsets, int side, std::array<int, 4>& aos);
 
 	class Block
 	{
@@ -46,7 +51,8 @@ namespace Eon
 			bool isCutout,
 			bool translucent,
 			std::function<void(
-				BlockRenderContext&)>& render);
+				BlockRenderContext&)>& render,
+			bool solid);
 
 		bool operator==(const Block& other) const;
 
@@ -56,6 +62,7 @@ namespace Eon
 		std::unique_ptr<BlockEntity> CreateBlockEntityInstance(glm::ivec3 worldPosition);
 		bool IsCutout() const;
 		bool Translucent() const;
+		bool Solid() const;
 		std::vector<ImageID> GetTextures() const;
 		void Render(BlockRenderContext& renderContext) const;
 
@@ -68,6 +75,7 @@ namespace Eon
 		std::optional<std::function<std::unique_ptr<BlockEntity>(glm::ivec3)>> create_block_entity;
 		bool is_cutout;
 		bool translucent;
+		bool solid;
 	};
 
 	class BlockBuilder
@@ -79,6 +87,7 @@ namespace Eon
 		BlockBuilder& SetIsCutout();
 		BlockBuilder& SetTranslucent();
 		BlockBuilder& SetRender(std::function<void(BlockRenderContext&)>& render);
+		BlockBuilder& SetSolid(bool solid);
 		Block Build() const;
 
 	private:
@@ -89,6 +98,7 @@ namespace Eon
 		std::optional<std::function<std::unique_ptr<BlockEntity>(glm::ivec3)>> create_block_entity;
 		bool is_cutout;
 		bool translucent;
+		bool solid;
 		std::optional<std::function<void(BlockRenderContext&)>> render;
 	};
 

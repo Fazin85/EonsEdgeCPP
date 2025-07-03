@@ -54,6 +54,7 @@ namespace Eon
 
 					BlockRenderContext renderContext
 					{
+						*chunk,
 						position,
 						block,
 						topBlock,

@@ -279,8 +279,13 @@ namespace Eon
 		render_pipeline->BeginFrame();
 		render_pipeline->SetGlobalUniform("view", player->GetCamera().ViewMatrix());
 		render_pipeline->SetGlobalUniform("projection", player->GetCamera().ProjectionMatrix());
+		render_pipeline->SetGlobalUniform("lightDirection", glm::vec3(0.2f, -0.9f, 0.1f));
+		render_pipeline->SetGlobalUniform("lightColor", glm::vec3(1.0f, 0.9f, 0.7f));
+		render_pipeline->SetGlobalUniform("viewPos", player->Position());
+		render_pipeline->SetGlobalUniform("objectColor", glm::vec3(1.0f, 1.0f, 1.0f));
+		render_pipeline->SetGlobalUniform("shininess", 16.0f);
 
-		level_renderer->Render(*render_pipeline, *command_pool);
+		level_renderer->Render(*render_pipeline, *command_pool, player->GetCamera(), ChunkPosition(static_cast<int>(player->Position().x), static_cast<int>(player->Position().z)));
 
 		Material mat{ AssetManager::GetAsset<Texture>("texture.test").GetID(), AssetManager::GetAsset<Shader>("shader.ptcn").GetID(), TransparencyType::Opaque };
 

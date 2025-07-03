@@ -35,6 +35,8 @@ namespace std
 
 namespace Eon
 {
+	class Level;
+
 	class Chunk
 	{
 	public:
@@ -43,7 +45,7 @@ namespace Eon
 			int lowest;
 		};
 
-		Chunk(const ChunkPrimer& chunkPrimer, ChunkPosition chunkPosition);
+		Chunk(Level& level, const ChunkPrimer& chunkPrimer, ChunkPosition chunkPosition);
 		void SetBlock(int x, int y, int z, const Block& block);
 		const Block& GetBlock(int x, int y, int z);
 		ChunkPosition Position() const;
@@ -63,6 +65,7 @@ namespace Eon
 		void CalculateColumnHeights(int x, int z);
 
 		ChunkPosition position;
+		Level& level;
 		std::array<ChunkSection, CHUNK_HEIGHT / 16> sections;
 		std::array<std::array<ColumnHeights, CHUNK_WIDTH>, CHUNK_WIDTH> column_heights;
 		std::unordered_map<glm::ivec3, std::unique_ptr<BlockEntity>> block_entities;

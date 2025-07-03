@@ -276,10 +276,12 @@
     <None Include=".gitattributes" />
     <None Include=".gitignore" />
     <None Include="content\models\tree.vox" />
+    <None Include="content\shaders\common\blinn_phong.glsl" />
     <None Include="content\shaders\fragment\Billboard.frag" />
     <None Include="content\shaders\fragment\Chunk.frag" />
     <None Include="content\shaders\fragment\Plane.frag" />
     <None Include="content\shaders\fragment\ptcn.frag" />
+    <None Include="content\shaders\fragment\ptcn_blinn_phong.frag" />
     <None Include="content\shaders\fragment\Skybox.frag" />
     <None Include="content\shaders\fragment\Text.frag" />
     <None Include="content\shaders\vertex\Billboard.vert" />

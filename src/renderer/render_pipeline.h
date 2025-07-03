@@ -33,6 +33,7 @@ namespace Eon
 		virtual void SetGlobalUniform(const std::string& name, const glm::mat4& value) = 0;
 		virtual void SetGlobalUniform(const std::string& name, const glm::vec3& value) = 0;
 		virtual void SetGlobalUniform(const std::string& name, float value) = 0;
+		virtual void SetGlobalUniform(const std::string& name, int value) = 0;
 
 		virtual RenderStats& GetRenderStats() = 0;
 	};

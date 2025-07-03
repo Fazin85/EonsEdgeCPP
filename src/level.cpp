@@ -140,7 +140,7 @@ namespace Eon
 			if (chunks_to_generate.try_dequeue(chunkPosition))
 			{
 				abstract_level_generator->GenerateTerrainShape(*chunkPrimer, chunkPosition.x, chunkPosition.z);
-				generated_chunks.enqueue(std::make_shared<Chunk>(*chunkPrimer, chunkPosition));
+				generated_chunks.enqueue(std::make_shared<Chunk>(*this, *chunkPrimer, chunkPosition));
 			}
 			else
 			{

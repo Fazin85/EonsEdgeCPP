@@ -43,6 +43,11 @@ namespace Eon
 		global_float_uniforms[name] = value;
 	}
 
+	void DefaultRenderPipeline::SetGlobalUniform(const std::string& name, int value)
+	{
+		global_int_uniforms[name] = value;
+	}
+
 	void DefaultRenderPipeline::OnShaderBound(Shader& shader)
 	{
 		ApplyGlobalUniforms(shader);
@@ -69,6 +74,11 @@ namespace Eon
 		for (const auto& [name, value] : global_float_uniforms)
 		{
 			shader.UniformFloat(name, value);
+		}
+
+		for (const auto& [name, value] : global_int_uniforms)
+		{
+			shader.UniformInt1(name, value);
 		}
 	}
 

@@ -17,6 +17,7 @@ namespace Eon
 		void SetGlobalUniform(const std::string& name, const glm::mat4& value) override;
 		void SetGlobalUniform(const std::string& name, const glm::vec3& value) override;
 		void SetGlobalUniform(const std::string& name, float value) override;
+		void SetGlobalUniform(const std::string& name, int value) override;
 
 		void OnShaderBound(Shader& shader) override;
 		void OnTextureBound(Texture& texture) override;
@@ -32,5 +33,6 @@ namespace Eon
 		std::unordered_map<std::string, glm::mat4> global_mat4_uniforms;
 		std::unordered_map<std::string, glm::vec3> global_vec3_uniforms;
 		std::unordered_map<std::string, float> global_float_uniforms;
+		std::unordered_map<std::string, int> global_int_uniforms;
 	};
 }

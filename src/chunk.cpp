@@ -1,3 +1,4 @@
+#include "level.h"
 #include "chunk.h"
 #include "log.h"
 
@@ -5,7 +6,8 @@
 
 namespace Eon
 {
-	Chunk::Chunk(const ChunkPrimer& chunkPrimer, ChunkPosition chunkPosition) :
+	Chunk::Chunk(Level& level, const ChunkPrimer& chunkPrimer, ChunkPosition chunkPosition) :
+		level(level),
 		position(chunkPosition),
 		decorated(false),
 		sections(),
@@ -70,7 +72,16 @@ namespace Eon
 		if (x >= CHUNK_WIDTH || z >= CHUNK_WIDTH || y >= CHUNK_HEIGHT || x < 0 ||
 			z < 0 || y < 0)
 		{
-			return BlockRegistry::GetBlockByID(0);
+			if (y < 0)
+			{
+				return BlockRegistry::GetBlockByID(1);
+			}
+			else if (y > CHUNK_HEIGHT - 1)
+			{
+				return BlockRegistry::GetBlockByID(0);
+			}
+
+			return level.GetBlock(glm::ivec3(x + position.x, y, z + position.z));
 		}
 
 		int sy = y >> 4;

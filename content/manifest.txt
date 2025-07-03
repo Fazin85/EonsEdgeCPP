@@ -1,6 +1,9 @@
 #ptcn
 shader:shader.ptcn:content/shaders/vertex/ptcn.vert:content/shaders/fragment/ptcn.frag
 
+#ptcn blinn phong
+shader:shader.ptcn_blinn_phong:content/shaders/vertex/ptcn.vert:content/shaders/fragment/ptcn_blinn_phong.frag
+
 #chunk
 shader:shader.chunk:content/shaders/vertex/Chunk.vert:content/shaders/fragment/Chunk.frag
 

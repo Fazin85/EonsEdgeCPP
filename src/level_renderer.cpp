@@ -92,17 +92,26 @@ namespace Eon
 		SortChunksByDistance(chunks_to_mesh, cameraPosition);
 	}
 
-	void LevelRenderer::Render(RenderPipeline& renderPipeline, RenderCommandPool& commandPool)
+	void LevelRenderer::Render(RenderPipeline& renderPipeline, RenderCommandPool& commandPool, Camera& camera, ChunkPosition playerChunkPosition)
 	{
 		//glClearColor(level.SkyColor().r, level.SkyColor().g, level.SkyColor().b, level.SkyColor().a);
 
 		//glCullFace(GL_BACK);
 		//glEnable(GL_BLEND);
 		//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		Material chunkMaterial{ AssetManager::GetAsset<Texture>("texture.block_atlas").GetID(), AssetManager::GetAsset<Shader>("shader.ptcn").GetID(), TransparencyType::Opaque };
+		Material chunkMaterial{ AssetManager::GetAsset<Texture>("texture.block_atlas").GetID(), AssetManager::GetAsset<Shader>("shader.ptcn_blinn_phong").GetID(), TransparencyType::Opaque };
 
 		for (const auto& [chunkPosition, chunkRenderer] : chunk_renderers)
 		{
+			float distance = glm::distance(glm::vec3(playerChunkPosition.x, 0, playerChunkPosition.z), glm::vec3(chunkPosition.x, 0, chunkPosition.z));
+			const auto& chunk = chunkRenderer->GetChunk();
+
+			if (distance > static_cast<float>(GameSettings.render_distance * CHUNK_WIDTH) ||
+				!camera.GetFrustum().BoxInFrustum(chunk->GetAABB()))
+			{
+				continue;
+			}
+
 			glm::mat4 model = glm::translate(glm::identity<glm::mat4>(), glm::vec3(chunkPosition.x, 0, chunkPosition.z));
 
 			auto& command = commandPool.CreateCommand<MeshRenderCommand>(chunkRenderer->GetOpaqueRenderer(), model, 0.0f, chunkMaterial);

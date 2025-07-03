@@ -1,6 +1,7 @@
 #include "block.h"
 #include "block_texture_provider.h"
 #include "assert.h"
+#include "chunk.h"
 
 namespace Eon
 {
@@ -10,13 +11,15 @@ namespace Eon
 		const std::optional<std::function<std::unique_ptr<BlockEntity>(glm::ivec3)>>& createBlockEntity,
 		bool isCutout,
 		bool translucent,
-		std::function<void(BlockRenderContext&)>& render) :
+		std::function<void(BlockRenderContext&)>& render,
+		bool solid) :
 		id(id),
 		type(type),
 		create_block_entity(std::nullopt),
 		is_cutout(isCutout),
 		translucent(translucent),
-		render(render)
+		render(render),
+		solid(solid)
 	{
 		create_block_entity = createBlockEntity;
 	}
@@ -57,6 +60,11 @@ namespace Eon
 		return translucent;
 	}
 
+	bool Block::Solid() const
+	{
+		return solid;
+	}
+
 	std::vector<ImageID> Block::GetTextures() const
 	{
 		return { AssetManager::GetAssetID<sf::Image>("block.stone") };
@@ -67,7 +75,7 @@ namespace Eon
 		render(renderContext);
 	}
 
-	BlockBuilder::BlockBuilder(const std::string& type, uint8_t& i) : id(i++), type(type), is_cutout(false), translucent(false)
+	BlockBuilder::BlockBuilder(const std::string& type, uint8_t& i) : id(i++), type(type), is_cutout(false), translucent(false), solid(true)
 	{
 	}
 
@@ -101,6 +109,12 @@ namespace Eon
 		return *this;
 	}
 
+	BlockBuilder& BlockBuilder::SetSolid(bool solid)
+	{
+		this->solid = solid;
+		return *this;
+	}
+
 	Block BlockBuilder::Build() const
 	{
 		auto renderFunc = render.value_or(
@@ -109,7 +123,7 @@ namespace Eon
 			)
 		);
 
-		return Block(id, type, create_block_entity, is_cutout, translucent, renderFunc);
+		return Block(id, type, create_block_entity, is_cutout, translucent, renderFunc, solid);
 	}
 
 	void BlockBuilder::RenderBlockDefaultCube(BlockRenderContext& renderContext) const
@@ -153,11 +167,11 @@ namespace Eon
 	BlockRegistry::BlockRegistry() : blocks()
 	{
 		uint8_t id = 0;
-		RegisterBlock(BlockBuilder("Air", id).SetIsCutout().Build());
+		RegisterBlock(BlockBuilder("Air", id).SetIsCutout().SetSolid(false).Build());
 		RegisterBlock(BlockBuilder("Stone", id).Build());
 		RegisterBlock(BlockBuilder("Grass", id).Build());
 		RegisterBlock(BlockBuilder("Dirt", id).Build());
-		RegisterBlock(BlockBuilder("Water", id).SetTranslucent().Build());
+		RegisterBlock(BlockBuilder("Water", id).SetTranslucent().SetSolid(false).Build());
 		RegisterBlock(BlockBuilder("Sand", id).Build());
 		RegisterBlock(BlockBuilder("OakLog", id).Build());
 		RegisterBlock(BlockBuilder("Leaf", id).SetIsCutout().Build());
@@ -218,12 +232,63 @@ namespace Eon
 		return {};
 	}
 
+	std::array<glm::ivec3, 4> GetAOOffsets(Directions dir)
+	{
+		switch (dir)
+		{
+		case Eon::Directions::Front:
+			return std::array<glm::ivec3, 4> {
+				glm::ivec3(-1, -1, 1),
+					glm::ivec3(1, -1, 1),
+					glm::ivec3(1, 1, 1),
+					glm::ivec3(-1, 1, 1)
+			};
+		case Eon::Directions::Back:
+			return std::array<glm::ivec3, 4> {
+				glm::ivec3(1, -1, -1),
+					glm::ivec3(-1, -1, -1),
+					glm::ivec3(-1, 1, -1),
+					glm::ivec3(1, 1, -1)
+			};
+		case Eon::Directions::Left:
+			return std::array<glm::ivec3, 4> {
+				glm::ivec3(-1, -1, -1),
+					glm::ivec3(-1, -1, 1),
+					glm::ivec3(-1, 1, 1),
+					glm::ivec3(-1, 1, -1)
+			};
+		case Eon::Directions::Right:
+			return std::array<glm::ivec3, 4> {
+				glm::ivec3(1, -1, 1),
+					glm::ivec3(1, -1, -1),
+					glm::ivec3(1, 1, -1),
+					glm::ivec3(1, 1, 1)
+			};
+		case Eon::Directions::Top:
+			return std::array<glm::ivec3, 4> {
+				glm::ivec3(-1, 1, 1),
+					glm::ivec3(1, 1, 1),
+					glm::ivec3(1, 1, -1),
+					glm::ivec3(-1, 1, -1)
+			};
+		case Eon::Directions::Bottom:
+			return std::array<glm::ivec3, 4> {
+				glm::ivec3(-1, -1, -1),
+					glm::ivec3(1, -1, -1),
+					glm::ivec3(1, -1, 1),
+					glm::ivec3(-1, -1, 1)
+			};
+		default:
+			return std::array<glm::ivec3, 4> {};
+		}
+	}
+
 	void AddFace(BlockRenderContext& renderContext, Directions direction)
 	{
 		auto uvValue = [](glm::vec4 uvs, int index) constexpr
 			{
 				EON_ASSERT(index >= 0 && index < 4, "Invalid index");
-				
+
 				switch (index)
 				{
 				case 0:
@@ -241,6 +306,38 @@ namespace Eon
 		auto faceData = GetFaceDataFromDirection(direction);
 		//glm::vec4 uvs = renderContext.uvProvider.GetUVs(renderContext.centerBlock, static_cast<int>(direction));
 		glm::vec4 uvs = renderContext.uvProvider.GetUVs(renderContext.centerBlock, 0);
+
+		auto side = [](Directions dir) constexpr
+			{
+				using enum Directions;
+				switch (dir)
+				{
+				case Front:
+				case Back:
+					return 2;
+				case Left:
+				case Right:
+					return 0;
+				case Top:
+				case Bottom:
+					return 1;
+				default:
+					return 0;
+				}
+			};
+
+		std::array<int, 4> aos{};
+		std::array<glm::ivec3, 4> offsets = GetAOOffsets(direction);
+		CalculateAO(
+			renderContext.chunk,
+			renderContext.blockPosition.x,
+			renderContext.blockPosition.y,
+			renderContext.blockPosition.z,
+			offsets,
+			side(direction),
+			aos);
+
+		constexpr static std::array<float, 4> aoMapping{ 1.0f, 0.9f, 0.7f, 0.5f };
 
 		std::array<glm::vec3, 4> faceVertices{};
 		std::array<glm::vec2, 4> faceUVs{};
@@ -261,7 +358,7 @@ namespace Eon
 		{
 			renderContext.meshData.vertexPositions.push_back(faceVertices[i]);
 			renderContext.meshData.uvs.push_back(faceUVs[i]);
-			renderContext.meshData.colors.push_back(glm::vec3(1.0f));
+			renderContext.meshData.colors.push_back(glm::vec3(1.0f) * aoMapping[aos[i]]);
 			renderContext.meshData.normals.push_back(GetNormalFromDirection(direction));
 		}
 
@@ -270,8 +367,65 @@ namespace Eon
 		{
 			renderContext.meshData.vertexPositions.push_back(faceVertices[i]);
 			renderContext.meshData.uvs.push_back(faceUVs[i]);
-			renderContext.meshData.colors.push_back(glm::vec3(1.0f));
+			renderContext.meshData.colors.push_back(glm::vec3(1.0f) * aoMapping[aos[i]]);
 			renderContext.meshData.normals.push_back(GetNormalFromDirection(direction));
+		}
+	}
+
+	int GetAmbientOcclusion(const Block& corner, const Block& side1, const Block& side2)
+	{
+		if (side1.Solid() && side2.Solid())
+		{
+			return 3;
+		}
+		else if (corner.Solid() && (side1.Solid() || side2.Solid()))
+		{
+			return 2;
+		}
+		else if (corner.Solid() || side1.Solid() || side2.Solid())
+		{
+			return 1;
+		}
+		else
+		{
+			return 0;
+		}
+	}
+
+	void CalculateAO(Chunk& chunk, int x, int y, int z, std::array<glm::ivec3, 4>& offsets, int side, std::array<int, 4>& aos)
+	{
+		std::array<const Block*, 4> corner{};
+		std::array<const Block*, 4> side1{};
+		std::array<const Block*, 4> side2{};
+
+		for (int i = 0; i < 4; i++)
+		{
+			glm::ivec3 offset = offsets[i];
+
+			corner[i] = &chunk.GetBlock(x + offset.x, y + offset.y, z + offset.z);
+
+			switch (side)
+			{
+			case 0:
+				side1[i] = &chunk.GetBlock(x + offset.x, y + offset.y, z);
+				side2[i] = &chunk.GetBlock(x + offset.x, y, z + offset.z);
+				break;
+			case 1:
+				side1[i] = &chunk.GetBlock(x + offset.x, y + offset.y, z);
+				side2[i] = &chunk.GetBlock(x, y + offset.y, z + offset.z);
+				break;
+			case 2:
+				side1[i] = &chunk.GetBlock(x + offset.x, y, z + offset.z);
+				side2[i] = &chunk.GetBlock(x, y + offset.y, z + offset.z);
+				break;
+			default:
+				break;
+			}
+		}
+
+		for (int i = 0; i < 4; i++)
+		{
+			aos[i] = GetAmbientOcclusion(*corner[i], *side1[i], *side2[i]);
 		}
 	}
 }

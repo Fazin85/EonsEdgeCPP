@@ -16,7 +16,7 @@ namespace Eon
 		explicit DefaultChunkRendererContainerProvider(Level& level, BlockTextureProvider& uvProvider);
 
 		std::unique_ptr<ChunkRendererContainer> ProvideRenderer(ChunkPosition inChunkPosition) override;
-	private:
+	private:	
 		std::unique_ptr<Mesh> CreateMesh(ChunkMeshConstructionData& meshData);
 
 		int CalculateLowestPoint(const ChunkPosition& position, int middleLowest);
