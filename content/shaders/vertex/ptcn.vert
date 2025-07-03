@@ -19,7 +19,7 @@ void main()
 	pos = (model * vec4(aPos, 1.0f)).xyz;
 	texCoord = aTexCoord;
 	color = aColor;
-	normal = normalize(aNormal);
+	normal = normalize(mat3(transpose(inverse(model))) * aNormal);
 	
     vec4 p = projection * view * model * vec4(aPos, 1.0f);
 	

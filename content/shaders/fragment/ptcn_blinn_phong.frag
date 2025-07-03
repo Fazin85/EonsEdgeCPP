@@ -9,7 +9,6 @@ layout(location = 2) out vec4 gPosition; // w is depth
 uniform sampler2D textureSampler;
 uniform vec3 lightDirection;
 uniform vec3 lightColor;
-uniform vec3 viewPos;
 uniform vec3 objectColor;
 uniform float shininess;
 
@@ -21,7 +20,7 @@ in vec3 normal;
 void main()
 {
 	vec4 tex = texture(textureSampler, texCoord);
-	vec3 blinnPhong = blinnPhongDirectional(lightDirection, lightColor, viewPos, pos, normal, objectColor, shininess);
+	vec3 blinnPhong = blinnPhongDirectional(lightDirection, lightColor, pos, normal, objectColor, shininess);
 	tex.rgb *= color;
 	tex.rgb *= blinnPhong;
 	

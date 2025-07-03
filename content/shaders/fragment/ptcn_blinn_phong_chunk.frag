@@ -14,7 +14,6 @@ uniform sampler2D textureSampler;
 uniform sampler2D blockIDSampler;
 uniform vec3 lightDirection;
 uniform vec3 lightColor;
-uniform vec3 viewPos;
 uniform vec3 objectColor;
 
 in vec3 pos;
@@ -33,7 +32,7 @@ void main()
 	
 	float shininess = getBlockShininess(blockID);
 
-	vec3 blinnPhong = blinnPhongDirectional(lightDirection, lightColor, viewPos, pos, normal, objectColor, shininess);
+	vec3 blinnPhong = blinnPhongDirectional(lightDirection, lightColor, pos, normal, objectColor, shininess);
 	tex.rgb *= color;
 	tex.rgb *= blinnPhong;
 	

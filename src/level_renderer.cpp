@@ -112,17 +112,14 @@ namespace Eon
 		//glEnable(GL_BLEND);
 		//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		Material chunkMaterial{ AssetManager::GetAsset<Texture>("texture.block_atlas").GetID(), AssetManager::GetAsset<Shader>("shader.ptcn_blinn_phong_chunk").GetID(), TransparencyType::Opaque };
-
 		auto blockIDTexture = AssetManager::GetAsset<Texture>("texture.block_id_atlas");
-		//blockIDTexture->Bind(1);
-		//ssbo.Bind(0);
 
 		for (const auto& [chunkPosition, chunkRenderer] : chunk_renderers)
 		{
 			AABB aabb = chunkRenderer->GetChunk()->GetAABB();
 			aabb.position -= cameraPosition;
 
-			if (glm::distance(glm::dvec3(chunkPosition.x, 0.0f, chunkPosition.z), glm::dvec3(chunkPosition.x, 0, chunkPosition.z)) > static_cast<float>(GameSettings.render_distance * CHUNK_WIDTH) ||
+			if (glm::distance(glm::dvec3(chunkPosition.x, 0.0, chunkPosition.z), glm::dvec3(chunkPosition.x, 0, chunkPosition.z)) > static_cast<float>(GameSettings.render_distance * CHUNK_WIDTH) ||
 				!camera.GetFrustum().BoxInFrustum(aabb))
 			{
 				continue;
