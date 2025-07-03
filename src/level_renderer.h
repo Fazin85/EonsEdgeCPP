@@ -11,6 +11,7 @@
 #include "chunk_unloaded_event_listener.h"
 #include "renderer/render_pipeline.h"
 #include "renderer/render_command_pool.h"
+#include "ssbo.h"
 #include <array>
 #include <map>
 #include <memory>
@@ -46,6 +47,7 @@ namespace Eon
 		std::vector<ChunkPosition> chunks_to_mesh;
 		std::unique_ptr<ChunkRendererContainerProvider> chunk_renderer_container_provider;
 		Level& level;
+		SSBO ssbo;
 		std::unordered_map<ChunkPosition, std::unique_ptr<ChunkRendererContainer>> chunk_renderers;
 	};
 }  // namespace Eon

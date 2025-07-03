@@ -13,5 +13,6 @@ namespace Eon
 		virtual ~BlockTextureProvider() = default;
 		virtual glm::vec4 GetUVs(const Block& block, int index) const = 0;
 		virtual TextureID GetBlockAtlas() const = 0;
+		virtual TextureID GetBlockIDAtlas() const = 0;
 	};
 }

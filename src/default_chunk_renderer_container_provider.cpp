@@ -45,10 +45,10 @@ namespace Eon
 
 					const Block& topBlock = y < CHUNK_HEIGHT - 1 ? chunk->GetBlock(x, y + 1, z) : BlockRegistry::GetBlockByID(0);
 					const Block& bottomBlock = y > 0 ? chunk->GetBlock(x, y - 1, z) : BlockRegistry::GetBlockByID(1);
-					const Block& leftBlock = x > 0 ? chunk->GetBlock(x - 1, y, z) : level.GetBlock(chunkPosition + glm::ivec3(x - 1, y, z));
-					const Block& rightBlock = x < CHUNK_WIDTH - 1 ? chunk->GetBlock(x + 1, y, z) : level.GetBlock(chunkPosition + glm::ivec3(x + 1, y, z));
-					const Block& frontBlock = z > 0 ? chunk->GetBlock(x, y, z + 1) : level.GetBlock(chunkPosition + glm::ivec3(x, y, z + 1));
-					const Block& backBlock = z < CHUNK_WIDTH - 1 ? chunk->GetBlock(x, y, z - 1) : level.GetBlock(chunkPosition + glm::ivec3(x, y, z - 1));
+					const Block& leftBlock = chunk->GetBlock(x - 1, y, z);
+					const Block& rightBlock = chunk->GetBlock(x + 1, y, z);
+					const Block& frontBlock = chunk->GetBlock(x, y, z + 1);
+					const Block& backBlock = chunk->GetBlock(x, y, z - 1);
 
 					auto& currentMeshData = GetMeshData(block, opaqueMeshData, cutoutMeshData, translucentMeshData);
 

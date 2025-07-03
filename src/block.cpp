@@ -12,14 +12,16 @@ namespace Eon
 		bool isCutout,
 		bool translucent,
 		std::function<void(BlockRenderContext&)>& render,
-		bool solid) :
+		bool solid,
+		float shininess) :
 		id(id),
 		type(type),
 		create_block_entity(std::nullopt),
 		is_cutout(isCutout),
 		translucent(translucent),
 		render(render),
-		solid(solid)
+		solid(solid),
+		shininess(shininess)
 	{
 		create_block_entity = createBlockEntity;
 	}
@@ -75,7 +77,12 @@ namespace Eon
 		render(renderContext);
 	}
 
-	BlockBuilder::BlockBuilder(const std::string& type, uint8_t& i) : id(i++), type(type), is_cutout(false), translucent(false), solid(true)
+	float Block::GetShininess() const
+	{
+		return shininess;
+	}
+
+	BlockBuilder::BlockBuilder(const std::string& type, uint8_t& i) : id(i++), type(type), is_cutout(false), translucent(false), solid(true), shininess(4.0f)
 	{
 	}
 
@@ -115,6 +122,12 @@ namespace Eon
 		return *this;
 	}
 
+	BlockBuilder& BlockBuilder::SetShininess(float shininess)
+	{
+		this->shininess = shininess;
+		return *this;
+	}
+
 	Block BlockBuilder::Build() const
 	{
 		auto renderFunc = render.value_or(
@@ -123,7 +136,7 @@ namespace Eon
 			)
 		);
 
-		return Block(id, type, create_block_entity, is_cutout, translucent, renderFunc, solid);
+		return Block(id, type, create_block_entity, is_cutout, translucent, renderFunc, solid, shininess);
 	}
 
 	void BlockBuilder::RenderBlockDefaultCube(BlockRenderContext& renderContext) const
@@ -211,78 +224,6 @@ namespace Eon
 		blocks[block.GetID()] = ptr;
 	}
 
-	std::array<unsigned char, 12> GetFaceDataFromDirection(Directions dir)
-	{
-		switch (dir)
-		{
-		case Directions::Front:
-			return std::array<unsigned char, 12>({ 0, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1 });
-		case Directions::Back:
-			return std::array<unsigned char, 12>({ 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0 });
-		case Directions::Left:
-			return std::array<unsigned char, 12>({ 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0 });
-		case Directions::Right:
-			return std::array<unsigned char, 12>({ 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 1, 1 });
-		case Directions::Top:
-			return std::array<unsigned char, 12>({ 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0 });
-		case Directions::Bottom:
-			return std::array<unsigned char, 12>({ 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1 });
-		}
-
-		return {};
-	}
-
-	std::array<glm::ivec3, 4> GetAOOffsets(Directions dir)
-	{
-		switch (dir)
-		{
-		case Eon::Directions::Front:
-			return std::array<glm::ivec3, 4> {
-				glm::ivec3(-1, -1, 1),
-					glm::ivec3(1, -1, 1),
-					glm::ivec3(1, 1, 1),
-					glm::ivec3(-1, 1, 1)
-			};
-		case Eon::Directions::Back:
-			return std::array<glm::ivec3, 4> {
-				glm::ivec3(1, -1, -1),
-					glm::ivec3(-1, -1, -1),
-					glm::ivec3(-1, 1, -1),
-					glm::ivec3(1, 1, -1)
-			};
-		case Eon::Directions::Left:
-			return std::array<glm::ivec3, 4> {
-				glm::ivec3(-1, -1, -1),
-					glm::ivec3(-1, -1, 1),
-					glm::ivec3(-1, 1, 1),
-					glm::ivec3(-1, 1, -1)
-			};
-		case Eon::Directions::Right:
-			return std::array<glm::ivec3, 4> {
-				glm::ivec3(1, -1, 1),
-					glm::ivec3(1, -1, -1),
-					glm::ivec3(1, 1, -1),
-					glm::ivec3(1, 1, 1)
-			};
-		case Eon::Directions::Top:
-			return std::array<glm::ivec3, 4> {
-				glm::ivec3(-1, 1, 1),
-					glm::ivec3(1, 1, 1),
-					glm::ivec3(1, 1, -1),
-					glm::ivec3(-1, 1, -1)
-			};
-		case Eon::Directions::Bottom:
-			return std::array<glm::ivec3, 4> {
-				glm::ivec3(-1, -1, -1),
-					glm::ivec3(1, -1, -1),
-					glm::ivec3(1, -1, 1),
-					glm::ivec3(-1, -1, 1)
-			};
-		default:
-			return std::array<glm::ivec3, 4> {};
-		}
-	}
-
 	void AddFace(BlockRenderContext& renderContext, Directions direction)
 	{
 		auto uvValue = [](glm::vec4 uvs, int index) constexpr
@@ -322,7 +263,7 @@ namespace Eon
 				case Bottom:
 					return 1;
 				default:
-					return 0;
+					return -1;
 				}
 			};
 
@@ -353,7 +294,7 @@ namespace Eon
 			faceUVs[i] = uvValue(uvs, i);
 		}
 
-		// Add first triangle (0, 1, 2)
+		// first triangle
 		for (int i : {0, 1, 2})
 		{
 			renderContext.meshData.vertexPositions.push_back(faceVertices[i]);
@@ -362,7 +303,7 @@ namespace Eon
 			renderContext.meshData.normals.push_back(GetNormalFromDirection(direction));
 		}
 
-		// Add second triangle (0, 2, 3)  
+		// second triangle
 		for (int i : {0, 2, 3})
 		{
 			renderContext.meshData.vertexPositions.push_back(faceVertices[i]);

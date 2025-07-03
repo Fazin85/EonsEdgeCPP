@@ -44,6 +44,18 @@ namespace Eon
 		imageNames.emplace_back("GravelBlock.png");
 
 		chunk_texture = std::make_unique<TextureArray>(imageNames, 16, 16);*/
+		const auto& blocks = BlockRegistry::GetBlocks();
+		const size_t blockCount = BlockRegistry::LoadedBlockCount();
+		using bufferType = glm::vec4;
+
+		ssbo.Create(blockCount * sizeof(bufferType), GL_DYNAMIC_DRAW);
+		for (int i = 0; i < blockCount; i++)
+		{
+			float shininess = blocks[i]->GetShininess();
+			bufferType value{};
+			value.x = shininess;
+			ssbo.UploadRaw(&value, sizeof(bufferType), i * sizeof(bufferType));
+		}
 	}
 
 	LevelRenderer::~LevelRenderer()
@@ -99,7 +111,11 @@ namespace Eon
 		//glCullFace(GL_BACK);
 		//glEnable(GL_BLEND);
 		//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		Material chunkMaterial{ AssetManager::GetAsset<Texture>("texture.block_atlas").GetID(), AssetManager::GetAsset<Shader>("shader.ptcn_blinn_phong").GetID(), TransparencyType::Opaque };
+		Material chunkMaterial{ AssetManager::GetAsset<Texture>("texture.block_atlas").GetID(), AssetManager::GetAsset<Shader>("shader.ptcn_blinn_phong_chunk").GetID(), TransparencyType::Opaque };
+
+		auto blockIDTexture = AssetManager::GetAsset<Texture>("texture.block_id_atlas");
+		blockIDTexture->Bind(1);
+		ssbo.Bind(0);
 
 		for (const auto& [chunkPosition, chunkRenderer] : chunk_renderers)
 		{

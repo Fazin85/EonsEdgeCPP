@@ -35,8 +35,78 @@ namespace Eon
 		const BlockTextureProvider& uvProvider;
 	};
 
-	std::array<unsigned char, 12> GetFaceDataFromDirection(Directions dir);
-	std::array<glm::ivec3, 4> GetAOOffsets(Directions dir);
+	constexpr std::array<unsigned char, 12> GetFaceDataFromDirection(Directions dir)
+	{
+		switch (dir)
+		{
+		case Directions::Front:
+			return std::array<unsigned char, 12>({ 0, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1 });
+		case Directions::Back:
+			return std::array<unsigned char, 12>({ 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0 });
+		case Directions::Left:
+			return std::array<unsigned char, 12>({ 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0 });
+		case Directions::Right:
+			return std::array<unsigned char, 12>({ 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 1, 1 });
+		case Directions::Top:
+			return std::array<unsigned char, 12>({ 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0 });
+		case Directions::Bottom:
+			return std::array<unsigned char, 12>({ 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1 });
+		}
+
+		return {};
+	}
+
+	constexpr std::array<glm::ivec3, 4> GetAOOffsets(Directions dir)
+	{
+		switch (dir)
+		{
+		case Eon::Directions::Front:
+			return std::array<glm::ivec3, 4> {
+				glm::ivec3(-1, -1, 1),
+					glm::ivec3(1, -1, 1),
+					glm::ivec3(1, 1, 1),
+					glm::ivec3(-1, 1, 1)
+			};
+		case Eon::Directions::Back:
+			return std::array<glm::ivec3, 4> {
+				glm::ivec3(1, -1, -1),
+					glm::ivec3(-1, -1, -1),
+					glm::ivec3(-1, 1, -1),
+					glm::ivec3(1, 1, -1)
+			};
+		case Eon::Directions::Left:
+			return std::array<glm::ivec3, 4> {
+				glm::ivec3(-1, -1, -1),
+					glm::ivec3(-1, -1, 1),
+					glm::ivec3(-1, 1, 1),
+					glm::ivec3(-1, 1, -1)
+			};
+		case Eon::Directions::Right:
+			return std::array<glm::ivec3, 4> {
+				glm::ivec3(1, -1, 1),
+					glm::ivec3(1, -1, -1),
+					glm::ivec3(1, 1, -1),
+					glm::ivec3(1, 1, 1)
+			};
+		case Eon::Directions::Top:
+			return std::array<glm::ivec3, 4> {
+				glm::ivec3(-1, 1, 1),
+					glm::ivec3(1, 1, 1),
+					glm::ivec3(1, 1, -1),
+					glm::ivec3(-1, 1, -1)
+			};
+		case Eon::Directions::Bottom:
+			return std::array<glm::ivec3, 4> {
+				glm::ivec3(-1, -1, -1),
+					glm::ivec3(1, -1, -1),
+					glm::ivec3(1, -1, 1),
+					glm::ivec3(-1, -1, 1)
+			};
+		default:
+			return std::array<glm::ivec3, 4> {};
+		}
+	}
+
 	void AddFace(BlockRenderContext& renderContext, Directions direction);
 	int GetAmbientOcclusion(const Block& corner, const Block& side1, const Block& side2);
 	void CalculateAO(Chunk& chunk, int x, int y, int z, std::array<glm::ivec3, 4>& offsets, int side, std::array<int, 4>& aos);
@@ -52,7 +122,8 @@ namespace Eon
 			bool translucent,
 			std::function<void(
 				BlockRenderContext&)>& render,
-			bool solid);
+			bool solid,
+			float shininess);
 
 		bool operator==(const Block& other) const;
 
@@ -65,7 +136,7 @@ namespace Eon
 		bool Solid() const;
 		std::vector<ImageID> GetTextures() const;
 		void Render(BlockRenderContext& renderContext) const;
-
+		float GetShininess() const;
 
 	private:
 		uint8_t id;
@@ -76,6 +147,7 @@ namespace Eon
 		bool is_cutout;
 		bool translucent;
 		bool solid;
+		float shininess;
 	};
 
 	class BlockBuilder
@@ -88,6 +160,7 @@ namespace Eon
 		BlockBuilder& SetTranslucent();
 		BlockBuilder& SetRender(std::function<void(BlockRenderContext&)>& render);
 		BlockBuilder& SetSolid(bool solid);
+		BlockBuilder& SetShininess(float shininess);
 		Block Build() const;
 
 	private:
@@ -99,6 +172,7 @@ namespace Eon
 		bool is_cutout;
 		bool translucent;
 		bool solid;
+		float shininess;
 		std::optional<std::function<void(BlockRenderContext&)>> render;
 	};
 

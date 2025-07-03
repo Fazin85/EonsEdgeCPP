@@ -180,8 +180,7 @@ namespace Eon
 
 		level->SkyColor() = glm::vec4(153.0f / 255.0f, 204.0f / 255.0f, 1.0f, 1.0f);
 
-		TextureAtlasStitcher stitcher;
-		DefaultBlockTextureProvider* textureProvider = new DefaultBlockTextureProvider(stitcher);
+		DefaultBlockTextureProvider* textureProvider = new DefaultBlockTextureProvider();
 		level_renderer = std::make_unique<LevelRenderer>(*level, std::make_unique<DefaultChunkRendererContainerProvider>(*level, *textureProvider));
 
 		level->AddChunkUnloadedEventListener(*level_renderer);
@@ -198,7 +197,6 @@ namespace Eon
 			"skybox/back.png",
 			"skybox/right.png"
 		};
-
 
 		skybox = std::make_unique<Skybox>(facesCubemap);
 
@@ -284,6 +282,7 @@ namespace Eon
 		render_pipeline->SetGlobalUniform("viewPos", player->Position());
 		render_pipeline->SetGlobalUniform("objectColor", glm::vec3(1.0f, 1.0f, 1.0f));
 		render_pipeline->SetGlobalUniform("shininess", 16.0f);
+		render_pipeline->SetGlobalUniform("blockIDSampler", 1);
 
 		level_renderer->Render(*render_pipeline, *command_pool, player->GetCamera(), ChunkPosition(static_cast<int>(player->Position().x), static_cast<int>(player->Position().z)));
 
