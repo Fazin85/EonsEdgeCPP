@@ -152,7 +152,7 @@ namespace Eon
 		return *quad_mesh;
 	}
 
-	void GuiElement::DrawRect(
+	void GuiElement::DrawTexturedRect(
 		RenderPipeline& renderPipeline,
 		RenderCommandPool& commandPool,
 		float x,
@@ -167,6 +167,28 @@ namespace Eon
 		model = glm::scale(model, glm::vec3(width, height, 1.0f));
 
 		auto& renderCommand = commandPool.CreateCommand<MeshRenderCommand>(GetQuadMesh(), model, 0.0f, material);
+
+		renderPipeline.Submit(renderCommand);
+	}
+
+	void GuiElement::DrawColoredRect(
+		RenderPipeline& renderPipeline,
+		RenderCommandPool& commandPool,
+		float x,
+		float y,
+		float width,
+		float height,
+		Material& material,
+		float r,
+		float g,
+		float b)
+	{
+		auto model = glm::mat4(1.0f);
+
+		model = glm::translate(model, glm::vec3(x, y, 0.0f));
+		model = glm::scale(model, glm::vec3(width, height, 1.0f));
+
+		auto& renderCommand = commandPool.CreateCommand<MeshRenderCommandColored>(GetQuadMesh(), model, 0.0f, material, r, g, b);
 
 		renderPipeline.Submit(renderCommand);
 	}

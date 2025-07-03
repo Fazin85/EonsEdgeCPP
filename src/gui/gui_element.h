@@ -40,7 +40,7 @@ namespace Eon
 		static Mesh& GetQuadMesh();
 
 	protected:
-		static void DrawRect(
+		static void DrawTexturedRect(
 			RenderPipeline& renderPipeline,
 			RenderCommandPool& commandPool,
 			float x,
@@ -48,6 +48,18 @@ namespace Eon
 			float width,
 			float height,
 			Material& material);
+
+		static void DrawColoredRect(
+			RenderPipeline& renderPipeline,
+			RenderCommandPool& commandPool,
+			float x,
+			float y,
+			float width,
+			float height,
+			Material& material,
+			float r,
+			float g,
+			float b);
 
 	private:
 		static std::unique_ptr<Mesh> quad_mesh;

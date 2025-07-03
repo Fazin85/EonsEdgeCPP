@@ -192,10 +192,13 @@
     <ClCompile Include="src\gui\gui_element.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\gui\gui_panel.cpp">
+    <ClCompile Include="src\gui\gui_panel_colored.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\gui\scaled_resolution.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\renderer\command\mesh_render_command_colored.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -428,10 +431,13 @@
     <ClInclude Include="src\gui\gui_element.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\gui\gui_panel.h">
+    <ClInclude Include="src\gui\gui_panel_colored.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\gui\scaled_resolution.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\renderer\command\mesh_render_command_colored.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

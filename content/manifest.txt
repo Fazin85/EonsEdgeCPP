@@ -31,6 +31,6 @@ image:block.log.side:content/images/OakLogSide.png
 image:block.leaf:content/images/LeafBlock.png
 image:block.gravel:content/images/GravelBlock.png
 
-
+texture:texture.white_dot:content/images/white_dot.png
 
 texture:texture.test:content/images/Test.png

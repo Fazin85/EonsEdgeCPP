@@ -164,7 +164,7 @@
     <ClCompile Include="src\chunk.cpp" />
     <ClCompile Include="src\file_util.cpp" />
     <ClCompile Include="src\gui\gui_element.cpp" />
-    <ClCompile Include="src\gui\gui_panel.cpp" />
+    <ClCompile Include="src\gui\gui_panel_colored.cpp" />
     <ClCompile Include="src\gui\scaled_resolution.cpp" />
     <ClCompile Include="src\imgui_impl_opengl3.cpp" />
     <ClCompile Include="src\imgui_manager.cpp" />
@@ -182,6 +182,7 @@
     <ClCompile Include="src\player.cpp" />
     <ClCompile Include="src\renderer\batched_render_pass.cpp" />
     <ClCompile Include="src\renderer\command\chunk_mesh_render_command.cpp" />
+    <ClCompile Include="src\renderer\command\mesh_render_command_colored.cpp" />
     <ClCompile Include="src\renderer\command\render_command_variant.cpp" />
     <ClCompile Include="src\renderer\default\default_render_pipeline.cpp" />
     <ClCompile Include="src\renderer\default\opaque_render_pass.cpp" />
@@ -228,7 +229,7 @@
     <ClInclude Include="src\framebuffer.h" />
     <ClInclude Include="src\gl_error_check.h" />
     <ClInclude Include="src\gui\gui_element.h" />
-    <ClInclude Include="src\gui\gui_panel.h" />
+    <ClInclude Include="src\gui\gui_panel_colored.h" />
     <ClInclude Include="src\gui\scaled_resolution.h" />
     <ClInclude Include="src\imgui_impl_opengl3.h" />
     <ClInclude Include="src\imgui_impl_opengl3_loader.h" />
@@ -242,6 +243,7 @@
     <ClInclude Include="src\plane_mesh.h" />
     <ClInclude Include="src\renderer\batched_render_pass.h" />
     <ClInclude Include="src\renderer\command\chunk_mesh_render_command.h" />
+    <ClInclude Include="src\renderer\command\mesh_render_command_colored.h" />
     <ClInclude Include="src\renderer\command\render_command_variant.h" />
     <ClInclude Include="src\renderer\default\default_render_pipeline.h" />
     <ClInclude Include="src\renderer\default\opaque_render_pass.h" />
