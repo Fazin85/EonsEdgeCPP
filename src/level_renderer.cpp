@@ -81,11 +81,11 @@ namespace Eon
 		std::erase(chunks_to_mesh, chunkPosition);
 	}
 
-	void LevelRenderer::Update(const Frustum& frustum, glm::vec3 cameraPosition)
+	void LevelRenderer::Update(const Frustum& frustum, glm::dvec3 cameraPosition)
 	{
 		ProcessSingleChunkMesh();
 
-		auto playerChunkPosition = glm::vec3((static_cast<int>(cameraPosition.x) >> CHUNK_BITSHIFT_AMOUNT) * CHUNK_WIDTH, 0, (static_cast<int>(cameraPosition.z) >> CHUNK_BITSHIFT_AMOUNT) * CHUNK_WIDTH);
+		auto playerChunkPosition = glm::dvec3((static_cast<int>(cameraPosition.x) >> CHUNK_BITSHIFT_AMOUNT) * CHUNK_WIDTH, 0, (static_cast<int>(cameraPosition.z) >> CHUNK_BITSHIFT_AMOUNT) * CHUNK_WIDTH);
 
 		for (int cx = static_cast<int>(playerChunkPosition.x) - (CHUNK_WIDTH * GameSettings.render_distance); cx <= static_cast<int>(playerChunkPosition.x) + (CHUNK_WIDTH * GameSettings.render_distance); cx += CHUNK_WIDTH)
 		{
@@ -104,7 +104,7 @@ namespace Eon
 		SortChunksByDistance(chunks_to_mesh, cameraPosition);
 	}
 
-	void LevelRenderer::Render(RenderPipeline& renderPipeline, RenderCommandPool& commandPool, Camera& camera, ChunkPosition playerChunkPosition)
+	void LevelRenderer::Render(RenderPipeline& renderPipeline, RenderCommandPool& commandPool, Camera& camera, glm::dvec3 cameraPosition)
 	{
 		//glClearColor(level.SkyColor().r, level.SkyColor().g, level.SkyColor().b, level.SkyColor().a);
 
@@ -114,25 +114,32 @@ namespace Eon
 		Material chunkMaterial{ AssetManager::GetAsset<Texture>("texture.block_atlas").GetID(), AssetManager::GetAsset<Shader>("shader.ptcn_blinn_phong_chunk").GetID(), TransparencyType::Opaque };
 
 		auto blockIDTexture = AssetManager::GetAsset<Texture>("texture.block_id_atlas");
-		blockIDTexture->Bind(1);
-		ssbo.Bind(0);
+		//blockIDTexture->Bind(1);
+		//ssbo.Bind(0);
 
 		for (const auto& [chunkPosition, chunkRenderer] : chunk_renderers)
 		{
-			float distance = glm::distance(glm::vec3(playerChunkPosition.x, 0, playerChunkPosition.z), glm::vec3(chunkPosition.x, 0, chunkPosition.z));
-			const auto& chunk = chunkRenderer->GetChunk();
+			AABB aabb = chunkRenderer->GetChunk()->GetAABB();
+			aabb.position -= cameraPosition;
 
-			if (distance > static_cast<float>(GameSettings.render_distance * CHUNK_WIDTH) ||
-				!camera.GetFrustum().BoxInFrustum(chunk->GetAABB()))
+			if (glm::distance(glm::dvec3(chunkPosition.x, 0.0f, chunkPosition.z), glm::dvec3(chunkPosition.x, 0, chunkPosition.z)) > static_cast<float>(GameSettings.render_distance * CHUNK_WIDTH) ||
+				!camera.GetFrustum().BoxInFrustum(aabb))
 			{
 				continue;
 			}
 
-			glm::mat4 model = glm::translate(glm::identity<glm::mat4>(), glm::vec3(chunkPosition.x, 0, chunkPosition.z));
+			glm::dvec3 renderChunkPosition = glm::dvec3(chunkPosition.x, 0, chunkPosition.z) - cameraPosition;
+			glm::mat4 model = glm::translate(glm::identity<glm::mat4>(), glm::vec3
+			(
+				static_cast<float>(renderChunkPosition.x),
+				static_cast<float>(renderChunkPosition.y),
+				static_cast<float>(renderChunkPosition.z)
+			));
 
-			auto& command = commandPool.CreateCommand<MeshRenderCommand>(chunkRenderer->GetOpaqueRenderer(), model, 0.0f, chunkMaterial);
+			auto& command = commandPool.CreateCommand<ChunkMeshRenderCommand>(chunkRenderer->GetOpaqueRenderer(), model, 0.0f, chunkMaterial, ssbo, blockIDTexture.GetID());
 			renderPipeline.Submit(command);
 		}
+
 		/*chunk_texture->Bind();
 
 		auto chunk_shader = AssetManager::GetAsset<Shader>("shader.chunk");
@@ -277,22 +284,22 @@ namespace Eon
 		}
 	}
 
-	void LevelRenderer::SortRenderersByDistance(std::vector<std::pair<ChunkRendererContainer*, float>>& renderers, glm::vec3 cameraPosition) const
+	void LevelRenderer::SortRenderersByDistance(std::vector<std::pair<ChunkRendererContainer*, float>>& renderers, glm::dvec3 cameraPosition) const
 	{
 		std::ranges::sort(renderers, [cameraPosition](std::pair<ChunkRendererContainer*, float> first, std::pair<ChunkRendererContainer*, float> second)
 			{
 				ChunkPosition firstPosition = first.first->GetChunk()->Position();
 				ChunkPosition secondPosition = second.first->GetChunk()->Position();
 
-				return glm::distance(cameraPosition, glm::vec3(firstPosition.x, 0, firstPosition.z)) > glm::distance(cameraPosition, glm::vec3(secondPosition.x, 0, secondPosition.z));
+				return glm::distance(cameraPosition, glm::dvec3(firstPosition.x, 0, firstPosition.z)) > glm::distance(cameraPosition, glm::dvec3(secondPosition.x, 0, secondPosition.z));
 			});
 	}
 
-	void LevelRenderer::SortChunksByDistance(std::vector<ChunkPosition>& chunks, glm::vec3 cameraPosition) const
+	void LevelRenderer::SortChunksByDistance(std::vector<ChunkPosition>& chunks, glm::dvec3 cameraPosition) const
 	{
 		std::ranges::sort(chunks, [cameraPosition](const ChunkPosition& first, const ChunkPosition& second)
 			{
-				return glm::distance(cameraPosition, glm::vec3(first.x, 0, first.z)) < glm::distance(cameraPosition, glm::vec3(second.x, 0, second.z));
+				return glm::distance(cameraPosition, glm::dvec3(first.x, 0, first.z)) < glm::distance(cameraPosition, glm::dvec3(second.x, 0, second.z));
 			});
 	}
 

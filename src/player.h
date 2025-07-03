@@ -17,18 +17,18 @@ namespace Eon
 	class Player
 	{
 	public:
-		Player(Level* level);
+		explicit Player(Level* level);
 		void Update(float dt);
 		Camera& GetCamera();
-		glm::vec3 Position() const;
+		glm::dvec3 Position() const;
 
 	private:
-		void Move(glm::vec3 amount);
+		void Move(glm::dvec3 amount);
 		void Jump(float dt);
 
-		glm::vec3 position;
-		glm::vec3 acceleration;
-		glm::vec3 velocity;
+		glm::dvec3 position;
+		glm::dvec3 acceleration;
+		glm::dvec3 velocity;
 		Level* level;
 		BoundingBox bb;
 		bool on_ground;

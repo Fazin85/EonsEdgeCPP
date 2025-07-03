@@ -2,69 +2,69 @@
 
 namespace Eon
 {
-	BoundingBox::BoundingBox(glm::vec3 min, glm::vec3 max)
+	BoundingBox::BoundingBox(glm::dvec3 min, glm::dvec3 max)
 	{
 		this->min = min;
 		this->max = max;
 	}
 
-	bool BoundingBox::InBounds3(glm::vec3 position) const
+	bool BoundingBox::InBounds3(glm::dvec3 position) const
 	{
 		return position.x < max.x && position.x >= min.x && position.y < max.y && position.y >= min.y && position.z < max.z && position.z >= min.z;
 	}
 
-	bool BoundingBox::InBounds2(glm::vec2 position) const
+	bool BoundingBox::InBounds2(glm::dvec2 position) const
 	{
-		return InBounds3(glm::vec3(position.x, min.y, position.y));
+		return InBounds3(glm::dvec3(position.x, min.y, position.y));
 	}
 
-	BoundingBox BoundingBox::Expand(glm::vec3 amount) const
+	BoundingBox BoundingBox::Expand(glm::dvec3 amount) const
 	{
-		float x0 = min.x;
-		float y0 = min.y;
-		float z0 = min.z;
-		float x1 = max.x;
-		float y1 = max.y;
-		float z1 = max.z;
+		double x0 = min.x;
+		double y0 = min.y;
+		double z0 = min.z;
+		double x1 = max.x;
+		double y1 = max.y;
+		double z1 = max.z;
 
-		if (amount.x < 0.0f)
+		if (amount.x < 0.0)
 		{
 			x0 += amount.x;
 		}
-		else if (amount.x < 0.0f)
+		else if (amount.x < 0.0)
 		{
 			x1 += amount.x;
 		}
 
-		if (amount.y < 0.0f)
+		if (amount.y < 0.0)
 		{
 			y0 += amount.y;
 		}
-		else if (amount.y > 0.0f)
+		else if (amount.y > 0.0)
 		{
 			y1 += amount.y;
 		}
 
-		if (amount.z < 0.0f)
+		if (amount.z < 0.0)
 		{
 			z0 += amount.z;
 		}
-		else if (amount.z > 0.0f)
+		else if (amount.z > 0.0)
 		{
 			z1 += amount.z;
 		}
 
-		return BoundingBox(glm::vec3(x0, y0, z0), glm::vec3(x1, y1, z1));
+		return BoundingBox(glm::dvec3(x0, y0, z0), glm::dvec3(x1, y1, z1));
 	}
 
-	float BoundingBox::ClipCollideX(BoundingBox& bb, float xv) const
+	double BoundingBox::ClipCollideX(BoundingBox& bb, double xv) const
 	{
 		if (bb.max.y > min.y && bb.min.y < max.y)
 		{
 			if (bb.max.z > min.z && bb.min.z < max.z)
 			{
-				float max;
-				if (xv > 0.0f && bb.max.x <= min.x)
+				double max;
+				if (xv > 0.0 && bb.max.x <= min.x)
 				{
 					max = min.x - bb.max.x;
 					if (max < xv)
@@ -73,7 +73,7 @@ namespace Eon
 					}
 				}
 
-				if (xv < 0.0f && bb.min.x >= this->max.x)
+				if (xv < 0.0 && bb.min.x >= this->max.x)
 				{
 					max = this->max.x - bb.min.x;
 					if (max > xv)
@@ -87,14 +87,14 @@ namespace Eon
 		return xv;
 	}
 
-	float BoundingBox::ClipCollideY(BoundingBox& bb, float yv) const
+	double BoundingBox::ClipCollideY(BoundingBox& bb, double yv) const
 	{
 		if (bb.max.x > min.x && bb.min.x < max.x)
 		{
 			if (bb.max.z > min.z && bb.min.z < max.z)
 			{
-				float max;
-				if (yv > 0.0f && bb.max.y <= min.y)
+				double max;
+				if (yv > 0.0 && bb.max.y <= min.y)
 				{
 					max = min.y - bb.max.y;
 					if (max < yv)
@@ -103,7 +103,7 @@ namespace Eon
 					}
 				}
 
-				if (yv < 0.0f && bb.min.y >= this->max.y)
+				if (yv < 0.0 && bb.min.y >= this->max.y)
 				{
 					max = this->max.y - bb.min.y;
 					if (max > yv)
@@ -117,14 +117,14 @@ namespace Eon
 		return yv;
 	}
 
-	float BoundingBox::ClipCollideZ(BoundingBox& bb, float zv) const
+	double BoundingBox::ClipCollideZ(BoundingBox& bb, double zv) const
 	{
 		if (bb.max.x > min.x && bb.min.x < max.x)
 		{
 			if (bb.max.y > min.y && bb.min.y < max.y)
 			{
-				float max;
-				if (zv > 0.0f && bb.max.z <= min.z)
+				double max;
+				if (zv > 0.0 && bb.max.z <= min.z)
 				{
 					max = min.z - bb.max.z;
 					if (max < zv)
@@ -133,7 +133,7 @@ namespace Eon
 					}
 				}
 
-				if (zv < 0.0f && bb.min.z >= this->max.z)
+				if (zv < 0.0 && bb.min.z >= this->max.z)
 				{
 					max = this->max.z - bb.min.z;
 					if (max > zv)
@@ -147,7 +147,7 @@ namespace Eon
 		return zv;
 	}
 
-	void BoundingBox::Move(glm::vec3 amount)
+	void BoundingBox::Move(glm::dvec3 amount)
 	{
 		min += amount;
 		max += amount;

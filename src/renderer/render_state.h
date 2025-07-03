@@ -15,6 +15,7 @@ namespace Eon
 		Shader* GetShader() const;
 		Texture* GetTexture(int unit = 0) const;
 
+		void SetSSBO(GLuint ssboId, GLuint bindingPoint);
 		void SetDepthFunc(GLenum depthFunction);
 		void SetDepthTest(bool depthTest);
 		void SetBlend(bool blend);
@@ -34,6 +35,8 @@ namespace Eon
 		void Reset();
 
 	private:
+		GLuint ssbo_id = -1;
+		GLuint binding_point = -1;
 		ShaderID shader = AssetID::INVALID_ASSET_ID;
 		std::array<TextureID, 32> bound_textures;
 		GLenum depth_function = GL_LESS;

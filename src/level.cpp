@@ -66,9 +66,9 @@ namespace Eon
 				{
 					const Block& block = GetBlock({ x, y, z });
 
-					if (block != BlockRegistry::GetBlockByID(0))
+					if (block.Solid())
 					{
-						bbs.emplace_back(glm::vec3(x, y, z), glm::vec3(x + 1, y + 1, z + 1));
+						bbs.emplace_back(glm::dvec3(x, y, z), glm::dvec3(x + 1, y + 1, z + 1));
 					}
 				}
 			}
@@ -172,8 +172,8 @@ namespace Eon
 		//load close chunks first
 		std::ranges::sort(toGen, [&playerChunkPosition](const ChunkPosition& a, const ChunkPosition& b)
 			{
-				glm::vec2 pcp(playerChunkPosition.x, playerChunkPosition.z);
-				return glm::distance(pcp, glm::vec2(a.x, a.z)) < glm::distance(pcp, glm::vec2(b.x, b.z));
+				glm::dvec2 pcp(playerChunkPosition.x, playerChunkPosition.z);
+				return glm::distance(pcp, glm::dvec2(a.x, a.z)) < glm::distance(pcp, glm::dvec2(b.x, b.z));
 			});
 
 		chunks_to_generate.enqueue_bulk(toGen.data(), toGen.size());
@@ -208,9 +208,9 @@ namespace Eon
 		{
 			if (chunk->CanUnload())
 			{
-				float distance = glm::distance(glm::vec2(playerChunkPosition.x, playerChunkPosition.z), glm::vec2(position.x, position.z));
+				double distance = glm::distance(glm::dvec2(playerChunkPosition.x, playerChunkPosition.z), glm::dvec2(position.x, position.z));
 
-				if (distance >= static_cast<float>(unloadDistance))
+				if (distance >= static_cast<double>(unloadDistance))
 				{
 					chunksToUnload.push_back(position);
 				}

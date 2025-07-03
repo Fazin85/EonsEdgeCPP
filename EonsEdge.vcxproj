@@ -178,6 +178,7 @@
     <ClCompile Include="src\plane_mesh.cpp" />
     <ClCompile Include="src\player.cpp" />
     <ClCompile Include="src\renderer\batched_render_pass.cpp" />
+    <ClCompile Include="src\renderer\command\chunk_mesh_render_command.cpp" />
     <ClCompile Include="src\renderer\command\render_command_variant.cpp" />
     <ClCompile Include="src\renderer\default\default_render_pipeline.cpp" />
     <ClCompile Include="src\renderer\default\opaque_render_pass.cpp" />
@@ -234,6 +235,7 @@
     <ClInclude Include="src\opengl_debug.h" />
     <ClInclude Include="src\plane_mesh.h" />
     <ClInclude Include="src\renderer\batched_render_pass.h" />
+    <ClInclude Include="src\renderer\command\chunk_mesh_render_command.h" />
     <ClInclude Include="src\renderer\command\render_command_variant.h" />
     <ClInclude Include="src\renderer\default\default_render_pipeline.h" />
     <ClInclude Include="src\renderer\default\opaque_render_pass.h" />

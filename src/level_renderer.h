@@ -31,15 +31,15 @@ namespace Eon
 		~LevelRenderer() final;
 		void MeshChunk(ChunkPosition chunkPosition);
 		void RemoveMesh(ChunkPosition chunkPosition);
-		void Update(const Frustum& frustum, glm::vec3 cameraPosition);
-		void Render(RenderPipeline& renderPipeline, RenderCommandPool& commandPool, Camera& camera, ChunkPosition playerChunkPosition);
+		void Update(const Frustum& frustum, glm::dvec3 cameraPosition);
+		void Render(RenderPipeline& renderPipeline, RenderCommandPool& commandPool, Camera& camera, glm::dvec3 cameraPosition);
 		size_t ChunkRendererCount();
 		bool IsChunkBeingMeshed(ChunkPosition position);
 		void OnChunkUnloaded(std::shared_ptr<Chunk> chunk) override;
 
 	private:
-		void SortRenderersByDistance(std::vector<std::pair<ChunkRendererContainer*, float>>& renderers, glm::vec3 cameraPosition) const;
-		void SortChunksByDistance(std::vector<ChunkPosition>& chunks, glm::vec3 cameraPosition) const;
+		void SortRenderersByDistance(std::vector<std::pair<ChunkRendererContainer*, float>>& renderers, glm::dvec3 cameraPosition) const;
+		void SortChunksByDistance(std::vector<ChunkPosition>& chunks, glm::dvec3 cameraPosition) const;
 		void ProcessSingleChunkMesh();
 		bool CanChunkBeMeshed(ChunkPosition position, const Frustum* frustum);
 		void MarkCanUnloadForMeshing(ChunkPosition position, bool canUnload);

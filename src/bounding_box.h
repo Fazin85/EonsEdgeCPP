@@ -7,16 +7,16 @@ namespace Eon
 {
 	struct BoundingBox
 	{
-		BoundingBox(glm::vec3 min, glm::vec3 max);
-		bool InBounds3(glm::vec3 position) const;
-		bool InBounds2(glm::vec2 position) const;
-		BoundingBox Expand(glm::vec3 amount) const;
-		float ClipCollideX(BoundingBox& bb, float xv) const;
-		float ClipCollideY(BoundingBox& bb, float yv) const;
-		float ClipCollideZ(BoundingBox& bb, float zv) const;
-		void Move(glm::vec3 amount);
+		BoundingBox(glm::dvec3 min, glm::dvec3 max);
+		bool InBounds3(glm::dvec3 position) const;
+		bool InBounds2(glm::dvec2 position) const;
+		BoundingBox Expand(glm::dvec3 amount) const;
+		double ClipCollideX(BoundingBox& bb, double xv) const;
+		double ClipCollideY(BoundingBox& bb, double yv) const;
+		double ClipCollideZ(BoundingBox& bb, double zv) const;
+		void Move(glm::dvec3 amount);
 
-		glm::vec3 min;
-		glm::vec3 max;
+		glm::dvec3 min;
+		glm::dvec3 max;
 	};
 }

@@ -13,6 +13,7 @@ namespace Eon
 			int draw_calls = 0;
 			int shader_binds = 0;
 			int texture_binds = 0;
+			int ssbo_binds = 0;
 			int time_ms = 0;
 
 			void Reset();

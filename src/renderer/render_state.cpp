@@ -35,6 +35,16 @@ namespace Eon
 		return bound_textures[unit].IsValid() ? bound_textures[unit].Get<Texture>().Get() : nullptr;
 	}
 
+	void RenderState::SetSSBO(GLuint ssboId, GLuint bindingPoint)
+	{
+		if (ssboId != ssbo_id)
+		{
+			ssbo_id = ssboId;
+			binding_point = bindingPoint;
+			modified = true;
+		}
+	}
+
 	void RenderState::SetDepthFunc(GLenum depthFunction)
 	{
 		if (depthFunction != depth_function)
@@ -221,8 +231,13 @@ namespace Eon
 		{
 			if (bound_textures[i] != lastState.bound_textures[i] && bound_textures[i].IsValid())
 			{
-				bound_textures[i].Get<Texture>()->Bind();
+				bound_textures[i].Get<Texture>()->Bind(i);
 			}
+		}
+
+		if (ssbo_id != 0 && ssbo_id != lastState.ssbo_id && binding_point != 0)
+		{
+			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, binding_point, ssbo_id);
 		}
 
 		lastState = *this;
@@ -237,6 +252,7 @@ namespace Eon
 			SetTexture(AssetID::INVALID_ASSET_ID, i);
 		}
 
+		SetSSBO(0, 0);
 		SetDepthFunc(GL_LESS);
 		SetDepthTest(true);
 		SetBlend(false);

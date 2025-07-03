@@ -5,6 +5,8 @@
 
 namespace Eon
 {
+	class RenderPipeline;
+
 	class RenderCommand
 	{
 	public:

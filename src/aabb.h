@@ -6,19 +6,19 @@ namespace Eon
 {
 	struct AABB
 	{
-		AABB(const glm::vec3& dim)
+		AABB(const glm::dvec3& dim)
 			: dimensions(dim), position(0, 0, 0)
 		{
 		}
 
-		void Update(const glm::vec3& location)
+		void Update(const glm::dvec3& location)
 		{
 			position = location;
 		}
 
-		glm::vec3 GetVN(const glm::vec3& normal) const
+		glm::dvec3 GetVN(const glm::dvec3& normal) const
 		{
-			glm::vec3 res = position;
+			glm::dvec3 res = position;
 
 			if (normal.x < 0)
 			{
@@ -36,9 +36,9 @@ namespace Eon
 			return res;
 		}
 
-		glm::vec3 GetVP(const glm::vec3& normal) const
+		glm::dvec3 GetVP(const glm::dvec3& normal) const
 		{
-			glm::vec3 res = position;
+			glm::dvec3 res = position;
 
 			if (normal.x > 0)
 			{
@@ -56,7 +56,7 @@ namespace Eon
 			return res;
 		}
 
-		glm::vec3 position;
-		const glm::vec3 dimensions;
+		glm::dvec3 position;
+		const glm::dvec3 dimensions;
 	};
 }
