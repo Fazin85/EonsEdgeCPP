@@ -11,7 +11,7 @@ namespace Eon
 	{
 		this->level = level;
 		camera = std::make_unique<Camera>(GameSettings.fov, 8);
-		position = glm::dvec3(65536 * 16, 200, 65536 * 16);
+		position = glm::dvec3(256, 200, 256);
 		acceleration = glm::dvec3(0, 0, 0);
 		velocity = glm::dvec3(0, 0, 0);
 		glm::dvec3 halfDim(dimensions.x / 2, dimensions.y / 2, dimensions.z / 2);
@@ -24,7 +24,7 @@ namespace Eon
 	{
 		camera->Update(dt);
 
-		float realSpeed = speed;
+		double realSpeed = speed;
 
 		if (!on_ground)
 		{
