@@ -94,8 +94,7 @@ namespace Eon
 			std::move(meshData.vertexPositions),
 			std::move(meshData.uvs),
 			std::move(meshData.colors),
-			std::move(meshData.normals),
-			AssetID::INVALID_ASSET_ID);
+			std::move(meshData.normals));
 	}
 
 	int DefaultChunkRendererContainerProvider::CalculateLowestPoint(const ChunkPosition& position, int middleLowest)

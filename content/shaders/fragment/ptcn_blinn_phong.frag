@@ -6,7 +6,7 @@ layout(location = 0) out vec4 gAlbedo;
 layout(location = 1) out vec4 gNormal;
 layout(location = 2) out vec4 gPosition; // w is depth
 
-uniform sampler2D textureSampler;
+uniform sampler2D albedoMap;
 uniform vec3 lightDirection;
 uniform vec3 lightColor;
 uniform vec3 objectColor;
@@ -19,7 +19,7 @@ in vec3 normal;
 
 void main()
 {
-	vec4 tex = texture(textureSampler, texCoord);
+	vec4 tex = texture(albedoMap, texCoord);
 	vec3 blinnPhong = blinnPhongDirectional(lightDirection, lightColor, pos, normal, objectColor, shininess);
 	tex.rgb *= color;
 	tex.rgb *= blinnPhong;

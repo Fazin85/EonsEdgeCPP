@@ -163,6 +163,9 @@
     <ClCompile Include="src\camera.cpp" />
     <ClCompile Include="src\chunk.cpp" />
     <ClCompile Include="src\file_util.cpp" />
+    <ClCompile Include="src\gui\gui_element.cpp" />
+    <ClCompile Include="src\gui\gui_panel.cpp" />
+    <ClCompile Include="src\gui\scaled_resolution.cpp" />
     <ClCompile Include="src\imgui_impl_opengl3.cpp" />
     <ClCompile Include="src\imgui_manager.cpp" />
     <ClCompile Include="src\in_game_scene.cpp" />
@@ -224,6 +227,9 @@
     <ClInclude Include="src\fast_noise.h" />
     <ClInclude Include="src\framebuffer.h" />
     <ClInclude Include="src\gl_error_check.h" />
+    <ClInclude Include="src\gui\gui_element.h" />
+    <ClInclude Include="src\gui\gui_panel.h" />
+    <ClInclude Include="src\gui\scaled_resolution.h" />
     <ClInclude Include="src\imgui_impl_opengl3.h" />
     <ClInclude Include="src\imgui_impl_opengl3_loader.h" />
     <ClInclude Include="src\imgui_manager.h" />
@@ -287,11 +293,14 @@
     <None Include="content\shaders\fragment\ptcn.frag" />
     <None Include="content\shaders\fragment\ptcn_blinn_phong.frag" />
     <None Include="content\shaders\fragment\ptcn_blinn_phong_chunk.frag" />
+    <None Include="content\shaders\fragment\pt_colored.frag" />
+    <None Include="content\shaders\fragment\pt_textured.frag" />
     <None Include="content\shaders\fragment\Skybox.frag" />
     <None Include="content\shaders\fragment\Text.frag" />
     <None Include="content\shaders\vertex\Billboard.vert" />
     <None Include="content\shaders\vertex\Chunk.vert" />
     <None Include="content\shaders\vertex\Plane.vert" />
+    <None Include="content\shaders\vertex\pt.vert" />
     <None Include="content\shaders\vertex\ptcn.vert" />
     <None Include="content\shaders\vertex\Skybox.vert" />
     <None Include="content\shaders\vertex\Text.vert" />

@@ -19,8 +19,6 @@ namespace Eon
 		virtual ~Mesh() = default;
 
 		void Render() const;
-		static void RenderMeshes(Camera& camera, glm::vec3 cameraPosition, const std::vector<Mesh*>& meshes, Shader& shader);
-
 		virtual void Setup() = 0;
 
 		bool IsSetup() const;
@@ -54,7 +52,6 @@ namespace Eon
 		GLuint vao = 0;
 		GLsizei vertex_count = 0;
 		bool setup = false;
-		TextureID texture_id;
 	};
 
 	class PositionTextureColorNormalMesh : public Mesh
@@ -64,8 +61,7 @@ namespace Eon
 			std::vector<glm::vec3, PoolAllocator<glm::vec3>>&& positions,
 			std::vector<glm::vec2, PoolAllocator<glm::vec2>>&& texture_coords,
 			std::vector<glm::vec3, PoolAllocator<glm::vec3>>&& colors,
-			std::vector<glm::vec3, PoolAllocator<glm::vec3>>&& normals,
-			TextureID textureID);
+			std::vector<glm::vec3, PoolAllocator<glm::vec3>>&& normals);
 		~PositionTextureColorNormalMesh() final;
 
 		void Setup() override;
@@ -101,16 +97,18 @@ namespace Eon
 	class PositionTextureMesh : public Mesh
 	{
 	public:
-		PositionTextureMesh();
-		~PositionTextureMesh();
+		explicit PositionTextureMesh(
+			std::vector<glm::vec3, PoolAllocator<glm::vec3>>&& positions,
+			std::vector<glm::vec2, PoolAllocator<glm::vec2>>&& textureCoords);
+		~PositionTextureMesh() final;
 
 		void Setup() override;
 
 	private:
 		std::vector<glm::vec3, PoolAllocator<glm::vec3>> positions;
 		std::vector<glm::vec2, PoolAllocator<glm::vec2>> texture_coords;
-		GLuint position_vbo;
-		GLuint texture_coords_vbo;
+		GLuint position_vbo = 0;
+		GLuint texture_coords_vbo = 0;
 	};
 
 	class PositionColorMesh : public Mesh

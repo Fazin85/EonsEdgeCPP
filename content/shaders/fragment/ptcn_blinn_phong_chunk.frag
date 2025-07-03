@@ -10,7 +10,7 @@ layout(std430, binding = 0) readonly buffer BlockIDBuffer {
 	vec4 blockProperties[];
 };
 
-uniform sampler2D textureSampler;
+uniform sampler2D albedoMap;
 uniform sampler2D blockIDSampler;
 uniform vec3 lightDirection;
 uniform vec3 lightColor;
@@ -27,7 +27,7 @@ float getBlockShininess(int blockID) {
 
 void main()
 {
-	vec4 tex = texture(textureSampler, texCoord);
+	vec4 tex = texture(albedoMap, texCoord);
 	int blockID = int(texture(blockIDSampler, texCoord).r * 255.0);
 	
 	float shininess = getBlockShininess(blockID);

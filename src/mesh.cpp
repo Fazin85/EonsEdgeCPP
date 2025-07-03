@@ -10,8 +10,7 @@ namespace Eon
 		std::vector<glm::vec3, PoolAllocator<glm::vec3>>&& positions,
 		std::vector<glm::vec2, PoolAllocator<glm::vec2>>&& texture_coords,
 		std::vector<glm::vec3, PoolAllocator<glm::vec3>>&& colors,
-		std::vector<glm::vec3, PoolAllocator<glm::vec3>>&& normals,
-		TextureID textureID) :
+		std::vector<glm::vec3, PoolAllocator<glm::vec3>>&& normals) :
 		positions(std::move(positions)),
 		texture_coords(std::move(texture_coords)),
 		colors(std::move(colors)),
@@ -19,8 +18,6 @@ namespace Eon
 	{
 		std::vector<size_t> sizes = { this->positions.size(), this->texture_coords.size(), this->colors.size(), this->normals.size() };
 		vertex_count = CalculateVertexCount(sizes);
-
-		this->texture_id = textureID;
 	}
 
 	PositionTextureColorNormalMesh::~PositionTextureColorNormalMesh()
@@ -75,35 +72,6 @@ namespace Eon
 		GL_CHECK(glDrawArrays(GL_TRIANGLES, 0, vertex_count));
 	}
 
-	void Mesh::RenderMeshes(Camera& camera, glm::vec3 cameraPosition, const std::vector<Mesh*>& meshes, Shader& shader)
-	{
-		camera.CalculateViewMatrix(cameraPosition);
-
-		shader.Bind();
-		shader.UniformMatrix4("view", camera.ViewMatrix());
-		shader.UniformMatrix4("projection", camera.ProjectionMatrix());
-
-		//TODO: sort the meshes based on their distance from the camera and their texture
-
-		TextureID textureId;
-		for (const Mesh* mesh : meshes)
-		{
-			if (mesh)
-			{
-				if (textureId != mesh->texture_id)
-				{
-					textureId = mesh->texture_id;
-					if (textureId.IsValid())
-					{
-						textureId.Get<Texture>()->Bind();
-					}
-				}
-
-				mesh->Render();
-			}
-		}
-	}
-
 	bool Mesh::IsSetup() const
 	{
 		return setup;
@@ -140,5 +108,48 @@ namespace Eon
 		GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
 
 		setup = true;
+	}
+
+	PositionTextureMesh::PositionTextureMesh(
+		std::vector<glm::vec3, PoolAllocator<glm::vec3>>&& positions,
+		std::vector<glm::vec2, PoolAllocator<glm::vec2>>&& textureCoords) : positions(std::move(positions)), texture_coords(std::move(textureCoords))
+	{
+		std::vector<size_t> sizes = { this->positions.size(), this->texture_coords.size(), };
+		vertex_count = CalculateVertexCount(sizes);
+	}
+
+	PositionTextureMesh::~PositionTextureMesh()
+	{
+		if (!IsSetup())
+		{
+			return;
+		}
+
+		GL_CHECK(glDeleteVertexArrays(1, &vao));
+		GL_CHECK(glDeleteBuffers(1, &position_vbo));
+		GL_CHECK(glDeleteBuffers(1, &texture_coords_vbo));
+	}
+
+	void PositionTextureMesh::Setup()
+	{
+		if (IsSetup())
+		{
+			EON_WARN("Tried to setup mesh multiple times");
+			return;
+		}
+
+		GenVBO(&position_vbo, positions);
+		GenVBO(&texture_coords_vbo, texture_coords);
+
+		GL_CHECK(glGenVertexArrays(1, &vao));
+		GL_CHECK(glBindVertexArray(vao));
+
+		{
+			using enum AttributeLocation;
+			SetupVBO(position_vbo, static_cast<int>(Position), 3, GL_FLOAT);
+			SetupVBO(texture_coords_vbo, static_cast<int>(TextureCoord), 2, GL_FLOAT);
+		}
+
+		EndSetup();
 	}
 }

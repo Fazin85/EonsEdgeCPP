@@ -7,8 +7,11 @@ shader:shader.ptcn_blinn_phong:content/shaders/vertex/ptcn.vert:content/shaders/
 #ptcn blinn phong chunk
 shader:shader.ptcn_blinn_phong_chunk:content/shaders/vertex/ptcn.vert:content/shaders/fragment/ptcn_blinn_phong_chunk.frag
 
-#chunk
-shader:shader.chunk:content/shaders/vertex/Chunk.vert:content/shaders/fragment/Chunk.frag
+#pt colored
+shader:shader.pt_colored:content/shaders/vertex/pt.vert:content/shaders/fragment/pt_colored.frag
+
+#pt textured
+shader:shader.pt_colored:content/shaders/vertex/pt.vert:content/shaders/fragment/pt_textured.frag
 
 #text
 shader:shader.text:content/shaders/vertex/Text.vert:content/shaders/fragment/Text.frag

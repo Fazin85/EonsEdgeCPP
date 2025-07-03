@@ -30,7 +30,6 @@ namespace Eon
 		std::unique_ptr<Level> level;
 		std::unique_ptr<LevelRenderer> level_renderer;
 		std::unique_ptr<Skybox> skybox;
-		std::unique_ptr<PositionTextureColorNormalMesh> cube;
 		std::unique_ptr<Framebuffer> gBuffer;
 		std::unique_ptr<RenderPipeline> render_pipeline;
 	};
