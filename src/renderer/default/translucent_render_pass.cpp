@@ -2,12 +2,14 @@
 
 namespace Eon
 {
-	TranslucentRenderPass::TranslucentRenderPass(RenderPipeline& pipeline) : DepthSortedRenderPass(pipeline, "StandardTranslucent")
+	TranslucentRenderPass::TranslucentRenderPass(RenderPipeline& pipeline, Framebuffer& gBuffer) : DepthSortedRenderPass(pipeline, "StandardTranslucent", gBuffer)
 	{
 	}
 
 	void TranslucentRenderPass::Begin(RenderState& renderState)
 	{
+		GBufferRenderPass::Begin(renderState);
+
 		renderState.SetCullFace(false);
 		renderState.SetDepthMask(false);
 		renderState.SetBlend(true);

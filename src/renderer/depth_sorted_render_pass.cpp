@@ -3,7 +3,7 @@
 
 namespace Eon
 {
-	DepthSortedRenderPass::DepthSortedRenderPass(RenderPipeline& pipeline, const std::string& name) : RenderPass(pipeline, name)
+	DepthSortedRenderPass::DepthSortedRenderPass(RenderPipeline& pipeline, const std::string& name, Framebuffer& gBuffer) : GBufferRenderPass(pipeline, name, gBuffer)
 	{
 	}
 

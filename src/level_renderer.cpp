@@ -67,8 +67,10 @@ namespace Eon
 
 		static std::function<void(RenderState&)> preRenderChunk = [blockIDTexture](RenderState& renderState)
 			{
-				renderState.SetTexture(blockIDTexture.GetID(), 1);
-				renderState.Apply();
+				if (renderState.SetTexture(blockIDTexture.GetID(), 1))
+				{
+					renderState.Apply();
+				}
 			};
 
 		opaqueChunkMaterial.SetPreRender(preRenderChunk);

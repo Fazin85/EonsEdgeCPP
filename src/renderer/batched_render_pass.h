@@ -1,13 +1,13 @@
 #pragma once
 
-#include "render_pass.h"
+#include "g_buffer_render_pass.h"
 
 namespace Eon
 {
-	class BatchedRenderPass : public RenderPass
+	class BatchedRenderPass : public GBufferRenderPass
 	{
 	public:
-		explicit BatchedRenderPass(RenderPipeline& pipeline, const std::string& name);
+		explicit BatchedRenderPass(RenderPipeline& pipeline, const std::string& name, Framebuffer& gBuffer);
 
 		void Execute(RenderState& renderState) override;
 		void End(RenderState& renderState) override;

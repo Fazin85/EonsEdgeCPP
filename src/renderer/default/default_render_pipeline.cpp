@@ -1,18 +1,44 @@
 #include "default_render_pipeline.h"
 #include "opaque_render_pass.h"
 #include "translucent_render_pass.h"
+#include "../../framebuffer.h"
 
 namespace Eon
 {
 	DefaultRenderPipeline::DefaultRenderPipeline()
 	{
-		render_passes.emplace_back(std::make_unique<OpaqueRenderPass>(*this));
-		render_passes.emplace_back(std::make_unique<TranslucentRenderPass>(*this));
+		Framebuffer::FramebufferSpec spec;
+		spec.width = Window::Get().getSize().x;
+		spec.height = Window::Get().getSize().y;
+
+		spec.colorAttachments = {
+			// Albedo
+			{ GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE },
+			// Normal 
+			{ GL_RGBA32F, GL_RGBA, GL_FLOAT, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE },
+			// Position + Depth
+			{ GL_RGBA32F, GL_RGBA, GL_FLOAT, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE },
+		};
+
+		// Add depth buffer
+		spec.hasDepthAttachment = true;
+
+		g_buffer = std::make_unique<Framebuffer>(spec);
+
+		render_passes.emplace_back(std::make_unique<OpaqueRenderPass>(*this, *g_buffer));
+		render_passes.emplace_back(std::make_unique<TranslucentRenderPass>(*this, *g_buffer));
 	}
 
 	void DefaultRenderPipeline::BeginFrame()
 	{
 		render_stats.Reset();
+	}
+
+	void DefaultRenderPipeline::Clear()
+	{
+		render_state.SetFramebuffer(g_buffer.get());
+		render_state.Apply();
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 
 	void DefaultRenderPipeline::Submit(RenderCommandVariant& renderCommand)
@@ -45,6 +71,11 @@ namespace Eon
 		global_vec3_uniforms.clear();
 		global_float_uniforms.clear();
 		global_int_uniforms.clear();
+	}
+
+	void DefaultRenderPipeline::Display()
+	{
+		g_buffer->BlitToScreen();
 	}
 
 	void DefaultRenderPipeline::SetGlobalUniform(const std::string& name, const glm::mat4& value)

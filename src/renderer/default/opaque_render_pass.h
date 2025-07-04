@@ -7,7 +7,7 @@ namespace Eon
 	class OpaqueRenderPass : public BatchedRenderPass
 	{
 	public:
-		explicit OpaqueRenderPass(RenderPipeline& pipeline);
+		explicit OpaqueRenderPass(RenderPipeline& pipeline, Framebuffer& gBuffer);
 
 		void Begin(RenderState& renderState) override;
 		void Execute(RenderState& renderState) override;

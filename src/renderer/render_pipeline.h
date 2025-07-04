@@ -22,8 +22,10 @@ namespace Eon
 		virtual ~RenderPipeline() = default;
 
 		virtual void BeginFrame() = 0;
+		virtual void Clear() = 0;
 		virtual void Submit(RenderCommandVariant& renderCommand) = 0;
 		virtual void EndFrame() = 0;
+		virtual void Display() = 0;
 
 		//called by render passes when a new shader is bound
 		virtual void OnShaderBound(Shader& shader) = 0;

@@ -1,5 +1,7 @@
 #include "render_state.h"
+#include "../framebuffer.h"
 #include "../log.h"
+#include "../assert.h"
 
 namespace Eon
 {
@@ -33,6 +35,27 @@ namespace Eon
 	Texture* RenderState::GetTexture(int unit) const
 	{
 		return bound_textures[unit].IsValid() ? bound_textures[unit].Get<Texture>().Get() : nullptr;
+	}
+
+	void RenderState::SetGBufferTextures(Texture* albedo, Texture* normal, Texture* position)
+	{
+		g_buffer_albedo = albedo;
+		g_buffer_normal = normal;
+		g_buffer_position = position;
+	}
+
+	void RenderState::SetSSRTexture(Texture* ssrTexture)
+	{
+		ssr_texture = ssrTexture;
+	}
+
+	void RenderState::SetFramebuffer(Framebuffer* frameBuffer)
+	{
+		if (frameBuffer != this->frame_buffer)
+		{
+			this->frame_buffer = frameBuffer;
+			modified = true;
+		}
 	}
 
 	void RenderState::SetSSBO(GLuint ssboId, GLuint bindingPoint)
@@ -112,6 +135,30 @@ namespace Eon
 			cull_face_mode = cullFaceMode;
 			modified = true;
 		}
+	}
+
+	void RenderState::BindGBufferTextures()
+	{
+		EON_ASSERT(g_buffer_albedo && g_buffer_normal && g_buffer_position, "gBuffer textures not set!");
+
+		g_buffer_albedo->Bind(0);
+		g_buffer_normal->Bind(1);
+		g_buffer_position->Bind(2);
+
+		for (int i = 0; i < 3; i++)
+		{
+			bound_textures[i] = AssetID::INVALID_ASSET_ID;
+		}
+	}
+
+	Texture* RenderState::GetSSRTexture() const
+	{
+		return ssr_texture;
+	}
+
+	Framebuffer* RenderState::GetFramebuffer() const
+	{
+		return frame_buffer;
 	}
 
 	bool RenderState::GetDepthMask() const
@@ -275,6 +322,11 @@ namespace Eon
 			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, binding_point, ssbo_id);
 		}
 
+		if (frame_buffer != lastState.frame_buffer && frame_buffer)
+		{
+			frame_buffer->Bind();
+		}
+
 		lastState = *this;
 	}
 
@@ -295,5 +347,6 @@ namespace Eon
 		SetBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		SetCullFace(true);
 		SetCullFaceMode(GL_BACK);
+		SetFramebuffer(nullptr);
 	}
 }

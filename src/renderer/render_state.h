@@ -6,6 +6,8 @@
 
 namespace Eon
 {
+	class Framebuffer;
+
 	class RenderState
 	{
 	public:
@@ -15,6 +17,9 @@ namespace Eon
 		Shader* GetShader() const;
 		Texture* GetTexture(int unit = 0) const;
 
+		void SetGBufferTextures(Texture* albedo, Texture* normal, Texture* position);
+		void SetSSRTexture(Texture* ssrTexture);
+		void SetFramebuffer(Framebuffer* frameBuffer);
 		void SetSSBO(GLuint ssboId, GLuint bindingPoint);
 		void SetDepthMask(bool depthMask);
 		void SetDepthFunc(GLenum depthFunction);
@@ -24,6 +29,12 @@ namespace Eon
 		void SetCullFace(bool cullFace);
 		void SetCullFaceMode(GLenum cullFaceMode);
 
+		// binds the gBuffer textures on unit 0, 1 and 2
+		// use with caution
+		void BindGBufferTextures();
+
+		Texture* GetSSRTexture() const;
+		Framebuffer* GetFramebuffer() const;
 		bool GetDepthMask() const;
 		GLenum GetDepthFunc() const;
 		bool GetDepthTest() const;
@@ -40,6 +51,11 @@ namespace Eon
 		GLuint ssbo_id = -1;
 		GLuint binding_point = -1;
 		ShaderID shader = AssetID::INVALID_ASSET_ID;
+		Texture* g_buffer_albedo = nullptr;
+		Texture* g_buffer_normal = nullptr;
+		Texture* g_buffer_position = nullptr;
+		Texture* ssr_texture = nullptr;
+		Framebuffer* frame_buffer = nullptr;
 		std::array<TextureID, 32> bound_textures;
 		GLenum depth_function = GL_LESS;
 		bool depth_mask = true;

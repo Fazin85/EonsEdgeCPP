@@ -47,24 +47,6 @@ namespace Eon
 
 		skybox = std::make_unique<Skybox>(facesCubemap);
 
-		Framebuffer::FramebufferSpec spec;
-		spec.width = Window::Get().getSize().x;
-		spec.height = Window::Get().getSize().y;
-
-		spec.colorAttachments = {
-			// Albedo
-			{ GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE },
-			// Normal 
-			{ GL_RGBA32F, GL_RGBA, GL_FLOAT, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE },
-			// Position + Depth
-			{ GL_RGBA32F, GL_RGBA, GL_FLOAT, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE },
-		};
-
-		// Add depth buffer
-		spec.hasDepthAttachment = true;
-
-		gBuffer = std::make_unique<Framebuffer>(spec);
-
 		render_pipeline = std::make_unique<DefaultRenderPipeline>();
 		command_pool = std::make_unique<RenderCommandPool>();
 	}
@@ -108,29 +90,38 @@ namespace Eon
 
 	void InGameScene::Render()
 	{
-		gBuffer->Bind();
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		/*glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		skybox->Render(player->GetCamera());
-		glClear(GL_DEPTH_BUFFER_BIT);
+		glClear(GL_DEPTH_BUFFER_BIT);*/
 
 		render_pipeline->BeginFrame();
+		render_pipeline->Clear();
 		player->GetCamera().CalculateViewMatrix(glm::vec3(0.0f));
+		
 		render_pipeline->SetGlobalUniform("view", player->GetCamera().ViewMatrix());
 		render_pipeline->SetGlobalUniform("projection", player->GetCamera().ProjectionMatrix());
+		render_pipeline->SetGlobalUniform("invView", glm::inverse(player->GetCamera().ViewMatrix()));
+		render_pipeline->SetGlobalUniform("invProjection", glm::inverse(player->GetCamera().ProjectionMatrix()));
+
 		render_pipeline->SetGlobalUniform("lightDirection", glm::vec3(0.2f, -0.9f, 0.1f));
 		render_pipeline->SetGlobalUniform("lightColor", glm::vec3(1.0f, 0.9f, 0.7f));
+
 		render_pipeline->SetGlobalUniform("viewPos", glm::vec3(0.0f));
 		render_pipeline->SetGlobalUniform("objectColor", glm::vec3(1.0f, 1.0f, 1.0f));
 		render_pipeline->SetGlobalUniform("shininess", 16.0f);
 		render_pipeline->SetGlobalUniform("blockSampler", 1);
 		render_pipeline->SetGlobalUniform("elapsedTime", static_cast<float>(GameTime::GetElapsedTime()));
 
+		render_pipeline->SetGlobalUniform("nearPlane", player->GetCamera().ClippingPlanes().x);
+		render_pipeline->SetGlobalUniform("farPlane", player->GetCamera().ClippingPlanes().y);
+
 		level_renderer->Render(*render_pipeline, *command_pool, player->GetCamera(), player->Position());
 
 		render_pipeline->EndFrame();
+		render_pipeline->Display();
 
-		render_pipeline->BeginFrame();
+		/*render_pipeline->BeginFrame();
 		glClear(GL_DEPTH_BUFFER_BIT);
 
 		int width = Window::Get().getSize().x;
@@ -143,11 +134,8 @@ namespace Eon
 		GuiPanelColored panel(0, 0, 128, 64, 1.0f, 0.0f, 0.0f);
 		panel.Render(*render_pipeline, *command_pool, resolution);
 
-		render_pipeline->EndFrame();
+		render_pipeline->EndFrame();*/
 		command_pool->Reset();
-
-		gBuffer->Unbind();
-		gBuffer->BlitToScreen();
 	}
 
 	std::string InGameScene::GetName() const

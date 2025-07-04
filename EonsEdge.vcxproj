@@ -186,8 +186,10 @@
     <ClCompile Include="src\renderer\command\render_command_variant.cpp" />
     <ClCompile Include="src\renderer\default\default_render_pipeline.cpp" />
     <ClCompile Include="src\renderer\default\opaque_render_pass.cpp" />
+    <ClCompile Include="src\renderer\default\render_pass_ssr.cpp" />
     <ClCompile Include="src\renderer\default\translucent_render_pass.cpp" />
     <ClCompile Include="src\renderer\depth_sorted_render_pass.cpp" />
+    <ClCompile Include="src\renderer\g_buffer_render_pass.cpp" />
     <ClCompile Include="src\renderer\material.cpp" />
     <ClCompile Include="src\renderer\command\mesh_render_command.cpp" />
     <ClCompile Include="src\renderer\render_pass.cpp" />
@@ -248,7 +250,9 @@
     <ClInclude Include="src\renderer\command\mesh_render_command_colored.h" />
     <ClInclude Include="src\renderer\command\render_command_variant.h" />
     <ClInclude Include="src\renderer\default\default_render_pipeline.h" />
+    <ClInclude Include="src\renderer\g_buffer_render_pass.h" />
     <ClInclude Include="src\renderer\default\opaque_render_pass.h" />
+    <ClInclude Include="src\renderer\default\render_pass_ssr.h" />
     <ClInclude Include="src\renderer\default\translucent_render_pass.h" />
     <ClInclude Include="src\renderer\depth_sorted_render_pass.h" />
     <ClInclude Include="src\renderer\material.h" />
@@ -301,6 +305,7 @@
     <None Include="content\shaders\fragment\pt_colored.frag" />
     <None Include="content\shaders\fragment\pt_textured.frag" />
     <None Include="content\shaders\fragment\Skybox.frag" />
+    <None Include="content\shaders\fragment\ssr.frag" />
     <None Include="content\shaders\fragment\Text.frag" />
     <None Include="content\shaders\vertex\Billboard.vert" />
     <None Include="content\shaders\vertex\Chunk.vert" />

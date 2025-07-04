@@ -1,13 +1,13 @@
 #pragma once
 
-#include "render_pass.h"
+#include "g_buffer_render_pass.h"
 
 namespace Eon
 {
-	class DepthSortedRenderPass : public RenderPass
+	class DepthSortedRenderPass : public GBufferRenderPass
 	{
 	public:
-		DepthSortedRenderPass(RenderPipeline& pipeline, const std::string& name);
+		DepthSortedRenderPass(RenderPipeline& pipeline, const std::string& name, Framebuffer& gBuffer);
 
 		void Execute(RenderState& renderState) override;
 		void End(RenderState& renderState) override;

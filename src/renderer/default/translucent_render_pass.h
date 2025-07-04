@@ -7,7 +7,7 @@ namespace Eon
 	class TranslucentRenderPass : public DepthSortedRenderPass
 	{
 	public:
-		explicit TranslucentRenderPass(RenderPipeline& pipeline);
+		explicit TranslucentRenderPass(RenderPipeline& pipeline, Framebuffer& gBuffer);
 		
 		void Begin(RenderState& renderState) override;
 	};
