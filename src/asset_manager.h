@@ -63,6 +63,12 @@ namespace Eon
 			other.id = AssetID::INVALID_ASSET_ID;
 		}
 
+		explicit Asset(const Asset& other)
+			: asset(other.asset)
+			, id(other.id)
+		{
+		}
+
 		bool operator==(const Asset& other) const
 		{
 			return id == other.id;

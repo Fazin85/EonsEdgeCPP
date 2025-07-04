@@ -10,6 +10,7 @@
 #include "in_game_scene.h"
 #include "gl_error_check.h"
 #include "opengl_debug.h"
+#include "game_time.h"
 #include <iostream>
 
 namespace Eon
@@ -50,6 +51,7 @@ namespace Eon
 			float dt = time.asSeconds();
 
 			Update(dt);
+			GameTime::Update(dt);
 
 			if (scene_manager->SceneChangedThisUpdate())
 			{

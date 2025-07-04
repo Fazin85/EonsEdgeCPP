@@ -54,13 +54,13 @@ namespace Eon
 	template<typename T>
 	void SSBO::UploadData(const std::vector<T>& data, size_t offset)
 	{
-		upload_raw(data.data(), data.size() * sizeof(T), offset * sizeof(T));
+		UploadRaw(data.data(), data.size() * sizeof(T), offset * sizeof(T));
 	}
 
 	template<typename T>
 	void SSBO::UploadData(const T* data, size_t count, size_t offset)
 	{
-		upload_raw(data, count * sizeof(T), offset * sizeof(T));
+		UploadRaw(data, count * sizeof(T), offset * sizeof(T));
 	}
 
 	template<typename T>

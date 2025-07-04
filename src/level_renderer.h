@@ -28,12 +28,11 @@ namespace Eon
 	{
 	public:
 		LevelRenderer(Level& level, std::unique_ptr<ChunkRendererContainerProvider> chunkRendererContainerProvider);
-		~LevelRenderer() final;
 		void MeshChunk(ChunkPosition chunkPosition);
 		void RemoveMesh(ChunkPosition chunkPosition);
 		void Update(const Frustum& frustum, glm::dvec3 cameraPosition);
-		void Render(RenderPipeline& renderPipeline, RenderCommandPool& commandPool, Camera& camera, glm::dvec3 cameraPosition);
-		size_t ChunkRendererCount();
+		void Render(RenderPipeline& renderPipeline, RenderCommandPool& commandPool, Camera& camera, glm::dvec3 cameraPosition) const;
+		size_t ChunkRendererCount() const;
 		bool IsChunkBeingMeshed(ChunkPosition position);
 		void OnChunkUnloaded(std::shared_ptr<Chunk> chunk) override;
 
@@ -47,7 +46,6 @@ namespace Eon
 		std::vector<ChunkPosition> chunks_to_mesh;
 		std::unique_ptr<ChunkRendererContainerProvider> chunk_renderer_container_provider;
 		Level& level;
-		SSBO ssbo;
 		std::unordered_map<ChunkPosition, std::unique_ptr<ChunkRendererContainer>> chunk_renderers;
 	};
 }  // namespace Eon

@@ -13,7 +13,7 @@ namespace Eon
 		bool translucent,
 		std::function<void(BlockRenderContext&)>& render,
 		bool solid,
-		float shininess) :
+		uint8_t shininess) :
 		id(id),
 		type(type),
 		create_block_entity(std::nullopt),
@@ -131,12 +131,12 @@ namespace Eon
 		return AssetManager::GetAsset<sf::Image>("block.error").GetID();
 	}
 
-	float Block::GetShininess() const
+	uint8_t Block::GetShininess() const
 	{
 		return shininess;
 	}
 
-	BlockBuilder::BlockBuilder(const std::string& type, uint8_t& i) : id(i++), type(type), is_cutout(false), translucent(false), solid(true), shininess(4.0f)
+	BlockBuilder::BlockBuilder(const std::string& type, uint8_t& i) : id(i++), type(type), is_cutout(false), translucent(false), solid(true), shininess(4)
 	{
 	}
 
@@ -176,7 +176,7 @@ namespace Eon
 		return *this;
 	}
 
-	BlockBuilder& BlockBuilder::SetShininess(float shininess)
+	BlockBuilder& BlockBuilder::SetShininess(uint8_t shininess)
 	{
 		this->shininess = shininess;
 		return *this;
@@ -238,7 +238,7 @@ namespace Eon
 		RegisterBlock(BlockBuilder("Stone", id).Build());
 		RegisterBlock(BlockBuilder("Grass", id).Build());
 		RegisterBlock(BlockBuilder("Dirt", id).Build());
-		RegisterBlock(BlockBuilder("Water", id).SetTranslucent().SetShininess(256).SetSolid(false).Build());
+		RegisterBlock(BlockBuilder("Water", id).SetTranslucent().SetShininess(16).SetSolid(false).Build());
 		RegisterBlock(BlockBuilder("Sand", id).Build());
 		RegisterBlock(BlockBuilder("OakLog", id).Build());
 		RegisterBlock(BlockBuilder("Leaf", id).SetIsCutout().Build());

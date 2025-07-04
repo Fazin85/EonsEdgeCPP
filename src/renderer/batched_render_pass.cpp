@@ -25,7 +25,10 @@ namespace Eon
 
 				for (auto& command : commands)
 				{
-					GetRenderCommand(command).Execute(renderState);
+					auto& renderCommand = GetRenderCommand(command);
+
+					renderCommand.GetMaterial().PreRender(renderState);
+					renderCommand.Execute(renderState);
 				}
 			}
 		}

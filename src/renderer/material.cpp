@@ -1,4 +1,5 @@
 #include "material.h"
+#include "render_state.h"
 
 namespace Eon
 {
@@ -7,6 +8,11 @@ namespace Eon
 		shader(shader),
 		transparency_type(transparencyType)
 	{
+	}
+
+	void Material::SetPreRender(std::function<void(RenderState&)>& preRender)
+	{
+		pre_render = &preRender;
 	}
 
 	void Material::SetTexture(TextureID texture)
@@ -39,16 +45,12 @@ namespace Eon
 		return transparency_type;
 	}
 
-	void Material::Bind() const
+	void Material::PreRender(RenderState& renderState) const
 	{
-		if (shader.IsValid())
+		if (pre_render)
 		{
-			shader.Get<Shader>()->Bind();
-		}
-
-		if (texture.IsValid())
-		{
-			texture.Get<Texture>()->Bind();
+			const auto& preRender = *pre_render;
+			preRender(renderState);
 		}
 	}
 }

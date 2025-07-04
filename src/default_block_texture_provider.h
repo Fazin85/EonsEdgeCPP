@@ -15,6 +15,8 @@ namespace Eon
 		TextureID GetBlockIDAtlas() const override;
 
 	private:
+		std::shared_ptr<sf::Image> CreateBlockImage(int width, int height, const Block& block) const;
+		
 		std::vector<std::vector<glm::vec4>> uvs;
 		TextureID block_atlas;
 		TextureID block_id_atlas;

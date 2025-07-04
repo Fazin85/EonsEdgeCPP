@@ -11,26 +11,28 @@ layout(std430, binding = 0) readonly buffer BlockIDBuffer {
 };
 
 uniform sampler2D albedoMap;
-uniform sampler2D blockIDSampler;
+
+// r is block id / 255.0
+// g is block shininess / 255.0
+uniform sampler2D blockSampler;
+
 uniform vec3 lightDirection;
 uniform vec3 lightColor;
 uniform vec3 objectColor;
+uniform float elapsedTime;
 
 in vec3 pos;
 in vec2 texCoord;
 in vec3 color;
 in vec3 normal;
 
-float getBlockShininess(int blockID) {
-	return blockProperties[blockID].x;
-}
-
 void main()
 {
 	vec4 tex = texture(albedoMap, texCoord);
-	int blockID = int(texture(blockIDSampler, texCoord).r * 255.0);
+	vec4 blockData = texture(blockSampler, texCoord);
 	
-	float shininess = getBlockShininess(blockID);
+	int blockID = int(blockData.r * 255.0);
+	float shininess = blockData.g * 255.0;
 
 	vec3 blinnPhong = blinnPhongDirectional(lightDirection, lightColor, pos, normal, objectColor, shininess);
 	tex.rgb *= color;

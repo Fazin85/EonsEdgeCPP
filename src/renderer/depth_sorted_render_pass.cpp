@@ -29,6 +29,7 @@ namespace Eon
 				pipeline.OnTextureBound(*textureId.Get<Texture>());
 			}
 
+			renderCommand.GetMaterial().PreRender(renderState);
 			renderCommand.Execute(renderState);
 		}
 	}

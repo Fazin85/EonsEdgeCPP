@@ -14,52 +14,6 @@ namespace Eon
 	LevelRenderer::LevelRenderer(Level& level, std::unique_ptr<ChunkRendererContainerProvider> chunkRendererContainerProvider)
 		: chunk_renderer_container_provider(std::move(chunkRendererContainerProvider)), level(level)
 	{
-		/*auto chunk_shader = AssetManager::GetAsset<Shader>("shader.chunk");
-
-		chunk_shader->Bind();
-		chunk_shader->UniformFVec3("sunlight_dir", glm::vec3(-0.7f, -1.0f, -0.5f));
-		chunk_shader->UniformFVec3("light_color", glm::vec3(1, 1, 1));
-		chunk_shader->UniformFloat("ambient_light", 0.15f);
-		chunk_shader->UniformMatrix4Transpose("model", glm::mat4(1.0f));
-		chunk_shader->UniformFloat("fog_near", (static_cast<float>(GameSettings.render_distance) * static_cast<float>(CHUNK_WIDTH) / 2) + CHUNK_WIDTH);
-		chunk_shader->UniformInt1("textureSampler", 0);
-
-		int fogFar = GameSettings.fog ? GameSettings.render_distance * CHUNK_WIDTH : 100000;
-		chunk_shader->UniformFloat("fog_far", static_cast<float>(fogFar));
-
-		TextureAtlasStitcher stitcher;
-		stitcher.AddSprite("Error.png");
-
-		std::vector<std::string> imageNames;
-		imageNames.emplace_back("Error.png");
-		imageNames.emplace_back("StoneBlock.png");
-		imageNames.emplace_back("GrassBlockTop.png");
-		imageNames.emplace_back("GrassBlockSide.png");
-		imageNames.emplace_back("DirtBlock.png");
-		imageNames.emplace_back("WaterBlock.png");
-		imageNames.emplace_back("SandBlock.png");
-		imageNames.emplace_back("OakLogTop.png");
-		imageNames.emplace_back("OakLogSide.png");
-		imageNames.emplace_back("LeafBlock.png");
-		imageNames.emplace_back("GravelBlock.png");
-
-		chunk_texture = std::make_unique<TextureArray>(imageNames, 16, 16);*/
-		const auto& blocks = BlockRegistry::GetBlocks();
-		const size_t blockCount = BlockRegistry::LoadedBlockCount();
-		using bufferType = glm::vec4;
-
-		ssbo.Create(blockCount * sizeof(bufferType), GL_DYNAMIC_DRAW);
-		for (int i = 0; i < blockCount; i++)
-		{
-			float shininess = blocks[i]->GetShininess();
-			bufferType value{};
-			value.x = shininess;
-			ssbo.UploadRaw(&value, sizeof(bufferType), i * sizeof(bufferType));
-		}
-	}
-
-	LevelRenderer::~LevelRenderer()
-	{
 	}
 
 	void LevelRenderer::MeshChunk(ChunkPosition chunkPosition)
@@ -104,17 +58,20 @@ namespace Eon
 		SortChunksByDistance(chunks_to_mesh, cameraPosition);
 	}
 
-	void LevelRenderer::Render(RenderPipeline& renderPipeline, RenderCommandPool& commandPool, Camera& camera, glm::dvec3 cameraPosition)
+	void LevelRenderer::Render(RenderPipeline& renderPipeline, RenderCommandPool& commandPool, Camera& camera, glm::dvec3 cameraPosition) const
 	{
-		//glClearColor(level.SkyColor().r, level.SkyColor().g, level.SkyColor().b, level.SkyColor().a);
-
-		//glCullFace(GL_BACK);
-		//glEnable(GL_BLEND);
-		//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		Material opaqueChunkMaterial{ AssetManager::GetAsset<Texture>("texture.block_atlas").GetID(), AssetManager::GetAsset<Shader>("shader.ptcn_blinn_phong_chunk").GetID(), TransparencyType::Opaque };
 		Material cutoutChunkMaterial{ AssetManager::GetAsset<Texture>("texture.block_atlas").GetID(), AssetManager::GetAsset<Shader>("shader.ptcn_blinn_phong_chunk").GetID(), TransparencyType::Cutout };
 		Material translucentChunkMaterial{ AssetManager::GetAsset<Texture>("texture.block_atlas").GetID(), AssetManager::GetAsset<Shader>("shader.ptcn_blinn_phong_chunk").GetID(), TransparencyType::Transparent };
 		auto blockIDTexture = AssetManager::GetAsset<Texture>("texture.block_id_atlas");
+
+		static std::function<void(RenderState&)> preRenderChunk = [blockIDTexture](RenderState& renderState)
+			{
+				renderState.SetTexture(blockIDTexture.GetID(), 1);
+				renderState.Apply();
+			};
+
+		opaqueChunkMaterial.SetPreRender(preRenderChunk);
 
 		static std::vector<std::pair<ChunkRendererContainer*, float>> cutoutRenderers;
 		static std::vector<std::pair<ChunkRendererContainer*, float>> translucentRenderers;
@@ -147,119 +104,22 @@ namespace Eon
 
 			if (cutoutRenderer)
 			{
-				auto& command = commandPool.CreateCommand<ChunkMeshRenderCommand>(*cutoutRenderer, model, depth, cutoutChunkMaterial, ssbo, blockIDTexture.GetID());
+				auto& command = commandPool.CreateCommand<MeshRenderCommand>(*cutoutRenderer, model, depth, cutoutChunkMaterial);
 				renderPipeline.Submit(command);
 			}
 
 			if (translucentRenderer)
 			{
-				auto& command = commandPool.CreateCommand<ChunkMeshRenderCommand>(*translucentRenderer, model, depth, translucentChunkMaterial, ssbo, blockIDTexture.GetID());
+				auto& command = commandPool.CreateCommand<MeshRenderCommand>(*translucentRenderer, model, depth, translucentChunkMaterial);
 				renderPipeline.Submit(command);
 			}
 
-			auto& command = commandPool.CreateCommand<ChunkMeshRenderCommand>(chunkRenderer->GetOpaqueRenderer(), model, depth, opaqueChunkMaterial, ssbo, blockIDTexture.GetID());
+			auto& command = commandPool.CreateCommand<MeshRenderCommand>(chunkRenderer->GetOpaqueRenderer(), model, depth, opaqueChunkMaterial);
 			renderPipeline.Submit(command);
 		}
-
-		/*chunk_texture->Bind();
-
-		auto chunk_shader = AssetManager::GetAsset<Shader>("shader.chunk");
-
-		chunk_shader->Bind();
-		chunk_shader->UniformFVec4("fog_color", level.SkyColor());
-		camera.CalculateViewMatrix(glm::vec3(0, 0, 0));
-		chunk_shader->UniformMatrix4Transpose("view", camera.ViewMatrix());
-		chunk_shader->UniformMatrix4Transpose("projection", camera.ProjectionMatrix());
-		chunk_shader->UniformFVec3("camPos", cameraPosition);
-
-		camera.CalculateViewMatrix(cameraPosition);
-
-		auto playerChunkPosition = glm::vec3((static_cast<int>(cameraPosition.x) >> CHUNK_BITSHIFT_AMOUNT) * CHUNK_WIDTH, 0, (static_cast<int>(cameraPosition.z) >> CHUNK_BITSHIFT_AMOUNT) * CHUNK_WIDTH);
-
-		static std::vector<std::pair<ChunkRendererContainer*, float>> cutoutRenderers;
-		static std::vector<std::pair<ChunkRendererContainer*, float>> translucentRenderers;
-		static std::vector<BlockEntity*> blockEntitys;
-		cutoutRenderers.clear();
-		translucentRenderers.clear();
-		blockEntitys.clear();
-
-		std::array<int, 4> drawCalls = { 0 };
-
-		for (const auto& [chunkPosition, chunkRenderer] : chunk_renderers)
-		{
-			float distance = glm::distance(playerChunkPosition, glm::vec3(chunkPosition.x, 0, chunkPosition.z));
-			const auto& chunk = chunkRenderer->GetChunk();
-
-			if (distance > static_cast<float>(GameSettings.render_distance * CHUNK_WIDTH) ||
-				!camera.GetFrustum().BoxInFrustum(chunk->GetAABB()))
-			{
-				continue;
-			}
-
-			const auto& chunkBlockEntitys = chunk->GetBlockEntitys();
-			blockEntitys.insert(blockEntitys.end(), chunkBlockEntitys.begin(), chunkBlockEntitys.end());
-
-			auto cutoutRenderer = chunkRenderer->GetCutoutRenderer();
-			auto translucentRenderer = chunkRenderer->GetTranslucentRenderer();
-
-			if (cutoutRenderer)
-			{
-				cutoutRenderers.emplace_back(chunkRenderer.get(), distance);
-			}
-
-			if (translucentRenderer)
-			{
-				translucentRenderers.emplace_back(chunkRenderer.get(), distance);
-			}
-
-			chunk_shader->UniformFVec3("chunkPos", glm::vec3(chunkPosition.x, 0.0f, chunkPosition.z));
-
-			chunkRenderer->GetOpaqueRenderer().Render();
-			drawCalls[0]++;
-		}
-
-		for (const auto& blockEntity : blockEntitys)
-		{
-			blockEntity->Render(camera);
-			drawCalls[3]++;
-		}
-
-		SortRenderersByDistance(cutoutRenderers, cameraPosition);
-		SortRenderersByDistance(translucentRenderers, cameraPosition);
-
-		for (const auto& [chunkRenderer, distance] : cutoutRenderers)
-		{
-			ChunkPosition chunkPosition = chunkRenderer->GetChunk()->Position();
-
-			chunk_shader->UniformFVec3("chunkPos", glm::vec3(chunkPosition.x, 0.0f, chunkPosition.z));
-
-			chunkRenderer->GetCutoutRenderer()->get().Render();
-			drawCalls[1]++;
-		}
-
-		for (const auto& [chunkRenderer, distance] : translucentRenderers)
-		{
-			ChunkPosition chunkPosition = chunkRenderer->GetChunk()->Position();
-
-			chunk_shader->UniformFVec3("chunkPos", glm::vec3(chunkPosition.x, 0.0f, chunkPosition.z));
-
-			chunkRenderer->GetTranslucentRenderer()->get().Render();
-			drawCalls[2]++;
-		}
-
-		static int timer = 0;
-		timer++;
-		if (timer % 200 == 0)
-		{
-			EON_INFO(
-				"odc: " + std::to_string(drawCalls[0]) +
-				", cdc: " + std::to_string(drawCalls[1]) +
-				", tdc: " + std::to_string(drawCalls[2]) +
-				", bedc: " + std::to_string(drawCalls[3]));
-		}*/
 	}
 
-	size_t LevelRenderer::ChunkRendererCount()
+	size_t LevelRenderer::ChunkRendererCount() const
 	{
 		return chunk_renderers.size();
 	}

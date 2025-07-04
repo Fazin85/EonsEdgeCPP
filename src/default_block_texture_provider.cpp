@@ -38,16 +38,7 @@ namespace Eon
 					ids.emplace_back(texture);
 					idToNameMap[texture] = name;
 
-					auto blockIDImage = std::make_shared<sf::Image>();
-					blockIDImage->create(image->getSize().x, image->getSize().y, sf::Color::Black);
-					for (unsigned int x = 0; x < blockIDImage->getSize().x; x++)
-					{
-						for (unsigned int y = 0; y < blockIDImage->getSize().y; y++)
-						{
-							sf::Color materialPixel(block->GetID(), 0, 0, 255);
-							blockIDImage->setPixel(x, y, materialPixel);
-						}
-					}
+					auto blockIDImage = CreateBlockImage(image->getSize().x, image->getSize().y, *block);
 
 					blockIDStitcher.AddSprite(name, *blockIDImage);
 					blockIDImagePtrs.emplace_back(blockIDImage);
@@ -61,7 +52,7 @@ namespace Eon
 		EON_ASSERT(albedoStitcher.GetCurrentSize() == blockIDStitcher.GetCurrentSize(), "Atlas sizes do not match");
 
 		glm::ivec2 stitchSize = albedoStitcher.GetCurrentSize();
-		for (auto& block : blocks)
+		for (const auto& block : blocks)
 		{
 			for (int i = 0; i < 6; i++)
 			{
@@ -104,5 +95,21 @@ namespace Eon
 	TextureID DefaultBlockTextureProvider::GetBlockIDAtlas() const
 	{
 		return block_id_atlas;
+	}
+
+	std::shared_ptr<sf::Image> DefaultBlockTextureProvider::CreateBlockImage(int width, int height, const Block& block) const
+	{
+		auto blockIDImage = std::make_shared<sf::Image>();
+		blockIDImage->create(width, height, sf::Color::Black);
+		for (unsigned int x = 0; x < blockIDImage->getSize().x; x++)
+		{
+			for (unsigned int y = 0; y < blockIDImage->getSize().y; y++)
+			{
+				sf::Color materialPixel(block.GetID(), static_cast<sf::Uint8>(block.GetShininess()), 0, 255);
+				blockIDImage->setPixel(x, y, materialPixel);
+			}
+		}
+
+		return blockIDImage;
 	}
 }

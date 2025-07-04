@@ -123,7 +123,7 @@ namespace Eon
 			std::function<void(
 				BlockRenderContext&)>& render,
 			bool solid,
-			float shininess);
+			uint8_t shininess);
 
 		bool operator==(const Block& other) const;
 
@@ -136,7 +136,7 @@ namespace Eon
 		bool Solid() const;
 		void Render(BlockRenderContext& renderContext) const;
 		ImageID GetTexture(Directions dir) const;
-		float GetShininess() const;
+		uint8_t GetShininess() const;
 
 	private:
 		uint8_t id;
@@ -146,7 +146,7 @@ namespace Eon
 		bool is_cutout;
 		bool translucent;
 		bool solid;
-		float shininess;
+		uint8_t shininess;
 	};
 
 	class BlockBuilder
@@ -159,7 +159,7 @@ namespace Eon
 		BlockBuilder& SetTranslucent();
 		BlockBuilder& SetRender(std::function<void(BlockRenderContext&)>& render);
 		BlockBuilder& SetSolid(bool solid);
-		BlockBuilder& SetShininess(float shininess);
+		BlockBuilder& SetShininess(uint8_t  shininess);
 		Block Build() const;
 
 	private:
@@ -171,7 +171,7 @@ namespace Eon
 		bool is_cutout;
 		bool translucent;
 		bool solid;
-		float shininess;
+		uint8_t shininess;
 		std::optional<std::function<void(BlockRenderContext&)>> render;
 	};
 

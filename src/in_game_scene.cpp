@@ -9,6 +9,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include "gui/gui_panel_colored.h"
 #include "gui/scaled_resolution.h"
+#include "game_time.h"
 #include <variant>
 
 namespace Eon
@@ -122,7 +123,8 @@ namespace Eon
 		render_pipeline->SetGlobalUniform("viewPos", glm::vec3(0.0f));
 		render_pipeline->SetGlobalUniform("objectColor", glm::vec3(1.0f, 1.0f, 1.0f));
 		render_pipeline->SetGlobalUniform("shininess", 16.0f);
-		render_pipeline->SetGlobalUniform("blockIDSampler", 1);
+		render_pipeline->SetGlobalUniform("blockSampler", 1);
+		render_pipeline->SetGlobalUniform("elapsedTime", static_cast<float>(GameTime::GetElapsedTime()));
 
 		level_renderer->Render(*render_pipeline, *command_pool, player->GetCamera(), player->Position());
 
