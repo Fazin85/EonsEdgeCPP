@@ -16,6 +16,7 @@ namespace Eon
 		Texture* GetTexture(int unit = 0) const;
 
 		void SetSSBO(GLuint ssboId, GLuint bindingPoint);
+		void SetDepthMask(bool depthMask);
 		void SetDepthFunc(GLenum depthFunction);
 		void SetDepthTest(bool depthTest);
 		void SetBlend(bool blend);
@@ -23,6 +24,7 @@ namespace Eon
 		void SetCullFace(bool cullFace);
 		void SetCullFaceMode(GLenum cullFaceMode);
 
+		bool GetDepthMask() const;
 		GLenum GetDepthFunc() const;
 		bool GetDepthTest() const;
 		bool GetBlend() const;
@@ -40,6 +42,7 @@ namespace Eon
 		ShaderID shader = AssetID::INVALID_ASSET_ID;
 		std::array<TextureID, 32> bound_textures;
 		GLenum depth_function = GL_LESS;
+		bool depth_mask = true;
 		bool depth_test = true;
 		bool blend = false;
 		GLenum blend_src = GL_SRC_ALPHA;

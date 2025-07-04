@@ -10,7 +10,7 @@ namespace Eon
 	public:
 		DefaultBlockTextureProvider();
 
-		glm::vec4 GetUVs(const Block& block, int index) const override;
+		glm::vec4 GetUVs(const Block& block, Directions dir) const override;
 		TextureID GetBlockAtlas() const override;
 		TextureID GetBlockIDAtlas() const override;
 

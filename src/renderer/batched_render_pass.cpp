@@ -5,18 +5,6 @@ namespace Eon
 {
 	BatchedRenderPass::BatchedRenderPass(RenderPipeline& pipeline, const std::string& name) : RenderPass(pipeline, name) {}
 
-	void BatchedRenderPass::Submit(RenderCommandVariant& renderCommand)
-	{
-		Material material = GetRenderCommand(renderCommand).GetMaterial();
-
-		ShaderID shaderId = material.GetShader();
-		TextureID textureId = material.GetTexture();
-
-		EON_ASSERT(shaderId.IsValid() && textureId.IsValid(), "Invalid material");
-
-		shader_batches[shaderId][textureId].emplace_back(renderCommand);
-	}
-
 	void BatchedRenderPass::Execute(RenderState& renderState)
 	{
 		for (const auto& [shaderId, textureMap] : shader_batches)
@@ -47,5 +35,17 @@ namespace Eon
 	{
 		RenderPass::End(renderState);
 		shader_batches.clear();
+	}
+
+	void BatchedRenderPass::Submit(RenderCommandVariant& renderCommand)
+	{
+		Material material = GetRenderCommand(renderCommand).GetMaterial();
+
+		ShaderID shaderId = material.GetShader();
+		TextureID textureId = material.GetTexture();
+
+		EON_ASSERT(shaderId.IsValid() && textureId.IsValid(), "Invalid material");
+
+		shader_batches[shaderId][textureId].emplace_back(renderCommand);
 	}
 }

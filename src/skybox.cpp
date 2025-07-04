@@ -81,5 +81,6 @@ namespace Eon
 		GL_CHECK(glBindVertexArray(0));
 
 		GL_CHECK(glDepthFunc(GL_LESS));
+		GL_CHECK(glCullFace(GL_BACK));
 	}
 }

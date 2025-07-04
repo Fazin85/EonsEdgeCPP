@@ -111,15 +111,22 @@ namespace Eon
 		//glCullFace(GL_BACK);
 		//glEnable(GL_BLEND);
 		//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		Material chunkMaterial{ AssetManager::GetAsset<Texture>("texture.block_atlas").GetID(), AssetManager::GetAsset<Shader>("shader.ptcn_blinn_phong_chunk").GetID(), TransparencyType::Opaque };
+		Material opaqueChunkMaterial{ AssetManager::GetAsset<Texture>("texture.block_atlas").GetID(), AssetManager::GetAsset<Shader>("shader.ptcn_blinn_phong_chunk").GetID(), TransparencyType::Opaque };
+		Material cutoutChunkMaterial{ AssetManager::GetAsset<Texture>("texture.block_atlas").GetID(), AssetManager::GetAsset<Shader>("shader.ptcn_blinn_phong_chunk").GetID(), TransparencyType::Cutout };
+		Material translucentChunkMaterial{ AssetManager::GetAsset<Texture>("texture.block_atlas").GetID(), AssetManager::GetAsset<Shader>("shader.ptcn_blinn_phong_chunk").GetID(), TransparencyType::Transparent };
 		auto blockIDTexture = AssetManager::GetAsset<Texture>("texture.block_id_atlas");
+
+		static std::vector<std::pair<ChunkRendererContainer*, float>> cutoutRenderers;
+		static std::vector<std::pair<ChunkRendererContainer*, float>> translucentRenderers;
+		cutoutRenderers.clear();
+		translucentRenderers.clear();
 
 		for (const auto& [chunkPosition, chunkRenderer] : chunk_renderers)
 		{
 			AABB aabb = chunkRenderer->GetChunk()->GetAABB();
 			aabb.position -= cameraPosition;
 
-			if (glm::distance(glm::dvec3(chunkPosition.x, 0.0, chunkPosition.z), glm::dvec3(chunkPosition.x, 0, chunkPosition.z)) > static_cast<float>(GameSettings.render_distance * CHUNK_WIDTH) ||
+			if (glm::distance(glm::dvec3(chunkPosition.x, 0.0, chunkPosition.z), glm::dvec3(chunkPosition.x, 0, chunkPosition.z)) > static_cast<double>(GameSettings.render_distance * CHUNK_WIDTH) ||
 				!camera.GetFrustum().BoxInFrustum(aabb))
 			{
 				continue;
@@ -133,7 +140,24 @@ namespace Eon
 				static_cast<float>(renderChunkPosition.z)
 			));
 
-			auto& command = commandPool.CreateCommand<ChunkMeshRenderCommand>(chunkRenderer->GetOpaqueRenderer(), model, 0.0f, chunkMaterial, ssbo, blockIDTexture.GetID());
+			auto cutoutRenderer = chunkRenderer->GetCutoutRenderer();
+			auto translucentRenderer = chunkRenderer->GetTranslucentRenderer();
+
+			auto depth = static_cast<float>(glm::length(renderChunkPosition));
+
+			if (cutoutRenderer)
+			{
+				auto& command = commandPool.CreateCommand<ChunkMeshRenderCommand>(*cutoutRenderer, model, depth, cutoutChunkMaterial, ssbo, blockIDTexture.GetID());
+				renderPipeline.Submit(command);
+			}
+
+			if (translucentRenderer)
+			{
+				auto& command = commandPool.CreateCommand<ChunkMeshRenderCommand>(*translucentRenderer, model, depth, translucentChunkMaterial, ssbo, blockIDTexture.GetID());
+				renderPipeline.Submit(command);
+			}
+
+			auto& command = commandPool.CreateCommand<ChunkMeshRenderCommand>(chunkRenderer->GetOpaqueRenderer(), model, depth, opaqueChunkMaterial, ssbo, blockIDTexture.GetID());
 			renderPipeline.Submit(command);
 		}
 

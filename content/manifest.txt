@@ -11,7 +11,7 @@ shader:shader.ptcn_blinn_phong_chunk:content/shaders/vertex/ptcn.vert:content/sh
 shader:shader.pt_colored:content/shaders/vertex/pt.vert:content/shaders/fragment/pt_colored.frag
 
 #pt textured
-shader:shader.pt_colored:content/shaders/vertex/pt.vert:content/shaders/fragment/pt_textured.frag
+shader:shader.pt_textured:content/shaders/vertex/pt.vert:content/shaders/fragment/pt_textured.frag
 
 #text
 shader:shader.text:content/shaders/vertex/Text.vert:content/shaders/fragment/Text.frag
@@ -26,6 +26,7 @@ image:block.grass.top:content/images/GrassBlockTop.png
 image:block.grass.side:content/images/GrassBlockSide.png
 image:block.dirt:content/images/DirtBlock.png
 image:block.water:content/images/WaterBlock.png
+image:block.sand:content/images/SandBlock.png
 image:block.log.top:content/images/OakLogTop.png
 image:block.log.side:content/images/OakLogSide.png
 image:block.leaf:content/images/LeafBlock.png

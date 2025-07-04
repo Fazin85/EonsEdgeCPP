@@ -7,5 +7,6 @@ namespace Eon
 	void RenderPass::End(RenderState& renderState)
 	{
 		renderState.Reset();
+		renderState.Apply();
 	}
 }

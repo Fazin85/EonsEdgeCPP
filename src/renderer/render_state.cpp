@@ -45,6 +45,15 @@ namespace Eon
 		}
 	}
 
+	void RenderState::SetDepthMask(bool depthMask)
+	{
+		if (depthMask != depth_mask)
+		{
+			depth_mask = depthMask;
+			modified = true;
+		}
+	}
+
 	void RenderState::SetDepthFunc(GLenum depthFunction)
 	{
 		if (depthFunction != depth_function)
@@ -103,6 +112,11 @@ namespace Eon
 			cull_face_mode = cullFaceMode;
 			modified = true;
 		}
+	}
+
+	bool RenderState::GetDepthMask() const
+	{
+		return depth_mask;
 	}
 
 	GLenum RenderState::GetDepthFunc() const
@@ -179,6 +193,15 @@ namespace Eon
 				glDisable(GL_CULL_FACE);
 			}
 
+			if (depth_mask)
+			{
+				glDepthMask(GL_TRUE);
+			}
+			else
+			{
+				glDepthMask(GL_FALSE);
+			}
+
 			lastState = *this;
 			return;
 		}
@@ -222,6 +245,18 @@ namespace Eon
 			glCullFace(cull_face_mode);
 		}
 
+		if (depth_mask != lastState.depth_mask)
+		{
+			if (depth_mask)
+			{
+				glDepthMask(GL_TRUE);
+			}
+			else
+			{
+				glDepthMask(GL_FALSE);
+			}
+		}
+
 		if (shader != lastState.shader && shader.IsValid())
 		{
 			shader.Get<Shader>()->Bind();
@@ -253,6 +288,7 @@ namespace Eon
 		}
 
 		SetSSBO(0, 0);
+		SetDepthMask(true);
 		SetDepthFunc(GL_LESS);
 		SetDepthTest(true);
 		SetBlend(false);

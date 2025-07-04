@@ -134,14 +134,13 @@ namespace Eon
 		bool IsCutout() const;
 		bool Translucent() const;
 		bool Solid() const;
-		std::vector<ImageID> GetTextures() const;
 		void Render(BlockRenderContext& renderContext) const;
+		ImageID GetTexture(Directions dir) const;
 		float GetShininess() const;
 
 	private:
 		uint8_t id;
 		std::function<void(BlockRenderContext&)> render;
-		std::function<std::vector<ImageID>()> get_textures;
 		std::string type;
 		std::optional<std::function<std::unique_ptr<BlockEntity>(glm::ivec3)>> create_block_entity;
 		bool is_cutout;

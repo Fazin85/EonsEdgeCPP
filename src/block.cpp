@@ -67,14 +67,68 @@ namespace Eon
 		return solid;
 	}
 
-	std::vector<ImageID> Block::GetTextures() const
-	{
-		return { AssetManager::GetAssetID<sf::Image>("block.stone") };
-	}
-
 	void Block::Render(BlockRenderContext& renderContext) const
 	{
 		render(renderContext);
+	}
+
+	ImageID Block::GetTexture(Directions dir) const
+	{
+		if (type == "Stone")
+		{
+			return AssetManager::GetAsset<sf::Image>("block.stone").GetID();
+		}
+		else if (type == "Grass")
+		{
+			switch (dir)
+			{
+			case Eon::Directions::Front:
+			case Eon::Directions::Back:
+			case Eon::Directions::Left:
+			case Eon::Directions::Right:
+				return AssetManager::GetAsset<sf::Image>("block.grass.side").GetID();
+			case Eon::Directions::Top:
+				return AssetManager::GetAsset<sf::Image>("block.grass.top").GetID();
+			case Eon::Directions::Bottom:
+				return AssetManager::GetAsset<sf::Image>("block.dirt").GetID();
+			}
+		}
+		else if (type == "Dirt")
+		{
+			return AssetManager::GetAsset<sf::Image>("block.dirt").GetID();
+		}
+		else if (type == "Water")
+		{
+			return AssetManager::GetAsset<sf::Image>("block.water").GetID();
+		}
+		else if (type == "Sand")
+		{
+			return AssetManager::GetAsset<sf::Image>("block.sand").GetID();
+		}
+		else if (type == "OakLog")
+		{
+			switch (dir)
+			{
+			case Eon::Directions::Front:
+			case Eon::Directions::Back:
+			case Eon::Directions::Left:
+			case Eon::Directions::Right:
+				return AssetManager::GetAsset<sf::Image>("block.log.side").GetID();
+			case Eon::Directions::Top:
+			case Eon::Directions::Bottom:
+				return AssetManager::GetAsset<sf::Image>("block.log.top").GetID();
+			}
+		}
+		else if (type == "Leaf")
+		{
+			return AssetManager::GetAsset<sf::Image>("block.leaf").GetID();
+		}
+		else if (type == "Gravel")
+		{
+			return AssetManager::GetAsset<sf::Image>("block.gravel").GetID();
+		}
+
+		return AssetManager::GetAsset<sf::Image>("block.error").GetID();
 	}
 
 	float Block::GetShininess() const
@@ -184,7 +238,7 @@ namespace Eon
 		RegisterBlock(BlockBuilder("Stone", id).Build());
 		RegisterBlock(BlockBuilder("Grass", id).Build());
 		RegisterBlock(BlockBuilder("Dirt", id).Build());
-		RegisterBlock(BlockBuilder("Water", id).SetTranslucent().SetSolid(false).Build());
+		RegisterBlock(BlockBuilder("Water", id).SetTranslucent().SetShininess(256).SetSolid(false).Build());
 		RegisterBlock(BlockBuilder("Sand", id).Build());
 		RegisterBlock(BlockBuilder("OakLog", id).Build());
 		RegisterBlock(BlockBuilder("Leaf", id).SetIsCutout().Build());
@@ -245,8 +299,7 @@ namespace Eon
 			};
 
 		auto faceData = GetFaceDataFromDirection(direction);
-		//glm::vec4 uvs = renderContext.uvProvider.GetUVs(renderContext.centerBlock, static_cast<int>(direction));
-		glm::vec4 uvs = renderContext.uvProvider.GetUVs(renderContext.centerBlock, 0);
+		glm::vec4 uvs = renderContext.uvProvider.GetUVs(renderContext.centerBlock, direction);
 
 		auto side = [](Directions dir) constexpr
 			{

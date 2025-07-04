@@ -7,6 +7,8 @@
 #include "renderer/command/mesh_render_command.h"
 #include "default_block_texture_provider.h"
 #include <glm/gtc/matrix_transform.hpp>
+#include "gui/gui_panel_colored.h"
+#include "gui/scaled_resolution.h"
 #include <variant>
 
 namespace Eon
@@ -108,6 +110,9 @@ namespace Eon
 		gBuffer->Bind();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		skybox->Render(player->GetCamera());
+		glClear(GL_DEPTH_BUFFER_BIT);
+
 		render_pipeline->BeginFrame();
 		player->GetCamera().CalculateViewMatrix(glm::vec3(0.0f));
 		render_pipeline->SetGlobalUniform("view", player->GetCamera().ViewMatrix());
@@ -121,17 +126,24 @@ namespace Eon
 
 		level_renderer->Render(*render_pipeline, *command_pool, player->GetCamera(), player->Position());
 
-		//Material mat{ AssetManager::GetAsset<Texture>("texture.test").GetID(), AssetManager::GetAsset<Shader>("shader.ptcn").GetID(), TransparencyType::Opaque };
+		render_pipeline->EndFrame();
 
-		//auto& command = command_pool->CreateCommand<MeshRenderCommand>(*cube, glm::translate(glm::identity<glm::mat4>(), -player->Position()), 0.0f, mat);
-		//auto& command2 = command_pool->CreateCommand<MeshRenderCommand>(*cube, glm::translate(glm::identity<glm::mat4>(), glm::vec3(256, 0, 0) - player->Position()), 0.0f, mat);
+		render_pipeline->BeginFrame();
+		glClear(GL_DEPTH_BUFFER_BIT);
 
-		//render_pipeline->Submit(command);
-		//render_pipeline->Submit(command2);
+		int width = Window::Get().getSize().x;
+		int height = Window::Get().getSize().y;
+		ScaledResolution resolution(width, height);
+
+		render_pipeline->SetGlobalUniform("view", glm::identity<glm::mat4>());
+		render_pipeline->SetGlobalUniform("projection", resolution.CreateProjectionMatrix());
+
+		GuiPanelColored panel(0, 0, 128, 64, 1.0f, 0.0f, 0.0f);
+		panel.Render(*render_pipeline, *command_pool, resolution);
+
 		render_pipeline->EndFrame();
 		command_pool->Reset();
 
-		skybox->Render(player->GetCamera());
 		gBuffer->Unbind();
 		gBuffer->BlitToScreen();
 	}
