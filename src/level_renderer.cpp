@@ -72,6 +72,8 @@ namespace Eon
 			};
 
 		opaqueChunkMaterial.SetPreRender(preRenderChunk);
+		cutoutChunkMaterial.SetPreRender(preRenderChunk);
+		translucentChunkMaterial.SetPreRender(preRenderChunk);
 
 		static std::vector<std::pair<ChunkRendererContainer*, float>> cutoutRenderers;
 		static std::vector<std::pair<ChunkRendererContainer*, float>> translucentRenderers;
