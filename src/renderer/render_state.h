@@ -17,7 +17,7 @@ namespace Eon
 		Shader* GetShader() const;
 		Texture* GetTexture(int unit = 0) const;
 
-		void SetGBufferTextures(Texture* albedo, Texture* normal, Texture* position);
+		void SetGBufferTextures(GLuint albedo, GLuint normal, GLuint position);
 		void SetSSRTexture(Texture* ssrTexture);
 		void SetFramebuffer(Framebuffer* frameBuffer);
 		void SetSSBO(GLuint ssboId, GLuint bindingPoint);
@@ -51,9 +51,9 @@ namespace Eon
 		GLuint ssbo_id = -1;
 		GLuint binding_point = -1;
 		ShaderID shader = AssetID::INVALID_ASSET_ID;
-		Texture* g_buffer_albedo = nullptr;
-		Texture* g_buffer_normal = nullptr;
-		Texture* g_buffer_position = nullptr;
+		GLuint g_buffer_albedo = 0;
+		GLuint g_buffer_normal = 0;
+		GLuint g_buffer_position = 0;
 		Texture* ssr_texture = nullptr;
 		Framebuffer* frame_buffer = nullptr;
 		std::array<TextureID, 32> bound_textures;

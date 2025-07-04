@@ -14,7 +14,6 @@ uniform mat4 invProjection;
 uniform mat4 invView;
 
 uniform float maxDistance;
-uniform float resolution;
 uniform int maxSteps;
 uniform float thickness;
 

@@ -210,7 +210,7 @@
     <ClCompile Include="src\renderer\default\render_pass_ssr.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\renderer\g_buffer_render_pass.cpp">
+    <ClCompile Include="src\renderer\frame_buffer_render_pass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -458,7 +458,7 @@
     <ClInclude Include="src\renderer\default\render_pass_ssr.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\renderer\g_buffer_render_pass.h">
+    <ClInclude Include="src\renderer\frame_buffer_render_pass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

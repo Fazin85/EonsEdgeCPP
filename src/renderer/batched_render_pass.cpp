@@ -3,7 +3,7 @@
 
 namespace Eon
 {
-	BatchedRenderPass::BatchedRenderPass(RenderPipeline& pipeline, const std::string& name, Framebuffer& gBuffer) : GBufferRenderPass(pipeline, name, gBuffer) {}
+	BatchedRenderPass::BatchedRenderPass(RenderPipeline& pipeline, const std::string& name, Framebuffer& framebuffer) : FrameBufferRenderPass(pipeline, name, framebuffer) {}
 
 	void BatchedRenderPass::Execute(RenderState& renderState)
 	{

@@ -37,7 +37,7 @@ namespace Eon
 		return bound_textures[unit].IsValid() ? bound_textures[unit].Get<Texture>().Get() : nullptr;
 	}
 
-	void RenderState::SetGBufferTextures(Texture* albedo, Texture* normal, Texture* position)
+	void RenderState::SetGBufferTextures(GLuint albedo, GLuint normal, GLuint position)
 	{
 		g_buffer_albedo = albedo;
 		g_buffer_normal = normal;
@@ -141,9 +141,14 @@ namespace Eon
 	{
 		EON_ASSERT(g_buffer_albedo && g_buffer_normal && g_buffer_position, "gBuffer textures not set!");
 
-		g_buffer_albedo->Bind(0);
-		g_buffer_normal->Bind(1);
-		g_buffer_position->Bind(2);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, g_buffer_albedo);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, g_buffer_normal);
+		glActiveTexture(GL_TEXTURE2);
+		glBindTexture(GL_TEXTURE_2D, g_buffer_position);
+
+		glActiveTexture(GL_TEXTURE0);
 
 		for (int i = 0; i < 3; i++)
 		{

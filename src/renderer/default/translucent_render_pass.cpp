@@ -1,14 +1,18 @@
 #include "translucent_render_pass.h"
+#include "../../framebuffer.h"
 
 namespace Eon
 {
-	TranslucentRenderPass::TranslucentRenderPass(RenderPipeline& pipeline, Framebuffer& gBuffer) : DepthSortedRenderPass(pipeline, "StandardTranslucent", gBuffer)
+	TranslucentRenderPass::TranslucentRenderPass(RenderPipeline& pipeline, Framebuffer& framebuffer) : DepthSortedRenderPass(pipeline, "StandardTranslucent", framebuffer)
 	{
 	}
 
 	void TranslucentRenderPass::Begin(RenderState& renderState)
 	{
-		GBufferRenderPass::Begin(renderState);
+		FrameBufferRenderPass::Begin(renderState);
+
+		const Framebuffer& frameBuffer = GetFramebuffer();
+		renderState.SetGBufferTextures(frameBuffer.GetColorAttachment(0), frameBuffer.GetColorAttachment(1), frameBuffer.GetColorAttachment(2));
 
 		renderState.SetCullFace(false);
 		renderState.SetDepthMask(false);
