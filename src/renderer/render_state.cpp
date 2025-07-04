@@ -44,7 +44,7 @@ namespace Eon
 		g_buffer_position = position;
 	}
 
-	void RenderState::SetSSRTexture(Texture* ssrTexture)
+	void RenderState::SetSSRTexture(GLuint ssrTexture)
 	{
 		ssr_texture = ssrTexture;
 	}
@@ -156,7 +156,7 @@ namespace Eon
 		}
 	}
 
-	Texture* RenderState::GetSSRTexture() const
+	GLuint RenderState::GetSSRTexture() const
 	{
 		return ssr_texture;
 	}

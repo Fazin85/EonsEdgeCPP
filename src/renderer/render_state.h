@@ -18,7 +18,7 @@ namespace Eon
 		Texture* GetTexture(int unit = 0) const;
 
 		void SetGBufferTextures(GLuint albedo, GLuint normal, GLuint position);
-		void SetSSRTexture(Texture* ssrTexture);
+		void SetSSRTexture(GLuint ssrTexture);
 		void SetFramebuffer(Framebuffer* frameBuffer);
 		void SetSSBO(GLuint ssboId, GLuint bindingPoint);
 		void SetDepthMask(bool depthMask);
@@ -33,7 +33,7 @@ namespace Eon
 		// use with caution
 		void BindGBufferTextures();
 
-		Texture* GetSSRTexture() const;
+		GLuint GetSSRTexture() const;
 		Framebuffer* GetFramebuffer() const;
 		bool GetDepthMask() const;
 		GLenum GetDepthFunc() const;
@@ -54,7 +54,7 @@ namespace Eon
 		GLuint g_buffer_albedo = 0;
 		GLuint g_buffer_normal = 0;
 		GLuint g_buffer_position = 0;
-		Texture* ssr_texture = nullptr;
+		GLuint ssr_texture = 0;
 		Framebuffer* frame_buffer = nullptr;
 		std::array<TextureID, 32> bound_textures;
 		GLenum depth_function = GL_LESS;

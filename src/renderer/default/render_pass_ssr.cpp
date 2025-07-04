@@ -46,10 +46,16 @@ namespace Eon
 		renderState.SetFramebuffer(&framebuffer);
 		renderState.SetShader(ssr_shader);
 		renderState.BindGBufferTextures();
-
 		renderState.Apply();
 
+		auto shader = ssr_shader.Get<Shader>();
+		shader->UniformFloat("maxDistance", 64.0f);
+		shader->UniformInt1("maxSteps", 76);
+		shader->UniformFloat("thickness", 1.0f);
+
 		fullscreen_quad->Render();
+
+		renderState.SetSSRTexture(framebuffer.GetColorAttachment(0));
 
 		RenderPass::End(renderState);
 	}
