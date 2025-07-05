@@ -13,6 +13,9 @@ shader:shader.pt_colored:content/shaders/vertex/pt.vert:content/shaders/fragment
 #pt textured
 shader:shader.pt_textured:content/shaders/vertex/pt.vert:content/shaders/fragment/pt_textured.frag
 
+#ssr
+shader:shader.ssr:content/shaders/vertex/pt.vert:content/shaders/fragment/ssr.frag
+
 #text
 shader:shader.text:content/shaders/vertex/Text.vert:content/shaders/fragment/Text.frag
 

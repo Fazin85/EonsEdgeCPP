@@ -207,7 +207,7 @@
     <ClCompile Include="src\game_time.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\renderer\default\render_pass_ssr.cpp">
+    <ClCompile Include="src\renderer\default\ssr_render_pass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\renderer\frame_buffer_render_pass.cpp">
@@ -455,7 +455,7 @@
     <ClInclude Include="src\game_time.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\renderer\default\render_pass_ssr.h">
+    <ClInclude Include="src\renderer\default\ssr_render_pass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\renderer\frame_buffer_render_pass.h">

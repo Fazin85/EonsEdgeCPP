@@ -1,6 +1,7 @@
 #include "default_render_pipeline.h"
 #include "opaque_render_pass.h"
 #include "translucent_render_pass.h"
+#include "ssr_render_pass.h"
 #include "../../framebuffer.h"
 
 namespace Eon
@@ -25,8 +26,20 @@ namespace Eon
 
 		g_buffer = std::make_unique<Framebuffer>(spec);
 
+		Framebuffer::FramebufferSpec ssrSpec;
+		ssrSpec.width = Window::Get().getSize().x;
+		ssrSpec.height = Window::Get().getSize().y;
+
+		ssrSpec.colorAttachments = {
+			// Albedo
+			{ GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE },
+		};
+
+		ssr_buffer = std::make_unique<Framebuffer>(ssrSpec);
+
 		render_passes.emplace_back(std::make_unique<OpaqueRenderPass>(*this, *g_buffer));
 		render_passes.emplace_back(std::make_unique<TranslucentRenderPass>(*this, *g_buffer));
+		render_passes.emplace_back(std::make_unique<SSRRenderPass>(*this, *ssr_buffer));
 	}
 
 	void DefaultRenderPipeline::BeginFrame()

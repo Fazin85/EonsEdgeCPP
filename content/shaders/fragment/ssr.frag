@@ -2,7 +2,7 @@
 
 in vec2 texCoord;
 
-out vec4 FragColor;
+layout(location = 0) out vec4 FragColor;
 
 uniform sampler2D gAlbedo;
 uniform sampler2D gNormal;

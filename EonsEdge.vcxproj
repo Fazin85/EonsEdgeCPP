@@ -186,7 +186,7 @@
     <ClCompile Include="src\renderer\command\render_command_variant.cpp" />
     <ClCompile Include="src\renderer\default\default_render_pipeline.cpp" />
     <ClCompile Include="src\renderer\default\opaque_render_pass.cpp" />
-    <ClCompile Include="src\renderer\default\render_pass_ssr.cpp" />
+    <ClCompile Include="src\renderer\default\ssr_render_pass.cpp" />
     <ClCompile Include="src\renderer\default\translucent_render_pass.cpp" />
     <ClCompile Include="src\renderer\depth_sorted_render_pass.cpp" />
     <ClCompile Include="src\renderer\frame_buffer_render_pass.cpp" />
@@ -252,7 +252,7 @@
     <ClInclude Include="src\renderer\default\default_render_pipeline.h" />
     <ClInclude Include="src\renderer\frame_buffer_render_pass.h" />
     <ClInclude Include="src\renderer\default\opaque_render_pass.h" />
-    <ClInclude Include="src\renderer\default\render_pass_ssr.h" />
+    <ClInclude Include="src\renderer\default\ssr_render_pass.h" />
     <ClInclude Include="src\renderer\default\translucent_render_pass.h" />
     <ClInclude Include="src\renderer\depth_sorted_render_pass.h" />
     <ClInclude Include="src\renderer\material.h" />

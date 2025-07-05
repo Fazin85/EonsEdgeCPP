@@ -140,6 +140,8 @@ namespace Eon
 	void RenderState::BindGBufferTextures()
 	{
 		EON_ASSERT(g_buffer_albedo && g_buffer_normal && g_buffer_position, "gBuffer textures not set!");
+		EON_ASSERT(g_buffer_albedo != g_buffer_normal, "gBuffer textures are the same!");
+		EON_ASSERT(g_buffer_normal != g_buffer_position, "gBuffer textures are the same!");
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, g_buffer_albedo);
@@ -147,8 +149,6 @@ namespace Eon
 		glBindTexture(GL_TEXTURE_2D, g_buffer_normal);
 		glActiveTexture(GL_TEXTURE2);
 		glBindTexture(GL_TEXTURE_2D, g_buffer_position);
-
-		glActiveTexture(GL_TEXTURE0);
 
 		for (int i = 0; i < 3; i++)
 		{

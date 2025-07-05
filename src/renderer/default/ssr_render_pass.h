@@ -2,15 +2,17 @@
 
 #include "../frame_buffer_render_pass.h"
 
-namespace Eon 
+namespace Eon
 {
-	class RenderPassSSR : public FrameBufferRenderPass
+	class SSRRenderPass : public FrameBufferRenderPass
 	{
 	public:
-		explicit RenderPassSSR(RenderPipeline& pipeline, Framebuffer& framebuffer);
+		explicit SSRRenderPass(RenderPipeline& pipeline, Framebuffer& framebuffer);
 
 		void Execute(RenderState& renderState) override;
 		void End(RenderState& renderState) override;
+
+		void Submit(RenderCommandVariant& renderCommand) override;
 
 	private:
 		ShaderID ssr_shader;

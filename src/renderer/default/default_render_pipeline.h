@@ -37,5 +37,6 @@ namespace Eon
 		std::unordered_map<std::string, float> global_float_uniforms;
 		std::unordered_map<std::string, int> global_int_uniforms;
 		std::unique_ptr<Framebuffer> g_buffer;
+		std::unique_ptr<Framebuffer> ssr_buffer;
 	};
 }
