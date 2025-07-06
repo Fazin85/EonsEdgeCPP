@@ -487,6 +487,7 @@
     <None Include="content\shaders\fragment\pt_colored.frag" />
     <None Include="content\shaders\fragment\pt_textured.frag" />
     <None Include="content\shaders\fragment\ssr.frag" />
+    <None Include="content\shaders\common\sky.glsl" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="C:\Users\GODDIDIDIIDID\Downloads\player.png">
