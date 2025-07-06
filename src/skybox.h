@@ -12,6 +12,7 @@ namespace Eon
 	public:
 		explicit Skybox(std::array<std::string, 6>& faceFileNames);
 		void Render(Camera& camera) const;
+		int GetTexture() const;
 
 	private:
 		unsigned int vao;

@@ -25,6 +25,6 @@ void main()
 	tex.rgb *= blinnPhong;
 	
 	gAlbedo = tex;
-	gNormal = vec4(normal, 1.0);
+	gNormal = vec4(normal, 0.0);
 	gPosition = vec4(pos, gl_FragCoord.z);
 }

@@ -26,20 +26,20 @@ namespace Eon
 
 		g_buffer = std::make_unique<Framebuffer>(spec);
 
-		Framebuffer::FramebufferSpec ssrSpec;
-		ssrSpec.width = Window::Get().getSize().x;
-		ssrSpec.height = Window::Get().getSize().y;
+		//Framebuffer::FramebufferSpec ssrSpec;
+		//ssrSpec.width = Window::Get().getSize().x;
+		//ssrSpec.height = Window::Get().getSize().y;
 
-		ssrSpec.colorAttachments = {
-			// Albedo
-			{ GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE },
-		};
+		//ssrSpec.colorAttachments = {
+		//	// Albedo
+		//	{ GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE },
+		//};
 
-		ssr_buffer = std::make_unique<Framebuffer>(ssrSpec);
+		//ssr_buffer = std::make_unique<Framebuffer>(ssrSpec);
 
 		render_passes.emplace_back(std::make_unique<OpaqueRenderPass>(*this, *g_buffer));
 		render_passes.emplace_back(std::make_unique<TranslucentRenderPass>(*this, *g_buffer));
-		render_passes.emplace_back(std::make_unique<SSRRenderPass>(*this, *ssr_buffer));
+		//render_passes.emplace_back(std::make_unique<SSRRenderPass>(*this, *ssr_buffer));
 	}
 
 	void DefaultRenderPipeline::BeginFrame()
@@ -89,6 +89,7 @@ namespace Eon
 	void DefaultRenderPipeline::Display()
 	{
 		g_buffer->BlitToScreen();
+		//ssr_buffer->BlitToScreen();
 	}
 
 	void DefaultRenderPipeline::SetGlobalUniform(const std::string& name, const glm::mat4& value)

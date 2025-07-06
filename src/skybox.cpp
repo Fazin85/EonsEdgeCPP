@@ -73,14 +73,20 @@ namespace Eon
 		shader->Bind();
 		shader->UniformMatrix4("view", camera.ViewMatrix());
 		shader->UniformMatrix4("projection", camera.ProjectionMatrix());
+		shader->UniformInt1("skybox", 2);
 
 		GL_CHECK(glBindVertexArray(vao));
-		GL_CHECK(glActiveTexture(GL_TEXTURE0));
+		GL_CHECK(glActiveTexture(GL_TEXTURE2));
 		GL_CHECK(glBindTexture(GL_TEXTURE_CUBE_MAP, texture));
 		GL_CHECK(glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr));
 		GL_CHECK(glBindVertexArray(0));
 
 		GL_CHECK(glDepthFunc(GL_LESS));
 		GL_CHECK(glCullFace(GL_BACK));
+	}
+	
+	int Skybox::GetTexture() const
+	{
+		return texture;
 	}
 }

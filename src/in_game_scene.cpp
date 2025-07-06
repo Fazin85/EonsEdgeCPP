@@ -90,19 +90,25 @@ namespace Eon
 
 	void InGameScene::Render()
 	{
-		/*glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		skybox->Render(player->GetCamera());
-		glClear(GL_DEPTH_BUFFER_BIT);*/
 
 		render_pipeline->BeginFrame();
 		render_pipeline->Clear();
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		skybox->Render(player->GetCamera());
+		glClear(GL_DEPTH_BUFFER_BIT);
 		player->GetCamera().CalculateViewMatrix(glm::vec3(0.0f));
 		
 		render_pipeline->SetGlobalUniform("view", player->GetCamera().ViewMatrix());
 		render_pipeline->SetGlobalUniform("projection", player->GetCamera().ProjectionMatrix());
 		render_pipeline->SetGlobalUniform("invView", glm::inverse(player->GetCamera().ViewMatrix()));
 		render_pipeline->SetGlobalUniform("invProjection", glm::inverse(player->GetCamera().ProjectionMatrix()));
+		render_pipeline->SetGlobalUniform("ppView", player->GetCamera().ViewMatrix());
+		render_pipeline->SetGlobalUniform("ppProjection", player->GetCamera().ProjectionMatrix());
+		render_pipeline->SetGlobalUniform("ppInvView", glm::inverse(player->GetCamera().ViewMatrix()));
+		render_pipeline->SetGlobalUniform("ppInvProjection", glm::inverse(player->GetCamera().ProjectionMatrix()));
+		render_pipeline->SetGlobalUniform("skyboxSampler", 2);
 
 		render_pipeline->SetGlobalUniform("lightDirection", glm::vec3(0.2f, -0.9f, 0.1f));
 		render_pipeline->SetGlobalUniform("lightColor", glm::vec3(1.0f, 0.9f, 0.7f));
@@ -112,6 +118,7 @@ namespace Eon
 		render_pipeline->SetGlobalUniform("shininess", 16.0f);
 		render_pipeline->SetGlobalUniform("blockSampler", 1);
 		render_pipeline->SetGlobalUniform("elapsedTime", static_cast<float>(GameTime::GetElapsedTime()));
+		render_pipeline->SetGlobalUniform("cameraWorldPos", player->Position());
 
 		render_pipeline->SetGlobalUniform("nearPlane", player->GetCamera().ClippingPlanes().x);
 		render_pipeline->SetGlobalUniform("farPlane", player->GetCamera().ClippingPlanes().y);

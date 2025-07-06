@@ -51,17 +51,22 @@ namespace Eon
 		auto idt = glm::identity<glm::mat4>();
 
 		auto shader = ssr_shader.Get<Shader>();
+		pipeline.OnShaderBound(*shader);
 		shader->UniformMatrix4("projection", idt);
 		shader->UniformMatrix4("view", idt);
 		shader->UniformMatrix4("model", idt);
+		shader->UniformMatrix4("invView", glm::inverse(idt));
+		shader->UniformMatrix4("invProjection", glm::inverse(idt));
 
 		shader->UniformInt1("gAlbedo", 0);
 		shader->UniformInt1("gNormal", 1);
 		shader->UniformInt1("gPosition", 2);
 
-		shader->UniformFloat("maxDistance", 64.0f);
-		shader->UniformInt1("maxSteps", 76);
-		shader->UniformFloat("thickness", 1.0f);
+		shader->UniformFloat("maxDistance", 100.0f);
+		shader->UniformInt1("maxSteps", 128);
+		shader->UniformFloat("thickness", 0.25f);
+		shader->UniformFloat("fadeDistance", 75.0f);
+		shader->UniformFloat("edgeFadeDistance", 0.1f);
 
 		fullscreen_quad->Render();
 
