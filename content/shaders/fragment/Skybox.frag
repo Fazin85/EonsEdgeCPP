@@ -1,5 +1,9 @@
 #version 330 core
 
+//this is from https://www.shadertoy.com/view/lcfSRl
+
+#include "../common/sky.glsl"
+
 out vec4 FragColor;
 
 in vec3 pos;
@@ -7,167 +11,65 @@ in vec3 texCoords;
 
 uniform samplerCube skybox;
 
-const float PI = 3.141592;
-const int iSteps = 32;
-const int jSteps = 16;
-
-vec2 rsi(vec3 r0, vec3 rd, float sr) {
-    // ray-sphere intersection that assumes
-    // the sphere is centered at the origin.
-    // No intersection when result.x > result.y
-    float a = dot(rd, rd);
-    float b = 2.0 * dot(rd, r0);
-    float c = dot(r0, r0) - (sr * sr);
-    float d = (b*b) - 4.0*a*c;
-    if (d < 0.0) return vec2(1e5,-1e5);
-    return vec2(
-        (-b - sqrt(d))/(2.0*a),
-        (-b + sqrt(d))/(2.0*a)
-    );
+vec3 TonemapACES(vec3 color)
+{
+    return (color * (2.51 * color + 0.03)) / (color * (2.43 * color + 0.59) + 0.14);
 }
 
-float mod289(float x){return x - floor(x * (1.0 / 289.0)) * 289.0;}
-vec4 mod289(vec4 x){return x - floor(x * (1.0 / 289.0)) * 289.0;}
-vec4 perm(vec4 x){return mod289(((x * 34.0) + 1.0) * x);}
+const vec3 HEIGHT_FOG_COLOR = vec3(0.8, 0.9, 1.0);
+const float HEIGHT_FOG_PLANE = 1000.0;
+const float HEIGHT_FOG_DENSITY = 5e-5;
+const float CAM_EXPOSURE = 20.0;
+const float CAM_GAMMA = 4.0;
+const float CAM_AUTO_EXPOSURE_EV_LIMIT = 4.0;
 
-float noise(vec3 p){
-    vec3 a = floor(p);
-    vec3 d = p - a;
-    d = d * d * (3.0 - 2.0 * d);
-
-    vec4 b = a.xxyy + vec4(0.0, 1.0, 0.0, 1.0);
-    vec4 k1 = perm(b.xyxy);
-    vec4 k2 = perm(k1.xyxy + b.zzww);
-
-    vec4 c = k2 + a.zzzz;
-    vec4 k3 = perm(c);
-    vec4 k4 = perm(c + 1.0);
-
-    vec4 o1 = fract(k3 * (1.0 / 41.0));
-    vec4 o2 = fract(k4 * (1.0 / 41.0));
-
-    vec4 o3 = o2 * d.z + o1 * (1.0 - d.z);
-    vec2 o4 = o3.yw * d.x + o3.xz * (1.0 - d.x);
-
-    return o4.y * d.y + o4.x * (1.0 - d.y);
-}
-
-vec3 atmosphere(vec3 r, vec3 r0, vec3 pSun, float iSun, float rPlanet, float rAtmos, vec3 kRlh, float kMie, float shRlh, float shMie, float g) {
-    // Normalize the sun and view directions.
-    pSun = normalize(pSun);
-    r = normalize(r);
-
-    // Calculate the step size of the primary ray.
-    vec2 p = rsi(r0, r, rAtmos);
-    if (p.x > p.y) return vec3(0,0,0);
-    p.y = min(p.y, rsi(r0, r, rPlanet).x);
-    float iStepSize = (p.y - p.x) / float(iSteps);
-
-    // Initialize the primary ray time.
-    float iTime = 0.0;
-
-    // Initialize accumulators for Rayleigh and Mie scattering.
-    vec3 totalRlh = vec3(0,0,0);
-    vec3 totalMie = vec3(0,0,0);
-
-    // Initialize optical depth accumulators for the primary ray.
-    float iOdRlh = 0.0;
-    float iOdMie = 0.0;
-
-    // Calculate the Rayleigh and Mie phases.
-    float mu = dot(r, pSun);
-    float mumu = mu * mu;
-    float gg = g * g;
-    float pRlh = 3.0 / (16.0 * PI) * (1.0 + mumu);
-    float pMie = 3.0 / (8.0 * PI) * ((1.0 - gg) * (mumu + 1.0)) / (pow(1.0 + gg - 2.0 * mu * g, 1.5) * (2.0 + gg));
-
-    // Sample the primary ray.
-    for (int i = 0; i < iSteps; i++) {
-
-        // Calculate the primary ray sample position.
-        vec3 iPos = r0 + r * (iTime + iStepSize * 0.5);
-
-        // Calculate the height of the sample.
-        float iHeight = length(iPos) - rPlanet;
-
-        // Calculate the optical depth of the Rayleigh and Mie scattering for this step.
-        float odStepRlh = exp(-iHeight / shRlh) * iStepSize;
-        float odStepMie = exp(-iHeight / shMie) * iStepSize;
-
-        // Accumulate optical depth.
-        iOdRlh += odStepRlh;
-        iOdMie += odStepMie;
-
-        // Calculate the step size of the secondary ray.
-        float jStepSize = rsi(iPos, pSun, rAtmos).y / float(jSteps);
-
-        // Initialize the secondary ray time.
-        float jTime = 0.0;
-
-        // Initialize optical depth accumulators for the secondary ray.
-        float jOdRlh = 0.0;
-        float jOdMie = 0.0;
-
-        // Sample the secondary ray.
-        for (int j = 0; j < jSteps; j++) {
-
-            // Calculate the secondary ray sample position.
-            vec3 jPos = iPos + pSun * (jTime + jStepSize * 0.5);
-
-            // Calculate the height of the sample.
-            float jHeight = length(jPos) - rPlanet;
-
-            // Accumulate the optical depth.
-            jOdRlh += exp(-jHeight / shRlh) * jStepSize;
-            jOdMie += exp(-jHeight / shMie) * jStepSize;
-
-            // Increment the secondary ray time.
-            jTime += jStepSize;
-        }
-
-        // Calculate attenuation.
-        vec3 attn = exp(-(kMie * (iOdMie + jOdMie) + kRlh * (iOdRlh + jOdRlh)));
-
-        // Accumulate scattering.
-        totalRlh += odStepRlh * attn;
-        totalMie += odStepMie * attn;
-
-        // Increment the primary ray time.
-        iTime += iStepSize;
+float GetFogWeight(vec3 ro, vec3 rd, float rl, float h)
+{
+    vec2 fogt = SphereIntersection(ro, rd, PLANET_CENTER, PLANET_RADIUS + HEIGHT_FOG_PLANE);
+    fogt.x = max(0.0, fogt.x);
+    fogt.y = min(fogt.y, rl);
+    int sc = 4;
+    float ss = (fogt.y - fogt.x) / float(sc);
+    float od = 0.0;
+    for (int i = 0; i < sc; i++)
+    {
+        float delta = (float(i) + 0.5) / float(sc);
+        vec3 p = ro + rd * mix(fogt.x, fogt.y, delta);
+        float y = distance(p, PLANET_CENTER) - PLANET_RADIUS;
+        float f = max(0.0, sq(1.0 - y / HEIGHT_FOG_PLANE));
+        od += f * ss;
     }
-
-    // Calculate and return the final color.
-    return iSun * (pRlh * kRlh * totalRlh + pMie * kMie * totalMie);
+    return 1.0 - exp(-od * HEIGHT_FOG_DENSITY);
 }
 
 void main()
 {    
-    vec3 pSun = vec3(0, 2, -1);
+    vec3 viewDir = normalize(texCoords);
+    
+    // Set up atmosphere parameters
+    vec3 rayStart = vec3(0.0, 1800.0, 0.0);
+    vec3 rayDir = viewDir;
+    float rayLength = INFINITY; // Very far for skybox
+    vec3 lightDir = normalize(vec3(0.5, 0.5, 0.5));
+    vec3 lightColor = vec3(1.0);
+    
+    vec3 color = vec3(0.0);
 
-    vec3 color = atmosphere(
-        normalize(pos),           // normalized ray direction
-        vec3(0,6372e3,0),               // ray origin
-        pSun,                        // position of the sun
-        22.0,                           // intensity of the sun
-        6371e3,                         // radius of the planet in meters
-        6471e3,                         // radius of the atmosphere in meters
-        vec3(5.5e-6, 13.0e-6, 22.4e-6), // Rayleigh scattering coefficient
-        21e-6,                          // Mie scattering coefficient
-        8e3,                            // Rayleigh scale height
-        1.2e3,                          // Mie scale height
-        0.758                           // Mie preferred scattering direction
-    );
+    vec4 transmittance;
+    float altitude = max(0.0, (rayStart + rayDir * rayLength).y);
+    float fogWeight = GetFogWeight(rayStart, rayDir, rayLength, altitude);
+    vec3 scattering = GetAtmosphere(rayStart, rayDir, rayLength, lightDir, lightColor, transmittance, vec4(HEIGHT_FOG_COLOR, fogWeight), 1.0);
+    color = color * transmittance.xyz + scattering;
 
-    color = color / (color + vec3(1.0)); // Simple Reinhard tone mapping
-color = pow(color, vec3(1.0/2.2)); // Gamma correction
+    vec3 radiance = GetAtmosphere(rayStart, vec3(0, 1, 0), INFINITY, lightDir, lightColor);
+    float lum = dot(radiance, vec3(0.3, 0.59, 0.11));
+    color *= min(CAM_AUTO_EXPOSURE_EV_LIMIT, 0.003 / clamp(lum, 0.0002, 1.0));
 
-// Color temperature adjustment
-mat3 colorMatrix = mat3(
-    1.0, 0.0, 0.0,
-    0.0, 1.0, 0.0,
-    0.0, 0.0, 1.1
-);
-color = colorMatrix * color;
+    color *= CAM_EXPOSURE;
+
+    color *= TonemapACES(color);
+
+    color = pow(color, vec3(1.0 / CAM_GAMMA));
 
     FragColor = vec4(color, 1.0);
 }
