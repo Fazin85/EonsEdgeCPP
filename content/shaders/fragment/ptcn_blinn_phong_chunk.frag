@@ -169,50 +169,12 @@ void main()
     {
         vec3 worldPos = cameraWorldPos + pos;
 
-        // Calculate animated water surface normal
-        vec3 waterNormal = calculateWaterNormal(worldPos.xz, elapsedTime);
-        
-        // Add fine surface detail
-        waterNormal = addSurfaceDetail(waterNormal, worldPos.xz, elapsedTime);
-        
-        // Calculate view direction
-        vec3 viewDir = normalize(-pos);
-        
-        // Calculate reflection direction using animated normal
-        vec3 reflectionDir = reflect(-viewDir, waterNormal);
-        
-        // Sample sky reflection
-        vec3 rayStart = vec3(0.0, 1800.0, 0.0);
-        vec3 skyboxReflection = GetSkyColor(rayStart, reflectionDir, INFINITY, normalize(lightDirection), vec3(1.0));
-
-        // Calculate enhanced Fresnel effect
-        float fresnel = calculateFresnel(viewDir, waterNormal);
-        
-        // Calculate water base color with depth and lighting
-        float depth = gl_FragCoord.z; // Use fragment depth
-        vec3 waterColor = calculateWaterColor(viewDir, waterNormal, depth);
-        
-        // Add some light scattering based on surface normal
-        float lightScatter = max(0.0, dot(waterNormal, lightDirection));
-        waterColor += lightColor * lightScatter * 0.2;
-        
-        // Create caustic-like effect using animated noise
-        vec2 causticUV = worldPos.xz * 0.1 + vec2(elapsedTime * 0.02);
-        float caustic = noise(causticUV) * noise(causticUV * 2.1) * 0.3;
-        waterColor += vec3(caustic * 0.1, caustic * 0.2, caustic * 0.15);
-        
-        // Mix water color with skybox reflection based on Fresnel
-        vec3 finalColor = mix(waterColor, skyboxReflection, fresnel);
-        
-        // Add some additional blue tint to maintain water appearance
-        finalColor = mix(finalColor, vec3(0.2, 0.4, 0.8), 0.1);
-        
-        // Apply original color tinting
-        finalColor *= color;
+        vec3 viewDir = normalize(pos);
+        vec3 waterColor = GetWaterSurface(worldPos, viewDir, lightDirection, vec3(1.0), cameraWorldPos);
         
         // Output water with animated normal and proper transparency
-        gAlbedo = vec4(finalColor, 0.85);
-        gNormal = vec4(waterNormal, 0.0);
+        gAlbedo = vec4(waterColor, 0.85);
+        gNormal = vec4(vec3(0.0), 0.0);
         gPosition = vec4(pos, gl_FragCoord.z);
         return;
     }

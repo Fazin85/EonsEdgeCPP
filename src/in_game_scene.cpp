@@ -101,7 +101,7 @@ namespace Eon
 
 		glm::vec3 lightDir;
 		float elapsedTime = static_cast<float>(GameTime::GetElapsedTime());
-		float dayProgress = fmod(elapsedTime * 0.05f, 1.0f);
+		float dayProgress = fmod(elapsedTime * 0.005f, 1.0f);
 
 		// Sun calculation
 		float sunAngle = dayProgress * 2.0f * 3.14159f;

@@ -103,6 +103,27 @@ const float CAM_EXPOSURE = 20.0;
 const float CAM_GAMMA = 4.0;
 const float CAM_AUTO_EXPOSURE_EV_LIMIT = 4.0;
 
+float hash12(vec2 p)
+{
+	vec3 p3  = fract(vec3(p.xyx) * .1031);
+    p3 += dot(p3, p3.yzx + 33.33);
+    return fract((p3.x + p3.y) * p3.z);
+}
+
+const mat2 m = mat2(0.8,-0.6,0.6,0.8);
+vec3 Noised(vec2 x)
+{
+    vec2 p = floor(x);
+    vec2 f = fract(x);
+    vec2 u = f*f*(3.0-2.0*f);
+    float a = hash12(p+vec2(0,0));
+    float b = hash12(p+vec2(1,0));
+    float c = hash12(p+vec2(0,1));
+    float d = hash12(p+vec2(1,1));
+	return vec3(a+(b-a)*u.x+(c-a)*u.y+(a-b-c+d)*u.x*u.y,
+				6.0*f*(1.0-f)*(vec2(b-a,c-a)+(a-b-c+d)*u.yx));   
+}
+
 // https://iquilezles.org/articles/intersectors/
 vec2 SphereIntersection(vec3 rayStart, vec3 rayDir, vec3 sphereCenter, float sphereRadius)
 {
@@ -363,6 +384,8 @@ vec3 GetSkyColor(vec3 rayStart, vec3 rayDir, float rayLength, vec3 lightDir, vec
     // Stars
     color += CalculateStars(rayDir, color, transmittance);
 
+    color += GetSunDisc(rayDir, lightDir) * 1e1 * transmittance.w;
+
     vec3 cloudWorldPosition = cameraWorldPos;
     cloudWorldPosition.x += elapsedTime * 10;
 
@@ -386,4 +409,51 @@ vec3 GetSkyColor(vec3 rayStart, vec3 rayDir, float rayLength, vec3 lightDir, vec
     color = pow(color, vec3(1.0 / CAM_GAMMA));
     
     return color;
+}
+
+vec3 GetWaterSurface(vec3 worldPos, vec3 viewDir, vec3 lightDir, vec3 lightColor, vec3 cameraPos) {
+    // Generate wave normals
+    vec3 wnd = vec3(0.0);
+    vec2 pf = worldPos.xz + cameraPos.xz * 0.05;
+    float na = 0.5;
+    
+    vec2 windDir1 = normalize(vec2(1.0, 0.3));
+    vec2 windDir2 = normalize(vec2(-0.7, 1.0));
+    mat2 m = mat2(1.6, 1.2, -1.2, 1.6);
+    
+    for (int i = 0; i < 4; i++) {
+        vec3 nl1 = Noised(pf * windDir1 - vec2(elapsedTime * 0.8));
+        vec3 nl2 = Noised(pf * windDir2 - vec2(elapsedTime * 0.6));
+        
+        wnd.xz += (nl1.yz + nl2.yz * 0.7) * na;
+        na *= 0.7;
+        pf = m * pf * 1.8;
+    }
+    
+    vec3 wn = normalize(vec3(wnd.y * 1.5, 12.0, wnd.z * 1.5));
+    
+    // Distance-based factors
+    float dist = length(worldPos - cameraPos);
+    float distanceFactor = 1.0 / (1.0 + dist * 0.01);
+    
+    // Perturbed reflection
+    vec3 r = reflect(viewDir, wn);
+    vec2 perturbOffset = worldPos.xz * 0.1 + elapsedTime * 0.3;
+    vec2 perturbNoise = Noised(perturbOffset).xy * 0.02;
+    r.xz += perturbNoise * (1.0 - abs(r.y));
+    r = normalize(r);
+    
+    // Fresnel
+    float F0 = 0.02;
+    float cosTheta = max(0.0, dot(-viewDir, wn));
+    float fresnel = F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
+    fresnel *= distanceFactor;
+
+    fresnel = mix(0.5, 1.0, fresnel);
+    
+    // Get reflection color
+    vec3 refl = GetSkyColor(worldPos, r, INFINITY, lightDir, lightColor);
+    refl += GetSunDisc(r, lightDir) * 1e1 * lightColor;
+    
+    return refl * fresnel;
 }
