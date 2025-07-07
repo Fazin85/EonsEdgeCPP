@@ -1,21 +1,26 @@
 ﻿#version 430 core
-#include "../common/blinn_phong.glsl"
 
 layout(location = 0) out vec4 gAlbedo;
 layout(location = 1) out vec4 gNormal;
 layout(location = 2) out vec4 gPosition; // w is depth
 
+uniform vec3 cameraWorldPos;
+uniform float elapsedTime;
+
+#include "../common/sky.glsl"
+#include "../common/clouds.glsl"
+
+#include "../common/blinn_phong.glsl"
+
 uniform sampler2D albedoMap;
 // r is block id / 255.0
 // g is block shininess / 255.0
 uniform sampler2D blockSampler;
-uniform samplerCube skyboxSampler;
+
 uniform vec3 lightDirection;
 uniform vec3 lightColor;
 uniform vec3 objectColor;
-uniform float elapsedTime;
 uniform vec3 cameraPosition;
-uniform vec3 cameraWorldPos;
 
 in vec3 pos;
 in vec2 texCoord;
@@ -176,9 +181,10 @@ void main()
         // Calculate reflection direction using animated normal
         vec3 reflectionDir = reflect(-viewDir, waterNormal);
         
-        // Sample skybox reflection
-        vec3 skyboxReflection = texture(skyboxSampler, reflectionDir).rgb;
-        
+        // Sample sky reflection
+        vec3 rayStart = vec3(0.0, 1800.0, 0.0);
+        vec3 skyboxReflection = GetSkyColor(rayStart, reflectionDir, INFINITY, normalize(lightDirection), vec3(1.0));
+
         // Calculate enhanced Fresnel effect
         float fresnel = calculateFresnel(viewDir, waterNormal);
         

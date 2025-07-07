@@ -4,9 +4,9 @@ namespace Eon
 {
 	struct Settings
 	{
-		int render_distance = 16;
+		int render_distance = 24;
 		int mesh_gen_threads_count = 2;
-		int max_fps = 400;
+		int max_fps = 200;
 		float fov = 70;
 		bool fog = true;
 		bool percent_lod = true;

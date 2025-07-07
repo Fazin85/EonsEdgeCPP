@@ -1,3 +1,5 @@
+#include <iostream>
+#include <fstream>
 #include "default_render_pipeline.h"
 #include "opaque_render_pass.h"
 #include "translucent_render_pass.h"
@@ -6,6 +8,99 @@
 
 namespace Eon
 {
+	static GLuint loadTexture3D(const std::string& filepath,
+		int width, int height, int depth,
+		GLenum internalFormat = GL_RG16F,
+		GLenum format = GL_RG,
+		GLenum type = GL_HALF_FLOAT)
+	{
+
+		// Calculate expected file size
+		size_t components = 0;
+		switch (format)
+		{
+		case GL_RED: components = 1; break;
+		case GL_RG: components = 2; break;
+		case GL_RGB: components = 3; break;
+		case GL_RGBA: components = 4; break;
+		default: components = 2; break;
+		}
+
+		size_t typeSize = 0;
+		switch (type)
+		{
+		case GL_UNSIGNED_BYTE:
+		case GL_BYTE: typeSize = 1; break;
+		case GL_UNSIGNED_SHORT:
+		case GL_SHORT:
+		case GL_HALF_FLOAT: typeSize = 2; break;
+		case GL_FLOAT:
+		case GL_UNSIGNED_INT:
+		case GL_INT: typeSize = 4; break;
+		default: typeSize = 2; break;
+		}
+
+		size_t expectedSize = width * height * depth * components * typeSize;
+
+		// Open and read the .dat file
+		std::ifstream file(filepath, std::ios::binary);
+		if (!file.is_open())
+		{
+			std::cerr << "Error: Could not open file " << filepath << std::endl;
+			return 0;
+		}
+
+		// Get file size
+		file.seekg(0, std::ios::end);
+		size_t fileSize = file.tellg();
+		file.seekg(0, std::ios::beg);
+
+		if (fileSize != expectedSize)
+		{
+			std::cerr << "Warning: File size (" << fileSize << ") doesn't match expected size (" << expectedSize << ")" << std::endl;
+		}
+
+		// Read the data
+		std::vector<unsigned char> data(fileSize);
+		file.read(reinterpret_cast<char*>(data.data()), fileSize);
+		file.close();
+
+		if (!file.good() && !file.eof())
+		{
+			std::cerr << "Error: Failed to read file " << filepath << std::endl;
+			return 0;
+		}
+
+		// Generate OpenGL texture
+		GLuint textureID;
+		glGenTextures(1, &textureID);
+		glBindTexture(GL_TEXTURE_3D, textureID);
+
+		// Set texture parameters
+		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_REPEAT);
+
+		// Upload texture data
+		glTexImage3D(GL_TEXTURE_3D, 0, internalFormat, width, height, depth, 0, format, type, data.data());
+
+		// Check for OpenGL errors
+		GLenum error = glGetError();
+		if (error != GL_NO_ERROR)
+		{
+			std::cerr << "OpenGL Error after texture upload: " << error << std::endl;
+			glDeleteTextures(1, &textureID);
+			return 0;
+		}
+
+		glBindTexture(GL_TEXTURE_3D, 0);
+
+		std::cout << "Successfully loaded 3D texture: " << filepath << " (" << width << "x" << height << "x" << depth << ")" << std::endl;
+		return textureID;
+	}
+
 	DefaultRenderPipeline::DefaultRenderPipeline()
 	{
 		Framebuffer::FramebufferSpec spec;
@@ -39,6 +134,10 @@ namespace Eon
 
 		render_passes.emplace_back(std::make_unique<OpaqueRenderPass>(*this, *g_buffer));
 		render_passes.emplace_back(std::make_unique<TranslucentRenderPass>(*this, *g_buffer));
+
+		GLuint skytex = loadTexture3D("content/images/clouds_3d.dat", 256, 256, 64);
+		glActiveTexture(GL_TEXTURE15);
+		glBindTexture(GL_TEXTURE_3D, skytex);
 		//render_passes.emplace_back(std::make_unique<SSRRenderPass>(*this, *ssr_buffer));
 	}
 

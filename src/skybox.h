@@ -11,7 +11,7 @@ namespace Eon
 	{
 	public:
 		explicit Skybox(std::array<std::string, 6>& faceFileNames);
-		void Render(Camera& camera) const;
+		void Render(Camera& camera, glm::dvec3 cameraPosition, float elapsedTime, glm::vec3 lightDirection) const;
 		int GetTexture() const;
 
 	private:

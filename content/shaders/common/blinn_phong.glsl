@@ -2,7 +2,7 @@ vec3 blinnPhongDirectional(vec3 lightDir, vec3 lightColor, vec3 fragPos,
                           vec3 normal, vec3 albedo, float shininess) {
     
     vec3 norm = normalize(normal);
-    vec3 lightDirection = normalize(-lightDir); // Direction TO light
+    vec3 lightDirection = normalize(lightDir);
     vec3 viewDir = normalize(-fragPos);
     
     vec3 halfwayDir = normalize(lightDirection + viewDir);

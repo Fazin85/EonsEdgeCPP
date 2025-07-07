@@ -61,7 +61,7 @@ namespace Eon
 		}
 	}
 
-	void Skybox::Render(Camera& camera) const
+	void Skybox::Render(Camera& camera, glm::dvec3 cameraPosition, float elapsedTime, glm::vec3 lightDirection) const
 	{
 		GL_CHECK(glDepthFunc(GL_LEQUAL));
 		GL_CHECK(glCullFace(GL_FRONT));
@@ -73,11 +73,11 @@ namespace Eon
 		shader->Bind();
 		shader->UniformMatrix4("view", camera.ViewMatrix());
 		shader->UniformMatrix4("projection", camera.ProjectionMatrix());
-		shader->UniformInt1("skybox", 2);
+		shader->UniformFVec3("cameraWorldPos", cameraPosition);
+		shader->UniformFloat("elapsedTime", elapsedTime);
+		shader->UniformFVec3("lightDirection", lightDirection);
 
 		GL_CHECK(glBindVertexArray(vao));
-		GL_CHECK(glActiveTexture(GL_TEXTURE2));
-		GL_CHECK(glBindTexture(GL_TEXTURE_CUBE_MAP, texture));
 		GL_CHECK(glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr));
 		GL_CHECK(glBindVertexArray(0));
 
