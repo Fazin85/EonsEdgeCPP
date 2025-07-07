@@ -106,8 +106,9 @@ vec4 getCloudColor(vec3 rayStart, vec3 rayDir, float rayLength, vec3 lightDir, v
                 
                 // Basic cloud lighting
                 float lightDot = max(0.0, dot(lightDir, vec3(0, 1, 0)));
-                float backLight = max(0.0, dot(-lightDir, rayDir)) * 0.05; // Back-scattering
-                
+                //float backLight = max(0.0, dot(-lightDir, rayDir)) * 0.05; // Back-scattering
+                float backLight = 0.0;
+
                 // Cloud base color influenced by atmospheric scattering
                 vec3 baseCloudColor = vec3(0.9, 0.95, 1.0);
                 

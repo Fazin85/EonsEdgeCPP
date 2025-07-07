@@ -1,7 +1,5 @@
 #version 430 core
 
-//this is from https://www.shadertoy.com/view/lcfSRl
-
 out vec4 FragColor;
 
 in vec3 pos;

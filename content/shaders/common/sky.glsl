@@ -1,3 +1,5 @@
+//this is from https://www.shadertoy.com/view/lcfSRl
+
 // Copyright (c) 2024 Felix Westin
 //
 // Permission is hereby granted, free of charge, to any person obtaining
@@ -220,11 +222,6 @@ out vec4 transmittance, // Atmospheric transmittance in xyz, planet intersection
         // In case camera is outside of atmosphere, subtract distance to entry.
         t2.y -= max(0.0, t2.x);
 
-/*#ifdef DRAW_PLANET
-        float opticalDepth = t1.x > 0.0 ? min(t1.x, t2.y) : t2.y;
-#else
-        float opticalDepth = t2.y;
-#endif*/
         float opticalDepth = DRAW_PLANET ? t1.x > 0.0 ? min(t1.x, t2.y) : t2.y : t2.y;
 
         // Optical depth modulators
@@ -244,11 +241,6 @@ out vec4 transmittance, // Atmospheric transmittance in xyz, planet intersection
         ly = clamp(ly, -1.0, 1.0);
         lightColor *= GetLightTransmittance(rayStart, vec3(lightDir.x, ly, lightDir.z), hbias, M_OZONE2);
 
-//#ifndef LIGHT_COLOR_IS_RADIANCE
-        // If used in an environment where light "color" is not defined in radiometric units
-        // we need to multiply with PI to correct the output.
-  //      lightColor *= PI;
-//#endif
         if(LIGHT_COLOR_IS_RADIANCE) {
             lightColor *= PI;
         }
@@ -262,12 +254,7 @@ out vec4 transmittance, // Atmospheric transmittance in xyz, planet intersection
         float phaseR = PhaseR(costh);
         float phaseM = PhaseM(costh, 0.88);
         
-//#ifdef NIGHT_LIGHT
-        //float nightLight = NIGHT_LIGHT;
-//#else
-        //float nightLight = 0.0;
-//#endif
-        float nightLight = 0.0;
+        float nightLight = NIGHT_LIGHT;
 
         // Combined scattering
         vec3 rayleigh = (phaseR * occlusion + phaseR * M_FAKE_MS) * lightColor + nightLight * phaseR;
@@ -335,7 +322,33 @@ vec3 GetSunDisc(vec3 rayDir, vec3 lightDir)
 	return vec3(disc, disc, disc);
 }
 
+vec3 hash32(vec2 p)
+{
+	vec3 p3 = fract(vec3(p.xyx) * vec3(.1031, .1030, .0973));
+    p3 += dot(p3, p3.yxz+33.33);
+    return fract((p3.xxy+p3.yzz)*p3.zyx);
+}
+
 vec4 getCloudColor(vec3 rayStart, vec3 rayDir, float rayLength, vec3 lightDir, vec3 lightColor, vec3 originalColor);
+
+vec3 CalculateStars(vec3 rayDir, vec3 color, vec4 transmittance)
+{
+    vec3 starWorldPos = rayDir * 1000.0; // Project ray to distant sphere
+    vec2 starCellF = starWorldPos.xz / 4.0; // Use XZ plane for star distribution
+
+    // Handle negative coordinates by adding a large offset before flooring
+    vec2 offsetCoords = starCellF + vec2(10000.0); // Large offset to ensure positive
+    uvec2 starCell = uvec2(floor(offsetCoords));
+    starCellF = fract(starCellF); // Keep original fractional part
+
+    vec3 starHash = hash32(vec2(starCell));
+
+    // Only show stars when looking up (prevent stars on ground)
+    float starVisibility = smoothstep(0.0, 0.2, rayDir.y);
+    vec3 stars = smoothstep(0.1, 0.0, length(starCellF - starHash.xy)) * vec3(pow(starHash.z, 10.0)) * 5e-3;
+    color += stars * transmittance.w * starVisibility;
+    return color;
+}
 
 vec3 GetSkyColor(vec3 rayStart, vec3 rayDir, float rayLength, vec3 lightDir, vec3 lightColor) 
 {
@@ -346,6 +359,9 @@ vec3 GetSkyColor(vec3 rayStart, vec3 rayDir, float rayLength, vec3 lightDir, vec
     float fogWeight = GetFogWeight(rayStart, rayDir, rayLength, altitude);
     vec3 scattering = GetAtmosphere(rayStart, rayDir, rayLength, lightDir, lightColor, transmittance, vec4(HEIGHT_FOG_COLOR, fogWeight), 1.0);
     color = color * transmittance.xyz + scattering;
+
+    // Stars
+    color += CalculateStars(rayDir, color, transmittance);
 
     vec3 cloudWorldPosition = cameraWorldPos;
     cloudWorldPosition.x += elapsedTime * 10;
@@ -371,9 +387,3 @@ vec3 GetSkyColor(vec3 rayStart, vec3 rayDir, float rayLength, vec3 lightDir, vec
     
     return color;
 }
-
-struct Light
-{
-    vec3 direction;
-    vec3 radiance;
-};

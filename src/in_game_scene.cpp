@@ -88,15 +88,28 @@ namespace Eon
 		player->Update(dt);
 	}
 
+	static float DegreesToRadians(float degrees)
+	{
+		return degrees * 0.0174532925f; // pi/180
+	}
+
 	void InGameScene::Render()
 	{
 		render_pipeline->BeginFrame();
 		render_pipeline->Clear();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		glm::vec3 lightDir = glm::vec3(0.5f, 0.05f, 0.5f);
+		glm::vec3 lightDir;
+		float elapsedTime = static_cast<float>(GameTime::GetElapsedTime());
+		float dayProgress = fmod(elapsedTime * 0.05f, 1.0f);
 
-		skybox->Render(player->GetCamera(), player->Position(), static_cast<float>(GameTime::GetElapsedTime()), lightDir);
+		// Sun calculation
+		float sunAngle = dayProgress * 2.0f * 3.14159f;
+		float sunElevation = sin(sunAngle);
+
+		lightDir = glm::vec3(cos(sunAngle), sunElevation, 0.0f);
+
+		skybox->Render(player->GetCamera(), player->Position(), elapsedTime, lightDir);
 		glClear(GL_DEPTH_BUFFER_BIT);
 		player->GetCamera().CalculateViewMatrix(glm::vec3(0.0f));
 
@@ -116,7 +129,7 @@ namespace Eon
 		render_pipeline->SetGlobalUniform("objectColor", glm::vec3(1.0f, 1.0f, 1.0f));
 		render_pipeline->SetGlobalUniform("shininess", 16.0f);
 		render_pipeline->SetGlobalUniform("blockSampler", 1);
-		render_pipeline->SetGlobalUniform("elapsedTime", static_cast<float>(GameTime::GetElapsedTime()));
+		render_pipeline->SetGlobalUniform("elapsedTime", elapsedTime);
 		render_pipeline->SetGlobalUniform("cameraWorldPos", player->Position());
 
 		render_pipeline->SetGlobalUniform("nearPlane", player->GetCamera().ClippingPlanes().x);
