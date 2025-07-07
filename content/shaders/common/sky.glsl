@@ -453,7 +453,6 @@ vec3 GetWaterSurface(vec3 worldPos, vec3 viewDir, vec3 lightDir, vec3 lightColor
     
     // Get reflection color
     vec3 refl = GetSkyColor(worldPos, r, INFINITY, lightDir, lightColor);
-    refl += GetSunDisc(r, lightDir) * 1e1 * lightColor;
     
     return refl * fresnel;
 }

@@ -10,25 +10,25 @@ const float CLOUD_SCALE = 0.00025;
 
 float GetCloudDensity(const in vec2 pos, const in float time) {
     vec3 uv = vec3(pos, time);
-
     float f = 0.0;
     float weight = 0.7;
     float maxWeight = 1e-7;
+    
     for (int i = 0; i < 6; i++) {
         vec2 noise = texture(TEX_CLOUD_NOISE, uv).rg;
-
         f += weight * noise.r;
         uv.xy *= 2.0;
         maxWeight += weight;
         weight *= 0.6;
     }
-
     f /= maxWeight;
-
+    
+    // Add simple large-scale variation
+    float variation = texture(TEX_CLOUD_NOISE, vec3(pos * 0.0001, time * 0.02)).r;
+    f *= mix(0.8, 1.2, variation);
+    
     f = smoothstep(0.42, 1.0, f);
-
     f = pow(f, 0.6);
-
     return f;
 }
 
