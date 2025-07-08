@@ -298,6 +298,7 @@
     <None Include="content\shaders\common\blinn_phong.glsl" />
     <None Include="content\shaders\common\clouds.glsl" />
     <None Include="content\shaders\common\sky.glsl" />
+    <None Include="content\shaders\common\waves.glsl" />
     <None Include="content\shaders\fragment\Billboard.frag" />
     <None Include="content\shaders\fragment\Chunk.frag" />
     <None Include="content\shaders\fragment\Plane.frag" />

@@ -18,11 +18,13 @@ void main()
     vec3 viewDir = normalize(pos);
     
     // Set up atmosphere parameters
-    vec3 rayStart = vec3(0.0, 1800.0, 0.0);
+    vec3 rayStart = GetPlanetPosition(vec3(0.0, cameraWorldPos.y, 0.0));
     vec3 rayDir = viewDir;
     float rayLength = INFINITY;
     vec3 lightColor = vec3(1.0);
+    vec3 cloudWorldPosition = cameraWorldPos;
+    cloudWorldPosition.x += elapsedTime * 10.0;
     
-    vec3 color = GetSkyColor(rayStart, rayDir, rayLength, normalize(lightDirection), lightColor);
+    vec3 color = GetSkyColor(rayStart, rayDir, rayLength, normalize(lightDirection), lightColor, cloudWorldPosition);
     FragColor = vec4(color, 1.0);
 }

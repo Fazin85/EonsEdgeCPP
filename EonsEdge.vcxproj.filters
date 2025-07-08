@@ -488,6 +488,8 @@
     <None Include="content\shaders\fragment\pt_textured.frag" />
     <None Include="content\shaders\fragment\ssr.frag" />
     <None Include="content\shaders\common\sky.glsl" />
+    <None Include="content\shaders\common\clouds.glsl" />
+    <None Include="content\shaders\common\waves.glsl" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="C:\Users\GODDIDIDIIDID\Downloads\player.png">

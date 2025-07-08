@@ -371,7 +371,7 @@ vec3 CalculateStars(vec3 rayDir, vec3 color, vec4 transmittance)
     return color;
 }
 
-vec3 GetSkyColor(vec3 rayStart, vec3 rayDir, float rayLength, vec3 lightDir, vec3 lightColor) 
+vec3 GetSkyColor(vec3 rayStart, vec3 rayDir, float rayLength, vec3 lightDir, vec3 lightColor, vec3 cloudWorldPosition) 
 {
     vec3 color = vec3(0.0);
 
@@ -386,8 +386,8 @@ vec3 GetSkyColor(vec3 rayStart, vec3 rayDir, float rayLength, vec3 lightDir, vec
 
     color += GetSunDisc(rayDir, lightDir) * 1e1 * transmittance.w;
 
-    vec3 cloudWorldPosition = cameraWorldPos;
-    cloudWorldPosition.x += elapsedTime * 10;
+    //vec3 cloudWorldPosition = cameraWorldPos;
+    //cloudWorldPosition.x += elapsedTime * 10;
 
     vec4 cloudResult = getCloudColor(cloudWorldPosition, rayDir, rayLength, lightDir, lightColor, color);
     
@@ -411,10 +411,15 @@ vec3 GetSkyColor(vec3 rayStart, vec3 rayDir, float rayLength, vec3 lightDir, vec
     return color;
 }
 
+vec3 GetPlanetPosition(vec3 worldPos) 
+{
+    return vec3(worldPos.x, worldPos.y + 1800.0, worldPos.z);
+}
+
 vec3 GetWaterSurface(vec3 worldPos, vec3 viewDir, vec3 lightDir, vec3 lightColor, vec3 cameraPos) {
     // Generate wave normals
-    vec3 wnd = vec3(0.0);
-    vec2 pf = worldPos.xz + cameraPos.xz * 0.05;
+    /*vec3 wnd = vec3(0.0);
+    vec2 pf = worldPos.xz * 0.05;
     float na = 0.5;
     
     vec2 windDir1 = normalize(vec2(1.0, 0.3));
@@ -428,10 +433,11 @@ vec3 GetWaterSurface(vec3 worldPos, vec3 viewDir, vec3 lightDir, vec3 lightColor
         wnd.xz += (nl1.yz + nl2.yz * 0.7) * na;
         na *= 0.7;
         pf = m * pf * 1.8;
-    }
+    }*/
     
-    vec3 wn = normalize(vec3(wnd.y * 1.5, 12.0, wnd.z * 1.5));
-    
+    //vec3 wn = normalize(vec3(wnd.y * 1.5, 12.0, wnd.z * 1.5));
+    vec3 wn = vec3(0.0, 1.0, 0.0);
+
     // Distance-based factors
     float dist = length(worldPos - cameraPos);
     float distanceFactor = 1.0 / (1.0 + dist * 0.01);
@@ -447,12 +453,13 @@ vec3 GetWaterSurface(vec3 worldPos, vec3 viewDir, vec3 lightDir, vec3 lightColor
     float F0 = 0.02;
     float cosTheta = max(0.0, dot(-viewDir, wn));
     float fresnel = F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
-    fresnel *= distanceFactor;
-
-    fresnel = mix(0.5, 1.0, fresnel);
+    fresnel = mix(0.75, 1.0, fresnel);
     
     // Get reflection color
-    vec3 refl = GetSkyColor(worldPos, r, INFINITY, lightDir, lightColor);
+    vec3 reflectedRayStart = GetPlanetPosition(worldPos);
+    vec3 worldCloudPosition = vec3(worldPos);
+    worldCloudPosition.x += elapsedTime * 10.0;
+    vec3 refl = GetSkyColor(reflectedRayStart, r, INFINITY, lightDir, lightColor, worldCloudPosition);
     
     return refl * fresnel;
 }

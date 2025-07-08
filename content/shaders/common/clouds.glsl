@@ -1,7 +1,7 @@
 layout(binding = 15) uniform sampler3D TEX_CLOUD_NOISE;
 
-const float CLOUD_LAYER_1_HEIGHT = 1000.0;
-const float CLOUD_LAYER_2_HEIGHT = 2000.0;
+const float CLOUD_LAYER_1_HEIGHT = 500.0;
+const float CLOUD_LAYER_2_HEIGHT = 750.0;
 const float CLOUD_LAYER_3_HEIGHT = 2000.0;
 const float CLOUD_THICKNESS = 500.0;
 const float CLOUD_DENSITY_SCALE = 0.5;

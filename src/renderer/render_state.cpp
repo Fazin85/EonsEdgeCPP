@@ -5,6 +5,12 @@
 
 namespace Eon
 {
+	static const std::array<bool, 16> StaticTextures =
+	{ false, false, false, false, false,
+	false, false, false, false, false,
+	false,false,false,false,true,
+	true };
+
 	bool RenderState::SetShader(ShaderID shader)
 	{
 		if (shader != this->shader)
@@ -18,7 +24,7 @@ namespace Eon
 
 	bool RenderState::SetTexture(TextureID texture, int unit)
 	{
-		if (texture != bound_textures[unit])
+		if (texture != bound_textures[unit] && !StaticTextures[unit])
 		{
 			bound_textures[unit] = texture;
 			modified = true;
@@ -34,7 +40,7 @@ namespace Eon
 
 	Texture* RenderState::GetTexture(int unit) const
 	{
-		return bound_textures[unit].IsValid() ? bound_textures[unit].Get<Texture>().Get() : nullptr;
+		return (bound_textures[unit].IsValid() && !StaticTextures[unit]) ? bound_textures[unit].Get<Texture>().Get() : nullptr;
 	}
 
 	void RenderState::SetGBufferTextures(GLuint albedo, GLuint normal, GLuint position)
@@ -316,7 +322,7 @@ namespace Eon
 
 		for (int i = 0; i < bound_textures.size(); i++)
 		{
-			if (bound_textures[i] != lastState.bound_textures[i] && bound_textures[i].IsValid())
+			if (bound_textures[i] != lastState.bound_textures[i] && bound_textures[i].IsValid() && !StaticTextures[i])
 			{
 				bound_textures[i].Get<Texture>()->Bind(i);
 			}
@@ -341,7 +347,10 @@ namespace Eon
 
 		for (int i = 0; i < bound_textures.size(); i++)
 		{
-			SetTexture(AssetID::INVALID_ASSET_ID, i);
+			if (!StaticTextures[i])
+			{
+				SetTexture(AssetID::INVALID_ASSET_ID, i);
+			}
 		}
 
 		SetSSBO(0, 0);

@@ -56,7 +56,7 @@ namespace Eon
 		GLuint g_buffer_position = 0;
 		GLuint ssr_texture = 0;
 		Framebuffer* frame_buffer = nullptr;
-		std::array<TextureID, 32> bound_textures;
+		std::array<TextureID, 16> bound_textures;
 		GLenum depth_function = GL_LESS;
 		bool depth_mask = true;
 		bool depth_test = true;
