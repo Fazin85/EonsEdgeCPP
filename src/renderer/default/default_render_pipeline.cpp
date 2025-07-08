@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <random>
 #include "default_render_pipeline.h"
 #include "opaque_render_pass.h"
 #include "translucent_render_pass.h"
@@ -101,6 +102,31 @@ namespace Eon
 		return textureID;
 	}
 
+	static std::unique_ptr<Texture> CreateNoiseTex()
+	{
+		sf::Image img;
+		img.create(256, 256, sf::Color::Black);
+
+		std::random_device rd;
+		std::mt19937 gen(rd());
+
+		// For nextInt() - random int in full range
+		std::uniform_int_distribution dis(std::numeric_limits<int>::min(),
+			std::numeric_limits<int>::max());
+
+		for (int x = 0; x < 256; x++)
+		{
+			for (int y = 0; y < 256; y++)
+			{
+				int color = dis(gen) | (255 << 24);
+				img.setPixel(x, y, sf::Color(color));
+			}
+		}
+
+		img.saveToFile("noise.png");
+		return std::make_unique<Texture>(img, false);
+	}
+
 	DefaultRenderPipeline::DefaultRenderPipeline()
 	{
 		Framebuffer::FramebufferSpec spec;
@@ -139,6 +165,9 @@ namespace Eon
 		glActiveTexture(GL_TEXTURE15);
 		glBindTexture(GL_TEXTURE_3D, skytex);
 		//render_passes.emplace_back(std::make_unique<SSRRenderPass>(*this, *ssr_buffer));
+
+		std::unique_ptr<Texture> noisetex = CreateNoiseTex();
+		noisetex->Bind(14);
 	}
 
 	void DefaultRenderPipeline::BeginFrame()

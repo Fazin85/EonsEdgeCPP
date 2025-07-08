@@ -30,6 +30,67 @@ in vec2 texCoord;
 in vec3 color;
 in vec3 normal;
 
+mat3 getTBN() {
+    vec3 N = normalize(normal);
+    
+    // For axis-aligned blocks, use consistent tangent space
+    vec3 T = vec3(1, 0, 0);
+    vec3 B = vec3(0, 1, 0);
+    
+    // Adjust based on face orientation
+    if (abs(N.x) > 0.9) {
+        T = vec3(0, 0, 1);
+        B = vec3(0, 1, 0);
+    } else if (abs(N.z) > 0.9) {
+        T = vec3(1, 0, 0);  
+        B = vec3(0, 1, 0);
+    }
+    
+    // Ensure proper handedness
+    if (dot(cross(T, B), N) < 0.0) {
+        T = -T;
+    }
+    
+    return mat3(T, B, N);
+}
+
+vec3 GetWaterSurface(vec3 worldPos, vec3 viewDir, vec3 lightDir, vec3 lightColor, vec3 cameraPos) {
+    //vec3 worldPos, vec3 tangentViewDir, float viewDist;
+    //INVERT VIEWDIR?
+    vec3 tangentViewDir = transpose(getTBN()) * viewDir;
+    
+    // Distance-based factors
+    float dist = length(worldPos - cameraPos);
+    float distanceFactor = 1.0 / (1.0 + dist * 0.01);
+
+    vec3 wn = waterNormal(worldPos, tangentViewDir, dist);
+
+    //vec3 wn = normalize(vec3(wnd.y * 1.5, 12.0, wnd.z * 1.5));
+    //vec3 wn = vec3(0.0, 1.0, 0.0);
+
+    
+    // Perturbed reflection
+    vec3 r = reflect(viewDir, wn);
+    vec2 perturbOffset = worldPos.xz * 0.1 + elapsedTime * 0.3;
+    vec2 perturbNoise = Noised(perturbOffset).xy * 0.02;
+    r.xz += perturbNoise * (1.0 - abs(r.y));
+    r = normalize(r);
+    
+    // Fresnel
+    float F0 = 0.02;
+    float cosTheta = max(0.0, dot(-viewDir, wn));
+    float fresnel = F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
+    fresnel = mix(0.75, 1.0, fresnel);
+    
+    // Get reflection color
+    vec3 reflectedRayStart = GetPlanetPosition(worldPos);
+    vec3 worldCloudPosition = vec3(worldPos);
+    worldCloudPosition.x += elapsedTime * 10.0;
+    vec3 refl = GetSkyColor(reflectedRayStart, r, INFINITY, lightDir, lightColor, worldCloudPosition);
+    
+    return refl * fresnel;
+}
+
 void main()
 {
     vec4 tex = texture(albedoMap, texCoord);

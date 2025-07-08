@@ -129,6 +129,7 @@ namespace Eon
 		render_pipeline->SetGlobalUniform("objectColor", glm::vec3(1.0f, 1.0f, 1.0f));
 		render_pipeline->SetGlobalUniform("shininess", 16.0f);
 		render_pipeline->SetGlobalUniform("blockSampler", 1);
+		render_pipeline->SetGlobalUniform("noisetex", 14);
 		render_pipeline->SetGlobalUniform("elapsedTime", elapsedTime);
 		render_pipeline->SetGlobalUniform("cameraWorldPos", player->Position());
 

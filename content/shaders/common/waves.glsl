@@ -47,10 +47,7 @@ float waveGerstener(vec2 pos, float t, float steepness, float amp, float length,
 }
 
 float waterWaves(vec3 pos, float viewDist) {
-    //float time  = frameTimeCounter * 0.76;
-    float time = elapsedTime;
-
-    //if (matID == 103) time = 0.0;
+    float time = elapsedTime * 0.76;
 
     vec2 p      = pos.xz+pos.y*rcp(pi);
 
