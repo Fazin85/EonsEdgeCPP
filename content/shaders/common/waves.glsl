@@ -1,12 +1,13 @@
 //uniform vec3 RWeatherParams;
 
-const float waterNormalOctaves = 4;
+const float waterNormalOctaves = 5;
 const float pi      = radians(180.0);
 const float tau     = radians(360.0);
 
 float rcp(int x)    { return 1.0 / (float(x)); }
 float rcp(float x)  { return 1.0 / x; }
 vec2 rcp(vec2 x)    { return 1.0 / x; }
+vec3 rcp(vec3 x)    { return 1.0 / x; }
 
 vec2 cubeSmooth(vec2 x) 
 {
@@ -142,4 +143,92 @@ vec3 waterNormal(vec3 worldPos, vec3 tangentViewDir, float viewDist) {
         delta      -= waterWaves(pos + vec3(-dstep, 0.0, -dstep), viewDist);
 
     return normalize(vec3(-delta.x, 2.0 * dstep, -delta.y));
+}
+
+const float waterCoeffRed = 8; //[1 2 3 4 5 6 7 8 9 10]
+const float waterCoeffGreen = 4; //[1 2 3 4 5 6 7 8 9 10]
+const float waterCoeffBlue = 3; //[1 2 3 4 5 6 7 8 9 10]
+const float waterCoeffScatter = 3; //[1 2 3 4 5 6 7 8 9 10]
+
+const vec3 waterExtinctionCoeff = vec3(waterCoeffRed, waterCoeffGreen, waterCoeffBlue) * 1e-2;
+const vec3 waterScatterCoeff = vec3(waterCoeffScatter) * 1e-2;
+const vec3 waterAttenCoeff = (waterExtinctionCoeff + waterScatterCoeff) * 4.0;
+const vec3 waterAbsorbCoeff = (waterExtinctionCoeff + waterScatterCoeff);
+
+// Utility functions
+
+const uint waterVolMinSteps = 3;
+const float waterVolAdaptiveSteps = 9;
+const float waterVolClipDist = 48.0;
+
+float maxOf(vec2 a)         { return max(a.x, a.y); }
+float maxOf(vec3 a)         { return max(a.x, max(a.y, a.z)); }
+float maxOf(float a, float b, float c) { return max(a, max(b, c)); }
+float maxOf(vec4 a)         { return max(a.x, max(a.y, max(a.z, a.w))); }
+
+float sqr(float x)          { return x * x; }
+
+const float rLog2 = 1.0/(log(2.0));
+
+vec3 expf(vec3 x) 
+{
+    return exp2((x)*rLog2);
+}
+
+vec2 expf(vec2 x) 
+{
+    return exp2((x)*rLog2);
+}
+
+float mieHG(float cosTheta, float g) {
+    float mie   = 1.0 + sqr(g) - 2.0*g*cosTheta;
+        mie     = (1.0 - sqr(g)) / ((4.0*pi) * mie*(mie*0.5+0.5));
+    return mie;
+}
+
+vec3 waterColor(vec3 scenePos, vec3 startPos0, vec3 worldDir, bool isSky, float dither, vec3 skyColor, float vDotL) 
+{
+    float endDist   = isSky ? waterVolClipDist : length(scenePos);
+
+    vec3 startPos   = startPos0;
+    vec3 endPos     = isSky ? startPos0 + worldDir * waterVolClipDist : scenePos;
+        if (distance(startPos, endPos) > waterVolClipDist) endPos = startPos0 + waterVolClipDist * worldDir;
+
+    float baseStep  = length(endPos - startPos);
+    float stepCoeff = saturate(baseStep / waterVolClipDist);
+
+    uint steps      = waterVolMinSteps + uint(stepCoeff * waterVolAdaptiveSteps);
+
+    vec3 rStep      = (endPos - startPos) / float(steps);
+    vec3 rPos       = startPos + rStep * dither;
+    float rLength   = length(rStep);
+
+    vec3 transmittance = vec3(1.0);
+
+    float phase     = mieHG(vDotL, 0.7);
+    float phaseIso  = 0.25 * rcp(pi);
+        phase       = mix(phase, phaseIso, 0.3);
+    mat2x3 scattering = mat2x3(0.0);
+    uint i = 0;
+    do {
+        rPos += rStep; //shadowPos += shadowStep;
+        if (length(rPos) > length(scenePos) && !isSky) break;
+        if (distance(startPos, rPos) > waterVolClipDist) continue;
+        if (maxOf(transmittance) < 0.01) break;
+
+        float stepRho = rLength;
+
+        scattering[1]  += transmittance;
+
+        transmittance  *= expf(-waterAttenCoeff * stepRho);
+
+    } while (++i < steps);
+
+    vec3 attenMul   = (1.0 - expf(-waterAttenCoeff * rLength)) * rcp(waterAttenCoeff);
+
+    scattering[0]  *= waterScatterCoeff * attenMul * phase;
+    scattering[1]  *= waterScatterCoeff * attenMul;
+
+    vec3 color  = scattering[1] * skyColor;
+    return color;
 }

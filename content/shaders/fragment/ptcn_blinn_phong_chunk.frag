@@ -67,8 +67,8 @@ vec3 GetWaterSurface(vec3 worldPos, vec3 viewDir, vec3 lightDir, vec3 lightColor
 
     //vec3 wn = normalize(vec3(wnd.y * 1.5, 12.0, wnd.z * 1.5));
     //vec3 wn = vec3(0.0, 1.0, 0.0);
+    //vec3 color = calculateWaterColorCameraDistance(worldPos - cameraPos, vec3(1.0), 1.0, 0.0);
 
-    
     // Perturbed reflection
     vec3 r = reflect(viewDir, wn);
     vec2 perturbOffset = worldPos.xz * 0.1 + elapsedTime * 0.3;
@@ -87,8 +87,11 @@ vec3 GetWaterSurface(vec3 worldPos, vec3 viewDir, vec3 lightDir, vec3 lightColor
     vec3 worldCloudPosition = vec3(worldPos);
     worldCloudPosition.x += elapsedTime * 10.0;
     vec3 refl = GetSkyColor(reflectedRayStart, r, INFINITY, lightDir, lightColor, worldCloudPosition);
+
+    vec3 relativePos = worldPos - cameraPos;
+    vec3 color = waterColor(relativePos + viewDir * 10.0, relativePos, viewDir, false, 0.0, refl, dot(viewDir, lightDir));
     
-    return refl * fresnel;
+    return color * 2.0;
 }
 
 void main()
