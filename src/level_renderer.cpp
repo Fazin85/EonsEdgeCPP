@@ -153,26 +153,30 @@ namespace Eon
 			return;
 		}
 
-		auto chunk = level.GetChunk(chunkPosition);
-		if (chunk)
+		std::shared_ptr<Chunk> chunk = level.GetChunk(chunkPosition);
+		if (!chunk)
 		{
-			ChunkRendererCreationContext context{ chunk, 1, chunk->Position().x, chunk->Position().z, *chunk };
-
-			std::unique_ptr<ChunkRendererContainer> chunkRenderer = chunk_renderer_container_provider->ProvideRenderer(context);
-
-			if (chunkRenderer)
-			{
-				if (chunk_renderers.contains(chunkPosition))
-				{
-					chunk_renderers.erase(chunkPosition);
-				}
-
-				chunk_renderers[chunkPosition] = std::move(chunkRenderer);
-				chunk_renderers[chunkPosition]->Setup();
-
-				MarkCanUnloadForMeshing(chunkPosition, true);
-			}
+			return;
 		}
+
+		ChunkRendererCreationContext context{ chunk, 1, chunk->Position().x, chunk->Position().z, *chunk };
+
+		std::unique_ptr<ChunkRendererContainer> chunkRenderer = chunk_renderer_container_provider->ProvideRenderer(context);
+
+		if (!chunkRenderer)
+		{
+			return;
+		}
+
+		if (chunk_renderers.contains(chunkPosition))
+		{
+			chunk_renderers.erase(chunkPosition);
+		}
+
+		chunk_renderers[chunkPosition] = std::move(chunkRenderer);
+		chunk_renderers[chunkPosition]->Setup();
+
+		MarkCanUnloadForMeshing(chunkPosition, true);
 	}
 
 	void LevelRenderer::SortRenderersByDistance(std::vector<std::pair<ChunkRendererContainer*, float>>& renderers, glm::dvec3 cameraPosition) const
