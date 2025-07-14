@@ -17,6 +17,7 @@
 #include <memory>
 #include <unordered_map>
 #include <vector>
+#include <set>
 
 namespace Eon
 {
@@ -37,11 +38,21 @@ namespace Eon
 		void OnChunkUnloaded(std::shared_ptr<Chunk> chunk) override;
 
 	private:
+		void BuildLODStructure(glm::dvec3 cameraPosition, const Frustum& frustum,
+			std::set<ChunkPosition>& requiredChunks);
+		void RefineChunk(const ChunkPosition& chunkPos, glm::dvec3 cameraPosition,
+			const Frustum& frustum, std::set<ChunkPosition>& requiredChunks);
+		bool ShouldRefineChunk(const ChunkPosition& chunkPos, glm::dvec3 cameraPosition);
+		void RemoveUnusedChunks(const std::set<ChunkPosition>& requiredChunks);
 		void SortRenderersByDistance(std::vector<std::pair<ChunkRendererContainer*, float>>& renderers, glm::dvec3 cameraPosition) const;
 		void SortChunksByDistance(std::vector<ChunkPosition>& chunks, glm::dvec3 cameraPosition) const;
 		void ProcessSingleChunkMesh();
 		bool CanChunkBeMeshed(ChunkPosition position, const Frustum* frustum);
 		void MarkCanUnloadForMeshing(ChunkPosition position, bool canUnload);
+
+		// LOD configuration
+		static constexpr int MAX_LOD_LEVEL = 8; // Maximum LOD multiplier
+		static constexpr double LOD_SWITCH_DISTANCE = CHUNK_WIDTH * 2.5; // Distance to switch LOD
 
 		std::vector<ChunkPosition> chunks_to_mesh;
 		std::unique_ptr<ChunkRendererContainerProvider> chunk_renderer_container_provider;

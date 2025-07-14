@@ -138,6 +138,119 @@ namespace Eon
 		RemoveMesh(chunk->Position());
 	}
 
+	void LevelRenderer::BuildLODStructure(glm::dvec3 cameraPosition, const Frustum& frustum,
+		std::set<ChunkPosition>& requiredChunks)
+	{
+		// Start with maximum LOD and recursively refine
+		int maxLod = MAX_LOD_LEVEL;
+		int maxDistance = GameSettings.render_distance * CHUNK_WIDTH;
+
+		// Calculate the bounds for maximum LOD
+		glm::ivec2 cameraChunk = glm::ivec2(
+			static_cast<int>(cameraPosition.x) / CHUNK_WIDTH * CHUNK_WIDTH,
+			static_cast<int>(cameraPosition.z) / CHUNK_WIDTH * CHUNK_WIDTH
+		);
+
+		int maxChunkSize = CHUNK_WIDTH * maxLod;
+
+		// Generate initial large chunks
+		for (int x = cameraChunk.x - maxDistance; x <= cameraChunk.x + maxDistance; x += maxChunkSize)
+		{
+			for (int z = cameraChunk.y - maxDistance; z <= cameraChunk.y + maxDistance; z += maxChunkSize)
+			{
+				// Snap to LOD grid
+				int snappedX = (x / maxChunkSize) * maxChunkSize;
+				int snappedZ = (z / maxChunkSize) * maxChunkSize;
+
+				ChunkPosition chunkPos(snappedX, snappedZ, maxLod);
+				RefineChunk(chunkPos, cameraPosition, frustum, requiredChunks);
+			}
+		}
+	}
+
+	void LevelRenderer::RefineChunk(const ChunkPosition& chunkPos, glm::dvec3 cameraPosition,
+		const Frustum& frustum, std::set<ChunkPosition>& requiredChunks)
+	{
+		// Check if chunk is within render distance
+		glm::dvec3 chunkCenter = glm::dvec3(
+			chunkPos.x + chunkPos.GetWorldSize() / 2.0,
+			0,
+			chunkPos.z + chunkPos.GetWorldSize() / 2.0
+		);
+
+		double distance = glm::distance(cameraPosition, chunkCenter);
+		double maxDistance = GameSettings.render_distance * CHUNK_WIDTH;
+
+		if (distance > maxDistance)
+		{
+			return; // Too far away
+		}
+
+		// Check frustum culling
+		AABB chunkAABB{ glm::dvec3(chunkPos.GetWorldSize()) };
+		chunkAABB.position = chunkCenter;
+
+		if (!frustum.BoxInFrustum(chunkAABB))
+		{
+			return; // Not visible
+		}
+
+		// Determine if we should refine this chunk
+		bool shouldRefine = ShouldRefineChunk(chunkPos, cameraPosition);
+
+		if (shouldRefine && chunkPos.lod > 1)
+		{
+			// Refine into smaller chunks
+			auto children = chunkPos.GetChildren();
+			for (const auto& child : children)
+			{
+				RefineChunk(child, cameraPosition, frustum, requiredChunks);
+			}
+		}
+		else
+		{
+			// Use this chunk at current LOD
+			requiredChunks.insert(chunkPos);
+		}
+	}
+
+	bool LevelRenderer::ShouldRefineChunk(const ChunkPosition& chunkPos, glm::dvec3 cameraPosition)
+	{
+		if (chunkPos.lod == 1)
+		{
+			return false; // Cannot refine further
+		}
+
+		glm::dvec3 chunkCenter = glm::dvec3(
+			chunkPos.x + chunkPos.GetWorldSize() / 2.0,
+			0,
+			chunkPos.z + chunkPos.GetWorldSize() / 2.0
+		);
+
+		double distance = glm::distance(cameraPosition, chunkCenter);
+		double lodSwitchDistance = LOD_SWITCH_DISTANCE * chunkPos.lod;
+
+		return distance < lodSwitchDistance;
+	}
+
+	void LevelRenderer::RemoveUnusedChunks(const std::set<ChunkPosition>& requiredChunks)
+	{
+		std::vector<ChunkPosition> toRemove;
+
+		for (const auto& [chunkPos, renderer] : chunk_renderers)
+		{
+			if (requiredChunks.find(chunkPos) == requiredChunks.end())
+			{
+				toRemove.push_back(chunkPos);
+			}
+		}
+
+		for (const auto& chunkPos : toRemove)
+		{
+			RemoveMesh(chunkPos);
+		}
+	}
+
 	void LevelRenderer::ProcessSingleChunkMesh()
 	{
 		if (chunks_to_mesh.empty())
