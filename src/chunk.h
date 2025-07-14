@@ -7,6 +7,7 @@
 #include "chunk_section.h"
 #include "aabb.h"
 #include "block_entity.h"
+#include "block_provider.h"
 
 #include <array>
 #include <memory>
@@ -37,7 +38,7 @@ namespace Eon
 {
 	class Level;
 
-	class Chunk
+	class Chunk : public BlockProvider
 	{
 	public:
 		struct ColumnHeights {

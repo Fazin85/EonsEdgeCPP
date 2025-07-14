@@ -2,6 +2,7 @@
 #include "log.h"
 #include "mesh.h"
 #include "block_texture_provider.h"
+#include "scope_timer.h"
 
 namespace Eon
 {
@@ -9,25 +10,15 @@ namespace Eon
 	{
 	}
 
-	std::unique_ptr<ChunkRendererContainer> DefaultChunkRendererContainerProvider::ProvideRenderer(ChunkPosition inChunkPosition)
+	std::unique_ptr<ChunkRendererContainer> DefaultChunkRendererContainerProvider::ProvideRenderer(ChunkRendererCreationContext& creationContext)
 	{
-		auto chunk = level.GetChunk(inChunkPosition);
-
-		if (!chunk)
-		{
-			//TODO: This isn't actually an error, if it happens more we should just remove it.
-			std::stringstream ss;
-			ss << "ProvideRenderer::Failed to get chunk at " << inChunkPosition.x << "," << inChunkPosition.z << "\n";
-			throw std::runtime_error(ss.str());
-		}
-
-		glm::ivec3 chunkPosition(inChunkPosition.x, 0, inChunkPosition.z);
+		auto& chunk = creationContext.chunk;
 
 		ChunkMeshConstructionData opaqueMeshData{};
 		ChunkMeshConstructionData cutoutMeshData{};
 		ChunkMeshConstructionData translucentMeshData{};
 
-		int lowest = CalculateLowestPoint(inChunkPosition, chunk->GetChunkHeights().lowest);
+		int lowest = CalculateLowestPoint(chunk->Position(), chunk->GetChunkHeights().lowest);
 
 		for (int x = 0; x < CHUNK_WIDTH; x++)
 		{
@@ -36,19 +27,19 @@ namespace Eon
 				for (int y = lowest; y <= chunk->GetColumnHeights(x, z).highest; y++)
 				{
 					glm::ivec3 position(x, y, z);
-					const Block& block = chunk->GetBlock(x, y, z);
+					const Block& block = creationContext.blockProvider.GetBlock(x, y, z);
 
 					if (block.GetID() == 0)
 					{
 						continue;
 					}
 
-					const Block& topBlock = y < CHUNK_HEIGHT - 1 ? chunk->GetBlock(x, y + 1, z) : BlockRegistry::GetBlockByID(0);
-					const Block& bottomBlock = y > 0 ? chunk->GetBlock(x, y - 1, z) : BlockRegistry::GetBlockByID(1);
-					const Block& leftBlock = chunk->GetBlock(x - 1, y, z);
-					const Block& rightBlock = chunk->GetBlock(x + 1, y, z);
-					const Block& frontBlock = chunk->GetBlock(x, y, z + 1);
-					const Block& backBlock = chunk->GetBlock(x, y, z - 1);
+					const Block& topBlock = y < CHUNK_HEIGHT - 1 ? creationContext.blockProvider.GetBlock(x, y + 1, z) : BlockRegistry::GetBlockByID(0);
+					const Block& bottomBlock = y > 0 ? creationContext.blockProvider.GetBlock(x, y - 1, z) : BlockRegistry::GetBlockByID(1);
+					const Block& leftBlock = creationContext.blockProvider.GetBlock(x - 1, y, z);
+					const Block& rightBlock = creationContext.blockProvider.GetBlock(x + 1, y, z);
+					const Block& frontBlock = creationContext.blockProvider.GetBlock(x, y, z + 1);
+					const Block& backBlock = creationContext.blockProvider.GetBlock(x, y, z - 1);
 
 					auto& currentMeshData = GetMeshData(block, opaqueMeshData, cutoutMeshData, translucentMeshData);
 

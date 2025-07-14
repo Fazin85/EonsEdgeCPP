@@ -2,13 +2,21 @@
 
 namespace Eon
 {
-	ScopeTimer::ScopeTimer(const std::string name)
+	ScopeTimer::ScopeTimer(const std::string name, TimeUnit unit)
 	{
 		this->name = name;
+		this->unit = unit;
 	}
 
 	ScopeTimer::~ScopeTimer()
 	{
-		EON_INFO(name + ": " + std::to_string(clock.getElapsedTime().asMilliseconds()));
+		if (unit == TimeUnit::Milliseconds)
+		{
+			EON_INFO(name + ": " + std::to_string(clock.getElapsedTime().asMilliseconds()));
+		}
+		else if (unit == TimeUnit::Microseconds)
+		{
+			EON_INFO(name + ": " + std::to_string(clock.getElapsedTime().asMicroseconds()));
+		}
 	}
 }

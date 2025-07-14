@@ -212,6 +212,7 @@
     <ClInclude Include="src\assert.h" />
     <ClInclude Include="src\asset_manager.h" />
     <ClInclude Include="src\block_entity_test.h" />
+    <ClInclude Include="src\block_provider.h" />
     <ClInclude Include="src\block_texture_provider.h" />
     <ClInclude Include="src\byte_buffer.h" />
     <ClInclude Include="src\chunk_data_pool.h" />

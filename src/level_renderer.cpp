@@ -153,19 +153,25 @@ namespace Eon
 			return;
 		}
 
-		std::unique_ptr<ChunkRendererContainer> chunkRenderer = chunk_renderer_container_provider->ProvideRenderer(chunkPosition);
-
-		if (chunkRenderer)
+		auto chunk = level.GetChunk(chunkPosition);
+		if (chunk)
 		{
-			if (chunk_renderers.contains(chunkPosition))
+			ChunkRendererCreationContext context{ chunk, 1, chunk->Position().x, chunk->Position().z, *chunk };
+
+			std::unique_ptr<ChunkRendererContainer> chunkRenderer = chunk_renderer_container_provider->ProvideRenderer(context);
+
+			if (chunkRenderer)
 			{
-				chunk_renderers.erase(chunkPosition);
+				if (chunk_renderers.contains(chunkPosition))
+				{
+					chunk_renderers.erase(chunkPosition);
+				}
+
+				chunk_renderers[chunkPosition] = std::move(chunkRenderer);
+				chunk_renderers[chunkPosition]->Setup();
+
+				MarkCanUnloadForMeshing(chunkPosition, true);
 			}
-
-			chunk_renderers[chunkPosition] = std::move(chunkRenderer);
-			chunk_renderers[chunkPosition]->Setup();
-
-			MarkCanUnloadForMeshing(chunkPosition, true);
 		}
 	}
 

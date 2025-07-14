@@ -7,6 +7,7 @@
 #include "abstract_level_generator.h"
 #include "chunk_unloaded_event_listener.h"
 #include "frustum.h"
+#include "block_provider.h"
 
 #include <array>
 #include <fstream>

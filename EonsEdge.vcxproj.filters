@@ -461,6 +461,9 @@
     <ClInclude Include="src\renderer\frame_buffer_render_pass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\block_provider.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="vcpkg.json" />

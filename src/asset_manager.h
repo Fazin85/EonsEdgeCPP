@@ -32,7 +32,7 @@ namespace Eon
 		template<typename T>
 		Asset<T> Get() const
 		{
-			return AssetManager::GetAssetByID<T>(*this);
+			return AssetManager::template GetAssetByID<T>(*this);
 		}
 
 		bool IsValid() const { return id != INVALID_ID; }

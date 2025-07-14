@@ -9,11 +9,18 @@ namespace Eon
 	class ScopeTimer
 	{
 	public:
-		ScopeTimer(const std::string name);
+		enum class TimeUnit
+		{
+			Milliseconds,
+			Microseconds
+		};
+
+		ScopeTimer(const std::string name, TimeUnit unit = TimeUnit::Milliseconds);
 		~ScopeTimer();
 
 	private:
 		sf::Clock clock;
 		std::string name;
+		TimeUnit unit;
 	};
 }
