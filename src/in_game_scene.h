@@ -11,6 +11,7 @@
 #include "framebuffer.h"
 #include "renderer/default/default_render_pipeline.h"
 #include "renderer/render_command_pool.h"
+#include "quadtree_manager.h"
 
 namespace Eon
 {
@@ -31,6 +32,7 @@ namespace Eon
 		std::unique_ptr<LevelRenderer> level_renderer;
 		std::unique_ptr<Skybox> skybox;
 		std::unique_ptr<RenderPipeline> render_pipeline;
+		std::unique_ptr<QuadtreeManager> quadtree_manager;
 	};
 }
 

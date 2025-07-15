@@ -213,6 +213,12 @@
     <ClCompile Include="src\renderer\frame_buffer_render_pass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\quadtree_node.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\quadtree_manager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\camera.h">
@@ -462,6 +468,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\block_provider.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\quadtree_node.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\quadtree_manager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

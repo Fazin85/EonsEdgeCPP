@@ -1,4 +1,5 @@
 #include "window.h"
+#include "quadtree_node.h"
 
 namespace Eon
 {

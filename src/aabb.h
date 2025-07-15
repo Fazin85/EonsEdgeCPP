@@ -11,6 +11,11 @@ namespace Eon
 		{
 		}
 
+		AABB(const glm::dvec3& pos, const glm::dvec3& dim)
+			: dimensions(dim), position(pos)
+		{
+		}
+
 		void Update(const glm::dvec3& location)
 		{
 			position = location;

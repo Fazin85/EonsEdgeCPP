@@ -181,6 +181,8 @@
     <ClCompile Include="src\opengl_debug.cpp" />
     <ClCompile Include="src\plane_mesh.cpp" />
     <ClCompile Include="src\player.cpp" />
+    <ClCompile Include="src\quadtree_manager.cpp" />
+    <ClCompile Include="src\quadtree_node.cpp" />
     <ClCompile Include="src\renderer\batched_render_pass.cpp" />
     <ClCompile Include="src\renderer\command\mesh_render_command_colored.cpp" />
     <ClCompile Include="src\renderer\command\render_command_variant.cpp" />
@@ -247,6 +249,8 @@
     <ClInclude Include="src\ogt_vox.h" />
     <ClInclude Include="src\opengl_debug.h" />
     <ClInclude Include="src\plane_mesh.h" />
+    <ClInclude Include="src\quadtree_manager.h" />
+    <ClInclude Include="src\quadtree_node.h" />
     <ClInclude Include="src\renderer\batched_render_pass.h" />
     <ClInclude Include="src\renderer\command\mesh_render_command_colored.h" />
     <ClInclude Include="src\renderer\command\render_command_variant.h" />

@@ -49,6 +49,9 @@ namespace Eon
 
 		render_pipeline = std::make_unique<DefaultRenderPipeline>();
 		command_pool = std::make_unique<RenderCommandPool>();
+
+		quadtree_manager = std::make_unique<QuadtreeManager>();
+		EON_INFO("Quadtree node count: " + std::to_string(QuadtreeNode::GetNodeCount()));
 	}
 
 	void InGameScene::Update(float dt)
